@@ -571,6 +571,35 @@ a {
   }
 }
 
+/* Meeting pack print styles */
+.meeting-pack { padding: 1rem }
+.meeting-header { display:flex; justify-content:space-between; align-items:center; gap:1rem; margin:0.75rem 0 }
+.meeting-kpis { display:flex; gap:0.5rem }
+.meeting-kpis .kpi-card { padding:0.5rem 0.8rem; border-radius:8px; border:1px solid var(--border); background:var(--surface); min-width:100px }
+.meeting-title { margin:0 }
+.meeting-meta { margin:0; color:var(--muted) }
+.section-title { margin:0 0 0.5rem; color:var(--navy); font-weight:700 }
+.summary-table { width:100%; border-collapse:collapse; margin-bottom:0.5rem }
+.summary-table th, .summary-table td { padding:0.35rem 0.4rem; border-bottom:1px solid var(--border); text-align:left }
+
+.two-column { display:grid; grid-template-columns: 1fr 340px; gap:1rem }
+
+/* Print layout */
+@page { size: A4 portrait; margin: 18mm }
+
+@media print {
+  body { background: white }
+  .page { margin: 0; box-shadow: none }
+  .meeting-pack { padding: 6mm }
+  .meeting-section { page-break-inside: avoid; margin-bottom: 8mm }
+  .meeting-header, .meeting-kpis { page-break-inside: avoid }
+  .summary-table thead { display: table-header-group }
+  .summary-table tr { page-break-inside: avoid }
+  .priority-table table thead { display: table-header-group }
+  .priority-table table tr { page-break-inside: avoid }
+  .meeting-print-actions { display:none }
+}
+
 /* Executive dashboard styles */
 .executive-page {
   display: flex;

@@ -4,6 +4,7 @@ import ExecutivePage from './modules/executive/ExecutivePage'
 import UploadPage from './modules/upload/UploadPage'
 import IntelligencePage from './modules/intelligence/IntelligencePage'
 import MeetingPackPage from './modules/meetingpack/MeetingPackPage'
+import ValidationPage from './modules/validation/ValidationPage'
 
 import { useEffect, useState } from 'react'
 
@@ -20,6 +21,8 @@ function App() {
     switch (path) {
       case '/upload-data':
         return <UploadPage />
+      case '/validation':
+        return <ValidationPage />
       case '/workforce-intelligence':
         return <IntelligencePage />
       case '/meeting-pack':

@@ -5,6 +5,7 @@ import { useUploadContext } from '../../modules/upload/useUploadContext'
 import { extractWorkbookLike } from '../../services/excelReader'
 import { buildParserReport } from '../../services/parserService'
 import { exportReportToExcel } from '../../services/excel/excelExport'
+import { exportReportToPdf } from '../../services/pdf/pdfExport'
 import KpiCard from './components/KpiCard'
 import Gauge from './components/Gauge'
 import PriorityTable from './components/PriorityTable'
@@ -74,8 +75,9 @@ function ExecutivePage() {
         <KpiCard title="District Readiness" value={formatPct(report.district.trained, report.district.workforce)} subValue={`${report.district.readiness.toFixed(1)}%`} />
         <KpiCard title="Planning Gap" value={String(kpis.gap)} />
         <KpiCard title="Batch Requirement" value={String(kpis.batches)} />
-        <div style={{ display: 'flex', alignItems: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <button className="upload-button" onClick={() => exportReportToExcel(report)}>Export Excel</button>
+          <button className="upload-button" onClick={() => exportReportToPdf(report)}>Export PDF</button>
         </div>
       </div>
 

@@ -7,6 +7,7 @@ import PlanningWorkspacePage from './modules/planning/PlanningWorkspacePage'
 import MeetingPackPage from './modules/meetingpack/MeetingPackPage'
 import PresentationPage from './modules/presentation/PresentationPage'
 import ValidationPage from './modules/validation/ValidationPage'
+import AdminPage from './modules/admin/AdminPage'
 
 import { useEffect, useState } from 'react'
 
@@ -33,6 +34,8 @@ function App() {
         return <MeetingPackPage />
       case '/presentation-mode':
         return <PresentationPage />
+      case '/admin':
+        return <AdminPage />
       case '/executive-dashboard':
       default:
         return <ExecutivePage />

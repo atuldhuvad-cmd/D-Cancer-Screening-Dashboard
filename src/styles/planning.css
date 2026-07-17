@@ -1,0 +1,89 @@
+.planning-workspace.page {
+  padding: 24px;
+}
+
+.scenario-grid {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.panel {
+  background: #ffffff;
+  border: 1px solid #dbe4ee;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 14px 28px rgba(15, 42, 74, 0.05);
+}
+
+.scenario-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+  color: #334e68;
+  font-size: 0.95rem;
+}
+
+.scenario-form input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d9e2ec;
+  border-radius: 10px;
+  font-size: 0.96rem;
+}
+
+.scenario-summary .comparison-row,
+.impact-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.comparison-row div,
+.impact-row div {
+  background: #f8fafc;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+}
+
+.ranking-block {
+  margin-bottom: 14px;
+}
+
+.ranking-block p,
+.scenario-summary p,
+.impact-row p {
+  margin: 0 0 6px;
+  color: #52606d;
+}
+
+.ranking-block strong,
+.scenario-summary strong,
+.impact-row strong {
+  font-size: 1.55rem;
+  color: #102a43;
+}
+
+.recommendation-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.recommendation-list li {
+  padding: 10px 0;
+  border-bottom: 1px solid #eef2f6;
+  color: #334e68;
+}
+
+@media (max-width: 940px) {
+  .scenario-grid,
+  .scenario-summary .comparison-row,
+  .impact-row {
+    grid-template-columns: 1fr;
+  }
+}

@@ -3,6 +3,7 @@ import { UploadProvider } from './modules/upload/UploadContext'
 import ExecutivePage from './modules/executive/ExecutivePage'
 import UploadPage from './modules/upload/UploadPage'
 import IntelligencePage from './modules/intelligence/IntelligencePage'
+import PlanningWorkspacePage from './modules/planning/PlanningWorkspacePage'
 import MeetingPackPage from './modules/meetingpack/MeetingPackPage'
 import ValidationPage from './modules/validation/ValidationPage'
 
@@ -25,6 +26,8 @@ function App() {
         return <ValidationPage />
       case '/workforce-intelligence':
         return <IntelligencePage />
+      case '/planning-workspace':
+        return <PlanningWorkspacePage />
       case '/meeting-pack':
         return <MeetingPackPage />
       case '/executive-dashboard':

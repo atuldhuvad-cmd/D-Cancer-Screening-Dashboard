@@ -1,0 +1,128 @@
+.presentation-page.page {
+  padding: 24px;
+  min-height: calc(100vh - 120px);
+  background: linear-gradient(180deg, #eef4fb 0%, #f7fbff 100%);
+}
+
+.presentation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.presentation-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.presentation-controls button {
+  border: none;
+  background: #0f766e;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.presentation-controls button:hover {
+  background: #115e59;
+}
+
+.presentation-slide {
+  background: #ffffff;
+  border: 1px solid #dbe4ee;
+  border-radius: 18px;
+  padding: 24px;
+  min-height: 68vh;
+  box-shadow: 0 14px 30px rgba(15, 42, 74, 0.08);
+}
+
+.presentation-empty {
+  background: #ffffff;
+  border: 1px dashed #cbd5e1;
+  border-radius: 18px;
+  padding: 32px;
+  text-align: center;
+  color: #475569;
+}
+
+.presentation-footer {
+  margin-top: 18px;
+  display: flex;
+  justify-content: space-between;
+  color: #486581;
+}
+
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.summary-chart-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.slide-pane {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.slide-section {
+  display: grid;
+  gap: 14px;
+}
+
+.summary-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.summary-detail-grid div,
+.mini-summary div {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.summary-detail-grid p,
+.mini-summary p {
+  margin: 0 0 6px;
+  color: #52606d;
+}
+
+.summary-detail-grid strong,
+.mini-summary strong {
+  font-size: 1.45rem;
+  color: #102a43;
+}
+
+.recommendation-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.recommendation-list li {
+  padding: 10px 0;
+  border-bottom: 1px solid #eef2f6;
+  color: #334e68;
+}
+
+@media (max-width: 1000px) {
+  .presentation-header,
+  .summary-chart-row,
+  .summary-detail-grid,
+  .kpi-row {
+    grid-template-columns: 1fr;
+  }
+}

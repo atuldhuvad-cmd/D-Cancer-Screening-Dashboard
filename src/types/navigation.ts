@@ -13,6 +13,7 @@ export const navigationItems: NavigationItem[] = [
   { label: 'Block Intelligence', path: '/block-intelligence' },
   { label: 'Facility Intelligence', path: '/facility-intelligence' },
   { label: 'Planning Workspace', path: '/planning-workspace' },
+  { label: 'Presentation Mode', path: '/presentation-mode' },
   { label: 'Meeting Pack', path: '/meeting-pack' },
   { label: 'Reports', path: '/reports' },
   { label: 'Settings', path: '/settings' },

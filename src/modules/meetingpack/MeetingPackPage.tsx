@@ -9,6 +9,7 @@ import PriorityList from './components/PriorityList'
 import BatchSummary from './components/BatchSummary'
 import Recommendations from './components/Recommendations'
 import type { CalculationReportData } from '../../types/calculation'
+import { exportReportToExcel } from '../../services/excel/excelExport'
 
 function MeetingPackPage() {
   const { staffingWorkbook } = useUploadContext()
@@ -105,6 +106,7 @@ function MeetingPackPage() {
 
       <div className="meeting-print-actions">
         <button className="upload-button" onClick={() => window.print()}>Print Meeting Pack</button>
+        <button className="upload-button" onClick={() => report && exportReportToExcel(report)}>Export Excel</button>
       </div>
     </section>
   )

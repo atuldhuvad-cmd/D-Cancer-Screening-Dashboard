@@ -1,12 +1,12 @@
 import MainLayout from './layouts/MainLayout'
 import { UploadProvider } from './modules/upload/UploadContext'
-import IntelligencePage from './modules/intelligence/IntelligencePage'
+import ExecutivePage from './modules/executive/ExecutivePage'
 
 function App() {
   return (
     <UploadProvider>
       <MainLayout>
-        <IntelligencePage />
+        <ExecutivePage />
       </MainLayout>
     </UploadProvider>
   )

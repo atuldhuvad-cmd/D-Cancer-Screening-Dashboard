@@ -570,3 +570,53 @@ a {
     grid-template-columns: 1fr;
   }
 }
+
+/* Executive dashboard styles */
+.executive-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.kpi-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.9rem 1rem;
+  text-align: center;
+}
+.kpi-title { margin: 0; color: var(--muted); font-weight:700; font-size:0.85rem }
+.kpi-value { margin:0.35rem 0 0; font-size:1.45rem; color:var(--navy); font-weight:800 }
+.kpi-sub { margin:0.2rem 0 0; color:var(--muted); font-size:0.85rem }
+
+.executive-grid { display: grid; grid-template-columns: 1fr 360px; gap: 1rem }
+.executive-left { display:flex; flex-direction:column; gap:1rem }
+.executive-right { display:flex; flex-direction:column; gap:1rem }
+
+.gauge { width: 100%; max-width: 420px; margin: 0 auto }
+
+.small-chart { background: var(--surface); border:1px solid var(--border); border-radius:12px; padding:0.8rem }
+.small-chart__title { margin:0 0 0.6rem; color:var(--navy); font-weight:700 }
+
+.priority-table { background: var(--surface); border:1px solid var(--border); border-radius:12px; padding:0.8rem }
+.priority-table h4 { margin:0 0 0.6rem }
+.priority-table table { width:100%; border-collapse:collapse }
+.priority-table th { text-align:left; color:var(--muted); font-size:0.85rem; padding:0.4rem 0 }
+.priority-table td { padding:0.25rem 0 }
+
+.dashboard-summary { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:0.8rem }
+
+@media (max-width: 960px) {
+  .kpi-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .executive-grid { grid-template-columns: 1fr }
+}
+
+@media (max-width: 640px) {
+  .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

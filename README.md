@@ -8,15 +8,30 @@ modern browser.
 
 - Works fully offline. Posters and settings are stored on your device (IndexedDB + LocalStorage).
 - Covers a full **365-day 2026 observance calendar** (imported from the supplied
-  spreadsheet), so every date has a real awareness topic.
-- Each day it auto-picks the awareness topic and can generate 6 posters
-  (English + Gujarati × Story / Feed / Square) from one template design.
+  spreadsheet), so every date has a real awareness topic — with **genuine Gujarati
+  titles for all 365 days**.
+- **Topic-specific bilingual content** (importance, 4 key points, call-to-action)
+  for every health subject; civic/national days use themed content and are clearly
+  **labelled as official vs studio-created** observances (no fake medical advice).
+- Each day it auto-picks the topic and generates 6 posters (English + Gujarati ×
+  Story / Feed / Square) from one template design.
+- **Overflow-protected rendering**: adaptive font sizing, line caps, footer
+  truncation and bounds checks so text never spills off the poster.
+- **Non-destructive versioning**: regenerating keeps previous versions; restore any
+  version from the Library. Generation and publishing are **atomic** (all-or-nothing).
+- **Movable observances** (Mother's/Father's/Friendship Day) are computed per year.
 - Sections: Home, Calendar, Poster Generator, Poster Library, Captions, Downloads,
   Publishing Log, Analytics, Settings.
 - Download individual images or a full ZIP (with `captions.json` + `metadata.json`).
-- Set your organisation name, logo, colours and hashtags in **Settings**.
+- Set organisation name, logo, QR image, colours, hashtags and image format in
+  **Settings**; clear posters or reset everything there too.
 
 Content uses only general, verified public-health advice — no invented statistics.
+
+**Scheduler note:** a single HTML file has no background process, so it generates
+the day's set the first time you open the app each day (not silently at 08:00 IST
+while closed). For a true unattended 08:00 run, trigger it from an external
+scheduler (n8n, Make, cron, Apps Script) — the JSON exports are built to feed those.
 
 ---
 

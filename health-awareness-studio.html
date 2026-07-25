@@ -151,8 +151,8 @@ table.tbl th{color:var(--muted);font-size:11.5px;text-transform:uppercase;letter
       <button data-page="settings"><span class="ic">⚙️</span> Settings</button>
     </nav>
     <div class="foot">
-      <div id="schedStatus">Scheduler: 08:00 IST</div>
-      <div style="margin-top:6px">Offline-capable • v1.0</div>
+      <div id="schedStatus" title="Generates the day's set the first time you open the app each day. See Settings for a real 08:00 IST scheduler.">Auto-generates on first open daily</div>
+      <div style="margin-top:6px">Offline-capable • v2.0</div>
     </div>
   </aside>
 
@@ -170,382 +170,77 @@ table.tbl th{color:var(--muted);font-size:11.5px;text-transform:uppercase;letter
 /* CATEGORIES (buckets) + calendar engine defined below, after AWARENESS overrides */
 
 // helper to build a topic entry compactly
-function T(m,d,cat,en,gu,imp_en,imp_gu,kp_en,kp_gu,cta_en,cta_gu,tags,icon){
-  return {month:m,day:d,category:cat,title_en:en,title_gu:gu,importance_en:imp_en,
-    importance_gu:imp_gu,keyPoints_en:kp_en,keyPoints_gu:kp_gu,cta_en:cta_en,cta_gu:cta_gu,
-    hashtags:tags,icon:icon};
-}
-const AWARENESS = [
-  T(1,30,'Health','World Leprosy Day','વિશ્વ રક્તપિત્ત દિવસ',
-    'Leprosy is curable. Early detection and full treatment prevent disability.',
-    'રક્તપિત્ત મટાડી શકાય છે. વહેલી તપાસ અને પૂરી સારવારથી અપંગતા અટકે છે.',
-    ['Watch for pale or reddish skin patches','Free treatment (MDT) is available at health centres','Leprosy does not spread by touch','No stigma — patients live normal lives'],
-    ['ત્વચા પર ફિક્કા કે લાલ ધબ્બા પર ધ્યાન આપો','આરોગ્ય કેન્દ્ર પર મફત સારવાર (MDT) ઉપલબ્ધ છે','સ્પર્શથી રક્તપિત્ત ફેલાતું નથી','ભેદભાવ નહીં — દર્દી સામાન્ય જીવન જીવે છે'],
-    'Notice a skin patch? Visit your nearest health centre today.',
-    'ત્વચા પર ધબ્બો દેખાય? આજે નજીકના આરોગ્ય કેન્દ્રે જાઓ.',
-    ['LeprosyFree','EarlyDetection','HealthForAll'],'ribbon'),
-  T(2,4,'Health','World Cancer Day','વિશ્વ કેન્સર દિવસ',
-    'Many cancers can be prevented or treated when found early.',
-    'ઘણા કેન્સર વહેલા ઓળખાય તો અટકાવી કે મટાડી શકાય છે.',
-    ['Avoid tobacco and limit alcohol','Eat more fruits and vegetables','Get recommended screenings on time','Know the warning signs of your body'],
-    ['તમાકુ ટાળો અને દારૂ મર્યાદિત કરો','વધુ ફળ અને શાકભાજી ખાઓ','સમયસર ભલામણ કરેલ તપાસ કરાવો','શરીરના ચેતવણી સંકેતો જાણો'],
-    'Early detection saves lives. Talk to your doctor about screening.',
-    'વહેલી તપાસ જીવન બચાવે છે. તપાસ માટે ડોક્ટરને મળો.',
-    ['WorldCancerDay','CloseTheCareGap','BeatCancer'],'ribbon'),
-  T(2,11,'Women','International Day of Women & Girls in Science','વિજ્ઞાનમાં મહિલા દિવસ',
-    'Encouraging girls in science builds a healthier, stronger society.',
-    'વિજ્ઞાનમાં દીકરીઓને પ્રોત્સાહન સ્વસ્થ, મજબૂત સમાજ બનાવે છે.',
-    ['Support girls to study science','Celebrate women scientists','Provide equal learning opportunities','Mentorship opens doors'],
-    ['દીકરીઓને વિજ્ઞાન ભણવા સાથ આપો','મહિલા વૈજ્ઞાનિકોને બિરદાવો','સમાન શિક્ષણ તક આપો','માર્ગદર્શન દ્વાર ખોલે છે'],
-    'Encourage a girl in your family to explore science.',
-    'તમારા પરિવારની દીકરીને વિજ્ઞાન તરફ પ્રોત્સાહિત કરો.',
-    ['WomenInScience','GirlsInSTEM'],'flask'),
-  T(3,8,'Women','International Women’s Day','આંતરરાષ્ટ્રીય મહિલા દિવસ',
-    'Women’s health and equality strengthen every family and community.',
-    'મહિલા આરોગ્ય અને સમાનતા દરેક પરિવાર અને સમાજને મજબૂત કરે છે.',
-    ['Regular health check-ups matter','Nutrition and rest are essential','Speak up against discrimination','Education empowers women'],
-    ['નિયમિત આરોગ્ય તપાસ જરૂરી છે','પોષણ અને આરામ આવશ્યક છે','ભેદભાવ સામે અવાજ ઉઠાવો','શિક્ષણ મહિલાને સશક્ત કરે છે'],
-    'Support the women around you — health, respect, opportunity.',
-    'આસપાસની મહિલાઓને સાથ આપો — આરોગ્ય, સન્માન, તક.',
-    ['IWD','WomensHealth','EqualityForAll'],'venus'),
-  T(3,24,'Health','World TB Day','વિશ્વ ક્ષય રોગ દિવસ',
-    'TB is preventable and curable with complete, on-time treatment.',
-    'ટીબી અટકાવી અને પૂરી, સમયસર સારવારથી મટાડી શકાય છે.',
-    ['Cough over 2 weeks? Get tested','TB diagnosis and treatment are free','Complete the full course of medicine','Cover your mouth while coughing'],
-    ['2 અઠવાડિયાથી ખાંસી? તપાસ કરાવો','ટીબીની તપાસ અને સારવાર મફત છે','દવાનો પૂરો કોર્સ કરો','ખાંસતી વખતે મોઢું ઢાંકો'],
-    'End TB together. Get tested at your nearest health centre.',
-    'સાથે મળી ટીબી હટાવીએ. નજીકના કેન્દ્રે તપાસ કરાવો.',
-    ['EndTB','TBHaregaDeshJeetega','WorldTBDay'],'lungs'),
-  T(4,7,'Health','World Health Day','વિશ્વ આરોગ્ય દિવસ',
-    'Good health for all begins with small daily habits.',
-    'બધા માટે સારું આરોગ્ય નાની રોજિંદી આદતોથી શરૂ થાય છે.',
-    ['Eat balanced, home-cooked meals','Stay active for 30 minutes daily','Drink safe water, wash hands','Sleep well and manage stress'],
-    ['સંતુલિત, ઘરનું ભોજન લો','રોજ 30 મિનિટ સક્રિય રહો','સ્વચ્છ પાણી પીઓ, હાથ ધોવો','સારી ઊંઘ લો, તણાવ ઓછો કરો'],
-    'Choose one healthy habit to start today.',
-    'આજથી એક સ્વસ્થ આદત શરૂ કરો.',
-    ['WorldHealthDay','HealthForAll'],'heart'),
-  T(4,25,'Health','World Malaria Day','વિશ્વ મેલેરિયા દિવસ',
-    'Malaria spreads through mosquito bites — and it is preventable.',
-    'મેલેરિયા મચ્છર કરડવાથી ફેલાય છે — અને અટકાવી શકાય છે.',
-    ['Sleep under a mosquito net','Remove stagnant water around home','Use repellents in the evening','Fever with chills? Get a blood test'],
-    ['મચ્છરદાની હેઠળ સૂઓ','ઘરની આસપાસ ભરાયેલું પાણી દૂર કરો','સાંજે મચ્છર ભગાડનાર વાપરો','ટાઢ સાથે તાવ? લોહીની તપાસ કરાવો'],
-    'Stop mosquito breeding — check your home this week.',
-    'મચ્છર ઉત્પત્તિ અટકાવો — આ અઠવાડિયે ઘર તપાસો.',
-    ['WorldMalariaDay','ZeroMalaria'],'mosquito'),
-  T(5,8,'Health','World Thalassaemia Day','વિશ્વ થેલેસેમિયા દિવસ',
-    'A simple blood test before marriage can prevent thalassaemia in children.',
-    'લગ્ન પહેલાં સાદી લોહીની તપાસ બાળકોમાં થેલેસેમિયા અટકાવી શકે છે.',
-    ['Get screened before marriage','Carrier testing is quick and safe','Regular transfusions help patients','Voluntary blood donation saves them'],
-    ['લગ્ન પહેલાં તપાસ કરાવો','કેરિયર તપાસ ઝડપી અને સલામત છે','નિયમિત રક્તદાન દર્દીને મદદ કરે છે','સ્વૈચ્છિક રક્તદાન તેમને બચાવે છે'],
-    'Know your status — get a thalassaemia screening test.',
-    'તમારી સ્થિતિ જાણો — થેલેસેમિયા તપાસ કરાવો.',
-    ['Thalassaemia','GetTested','DonateBlood'],'blood'),
-  T(5,31,'Health','World No Tobacco Day','વિશ્વ તમાકુ નિષેધ દિવસ',
-    'Quitting tobacco lowers your risk of cancer, heart and lung disease.',
-    'તમાકુ છોડવાથી કેન્સર, હૃદય અને ફેફસાના રોગનું જોખમ ઘટે છે.',
-    ['Every day without tobacco helps','Ask for help to quit — it works','Protect your family from smoke','Chewing tobacco harms too'],
-    ['તમાકુ વગરનો દરેક દિવસ મદદ કરે છે','છોડવા મદદ માંગો — તે કામ કરે છે','પરિવારને ધુમાડાથી બચાવો','ખાવાની તમાકુ પણ નુકસાનકારક'],
-    'Take the first step — quit tobacco today.',
-    'પહેલું પગલું ભરો — આજે તમાકુ છોડો.',
-    ['NoTobaccoDay','QuitTobacco','SayNoToTobacco'],'nosmoke'),
-  T(6,5,'Environment','World Environment Day','વિશ્વ પર્યાવરણ દિવસ',
-    'A clean environment is the foundation of good health.',
-    'સ્વચ્છ પર્યાવરણ સારા આરોગ્યનો પાયો છે.',
-    ['Plant and care for a tree','Reduce single-use plastic','Save water and electricity','Keep your surroundings clean'],
-    ['વૃક્ષ વાવો અને સંભાળો','એક વખત વપરાતું પ્લાસ્ટિક ઘટાડો','પાણી અને વીજળી બચાવો','આસપાસ સ્વચ્છ રાખો'],
-    'Plant one tree today for a healthier tomorrow.',
-    'સ્વસ્થ આવતીકાલ માટે આજે એક વૃક્ષ વાવો.',
-    ['WorldEnvironmentDay','BeatPlasticPollution'],'leaf'),
-  T(6,14,'Health','World Blood Donor Day','વિશ્વ રક્તદાતા દિવસ',
-    'One blood donation can save up to three lives.',
-    'એક વખતનું રક્તદાન ત્રણ જીવન સુધી બચાવી શકે છે.',
-    ['Healthy adults can donate safely','Donate every 3 months','It takes only a few minutes','Your blood may save a stranger'],
-    ['સ્વસ્થ પુખ્ત વ્યક્તિ સલામતીથી દાન કરી શકે','દર 3 મહિને દાન કરો','માત્ર થોડી મિનિટ લાગે છે','તમારું લોહી કોઈને બચાવી શકે'],
-    'Be a hero — donate blood at your nearest blood bank.',
-    'હીરો બનો — નજીકની બ્લડ બેંકે રક્તદાન કરો.',
-    ['BloodDonorDay','DonateBlood','GiveBlood'],'blood'),
-  T(6,21,'Yoga','International Day of Yoga','આંતરરાષ્ટ્રીય યોગ દિવસ',
-    'Daily yoga improves flexibility, calm and overall wellbeing.',
-    'રોજ યોગ કરવાથી લચક, શાંતિ અને સંપૂર્ણ સ્વાસ્થ્ય સુધરે છે.',
-    ['Start with 15 minutes a day','Breathe deeply and slowly','Practise regularly, not perfectly','Yoga suits all ages'],
-    ['રોજ 15 મિનિટથી શરૂ કરો','ઊંડા અને ધીમા શ્વાસ લો','નિયમિત અભ્યાસ કરો','યોગ દરેક ઉંમર માટે યોગ્ય'],
-    'Roll out your mat — begin your yoga journey today.',
-    'સાદડી પાથરો — આજથી યોગ યાત્રા શરૂ કરો.',
-    ['YogaDay','InternationalYogaDay','YogaForHealth'],'yoga'),
-  T(7,28,'Health','World Hepatitis Day','વિશ્વ હિપેટાઇટિસ દિવસ',
-    'Hepatitis B and C can be prevented and managed — get tested.',
-    'હિપેટાઇટિસ B અને C અટકાવી અને સંભાળી શકાય — તપાસ કરાવો.',
-    ['Vaccination protects against Hepatitis B','Use only sterile needles','Get tested if at risk','Avoid sharing razors or blades'],
-    ['રસી હિપેટાઇટિસ Bથી બચાવે છે','માત્ર જંતુમુક્ત સોય વાપરો','જોખમ હોય તો તપાસ કરાવો','રેઝર કે બ્લેડ શેર ન કરો'],
-    'Know your status — ask about hepatitis testing.',
-    'તમારી સ્થિતિ જાણો — હિપેટાઇટિસ તપાસ વિશે પૂછો.',
-    ['WorldHepatitisDay','HepCantWait'],'lungs'),
-  T(8,1,'Children','World Breastfeeding Week','વિશ્વ સ્તનપાન સપ્તાહ',
-    'Breast milk is the best first food for a baby’s health.',
-    'માતાનું દૂધ બાળકના આરોગ્ય માટે શ્રેષ્ઠ પ્રથમ આહાર છે.',
-    ['Breastfeed within the first hour','Only breast milk for 6 months','It protects baby from infections','Support mothers to breastfeed'],
-    ['જન્મના પ્રથમ કલાકમાં સ્તનપાન કરાવો','6 મહિના સુધી માત્ર માતાનું દૂધ','તે બાળકને ચેપથી બચાવે છે','માતાઓને સ્તનપાનમાં સાથ આપો'],
-    'Support every mother to breastfeed her baby.',
-    'દરેક માતાને સ્તનપાનમાં સાથ આપો.',
-    ['BreastfeedingWeek','BreastfeedingSupport'],'baby'),
-  T(9,29,'Health','World Heart Day','વિશ્વ હૃદય દિવસ',
-    'Simple lifestyle choices keep your heart strong.',
-    'સાદી જીવનશૈલી પસંદગી તમારા હૃદયને મજબૂત રાખે છે.',
-    ['Eat less salt, oil and sugar','Walk or exercise daily','Avoid tobacco completely','Check blood pressure regularly'],
-    ['મીઠું, તેલ અને ખાંડ ઓછું લો','રોજ ચાલો કે કસરત કરો','તમાકુ સંપૂર્ણ ટાળો','બ્લડ પ્રેશર નિયમિત તપાસો'],
-    'Love your heart — move more, eat wise today.',
-    'હૃદયને ચાહો — વધુ ચાલો, સમજદારીથી ખાઓ.',
-    ['WorldHeartDay','UseHeart','HeartHealth'],'heart'),
-  T(10,1,'Health','International Day of Older Persons','આંતરરાષ્ટ્રીય વૃદ્ધ દિવસ',
-    'Caring for our elders keeps them healthy and happy.',
-    'આપણા વડીલોની સંભાળ તેમને સ્વસ્થ અને ખુશ રાખે છે.',
-    ['Regular check-ups for elders','Ensure they take medicines on time','Encourage light daily activity','Spend time and listen to them'],
-    ['વડીલોની નિયમિત તપાસ','સમયસર દવા લે તે જુઓ','હળવી દૈનિક પ્રવૃત્તિ કરાવો','સમય આપો અને સાંભળો'],
-    'Call or visit an elder today — care matters.',
-    'આજે વડીલને મળો કે ફોન કરો — સંભાળ મહત્વની છે.',
-    ['OlderPersonsDay','ElderCare'],'elder'),
-  T(10,10,'Health','World Mental Health Day','વિશ્વ માનસિક આરોગ્ય દિવસ',
-    'Mental health is health. It is okay to ask for help.',
-    'માનસિક આરોગ્ય પણ આરોગ્ય છે. મદદ માંગવી યોગ્ય છે.',
-    ['Talk to someone you trust','Sleep, exercise and routine help','Take breaks from screens','Seek help early, without shame'],
-    ['વિશ્વાસુ વ્યક્તિ સાથે વાત કરો','ઊંઘ, કસરત અને દિનચર્યા મદદ કરે','સ્ક્રીનથી વિરામ લો','શરમ વગર વહેલી મદદ લો'],
-    'Reach out — a conversation can change a life.',
-    'વાત કરો — એક સંવાદ જીવન બદલી શકે.',
-    ['MentalHealthDay','ItsOkayToNotBeOkay'],'brain'),
-  T(10,15,'Health','Global Handwashing Day','વૈશ્વિક હાથ ધોવા દિવસ',
-    'Clean hands are one of the easiest ways to stop disease.',
-    'સ્વચ્છ હાથ રોગ અટકાવવાનો સૌથી સરળ ઉપાય છે.',
-    ['Wash with soap for 20 seconds','Wash before eating and cooking','Wash after using the toilet','Teach children to wash hands'],
-    ['સાબુથી 20 સેકન્ડ ધોવો','ખાવા અને રાંધતા પહેલા ધોવો','શૌચાલય પછી ધોવો','બાળકોને હાથ ધોવાનું શીખવો'],
-    'Wash your hands the right way — every time.',
-    'દર વખતે યોગ્ય રીતે હાથ ધોવો.',
-    ['HandwashingDay','CleanHands'],'hands'),
-  T(11,14,'Health','World Diabetes Day','વિશ્વ ડાયાબિટીસ દિવસ',
-    'Diabetes can be managed well with healthy habits and check-ups.',
-    'સ્વસ્થ આદતો અને તપાસથી ડાયાબિટીસ સારી રીતે સંભાળી શકાય.',
-    ['Reduce sugar and refined foods','Stay active every day','Check blood sugar regularly','Take medicines as advised'],
-    ['ખાંડ અને રિફાઇન્ડ ખોરાક ઓછું કરો','રોજ સક્રિય રહો','બ્લડ સુગર નિયમિત તપાસો','સલાહ મુજબ દવા લો'],
-    'Know your numbers — get a blood sugar check.',
-    'તમારા આંકડા જાણો — બ્લડ સુગર તપાસ કરાવો.',
-    ['WorldDiabetesDay','BeatDiabetes'],'drop'),
-  T(11,14,'Children','Children’s Day','બાળ દિવસ',
-    'Healthy, happy children build a stronger nation.',
-    'સ્વસ્થ, ખુશ બાળકો મજબૂત રાષ્ટ્ર બનાવે છે.',
-    ['Complete all childhood vaccines','Give balanced, nutritious food','Encourage play and study','Protect children from harm'],
-    ['બાળપણની બધી રસી પૂરી કરાવો','સંતુલિત, પોષક ખોરાક આપો','રમત અને અભ્યાસને પ્રોત્સાહન','બાળકોને નુકસાનથી બચાવો'],
-    'Give every child health, care and a bright future.',
-    'દરેક બાળકને આરોગ્ય, સંભાળ અને ઉજ્જવળ ભવિષ્ય આપો.',
-    ['ChildrensDay','BalDiwas'],'baby'),
-  T(12,1,'Health','World AIDS Day','વિશ્વ એઇડ્સ દિવસ',
-    'Knowledge, testing and treatment help us end HIV/AIDS.',
-    'જ્ઞાન, તપાસ અને સારવાર HIV/AIDS હટાવવામાં મદદ કરે છે.',
-    ['HIV testing is free and confidential','Treatment lets people live long lives','No discrimination against patients','Prevention protects everyone'],
-    ['HIV તપાસ મફત અને ગુપ્ત છે','સારવારથી લોકો લાંબુ જીવે છે','દર્દી સાથે ભેદભાવ નહીં','બચાવ દરેકને રક્ષણ આપે છે'],
-    'Get informed, get tested, end the stigma.',
-    'જાણો, તપાસ કરાવો, ભેદભાવ દૂર કરો.',
-    ['WorldAIDSDay','EndAIDS','KnowYourStatus'],'ribbon'),
-  T(6,8,'Health','World Brain Tumour Day','વિશ્વ મગજ ગાંઠ દિવસ',
-    'Persistent headaches and warning signs should never be ignored.',
-    'સતત માથાનો દુખાવો અને ચેતવણી સંકેતોને અવગણશો નહીં.',
-    ['Note frequent, worsening headaches','Report vision or balance changes','Early diagnosis improves outcomes','Follow up with a doctor'],
-    ['વારંવાર, વધતો માથાનો દુખાવો નોંધો','દ્રષ્ટિ કે સંતુલન બદલાવ જણાવો','વહેલી તપાસ પરિણામ સુધારે','ડોક્ટર સાથે ફોલોઅપ કરો'],
-    'Listen to your body — see a doctor for lasting symptoms.',
-    'શરીરને સાંભળો — સતત લક્ષણો માટે ડોક્ટરને મળો.',
-    ['BrainTumourDay','EarlyDetection'],'brain'),
-  T(3,21,'Health','World Down Syndrome Day','વિશ્વ ડાઉન સિન્ડ્રોમ દિવસ',
-    'Inclusion and support help every child reach their potential.',
-    'સમાવેશ અને સાથ દરેક બાળકને તેની ક્ષમતા સુધી પહોંચાડે.',
-    ['Every child deserves respect','Early support helps development','Include, don’t exclude','Celebrate different abilities'],
-    ['દરેક બાળક સન્માનને પાત્ર છે','વહેલો સાથ વિકાસમાં મદદ કરે','સમાવો, દૂર ન કરો','અલગ ક્ષમતાઓને બિરદાવો'],
-    'Choose inclusion — support every ability.',
-    'સમાવેશ પસંદ કરો — દરેક ક્ષમતાને સાથ આપો.',
-    ['DownSyndromeDay','Inclusion'],'heart'),
-  T(4,11,'Women','National Safe Motherhood Day','રાષ્ટ્રીય સુરક્ષિત માતૃત્વ દિવસ',
-    'Safe pregnancy care protects both mother and baby.',
-    'સુરક્ષિત ગર્ભાવસ્થા સંભાળ માતા અને બાળક બંનેને બચાવે.',
-    ['Attend all antenatal check-ups','Take iron and folic acid','Plan a safe institutional delivery','Watch for danger signs'],
-    ['બધી પ્રસૂતિપૂર્વ તપાસ કરાવો','આયર્ન અને ફોલિક એસિડ લો','સુરક્ષિત સંસ્થાકીય પ્રસૂતિ યોજો','જોખમ સંકેતો પર ધ્યાન આપો'],
-    'Every mother deserves safe, respectful care.',
-    'દરેક માતા સુરક્ષિત, સન્માનજનક સંભાળને પાત્ર છે.',
-    ['SafeMotherhood','MaternalHealth'],'venus'),
-  T(6,26,'Health','Anti-Drug Abuse Day','નશા વિરોધી દિવસ',
-    'Say no to drugs — choose a healthy, free life.',
-    'નશાને ના કહો — સ્વસ્થ, મુક્ત જીવન પસંદ કરો.',
-    ['Drugs harm brain and body','Support, don’t judge, those affected','Help is available to recover','Guide youth to healthy choices'],
-    ['નશો મગજ અને શરીરને નુકસાન કરે','પીડિતોને સાથ આપો, ન્યાય ન કરો','સ્વસ્થ થવા મદદ ઉપલબ્ધ છે','યુવાનોને સ્વસ્થ પસંદગી તરફ દોરો'],
-    'Choose life — stay free from drugs.',
-    'જીવન પસંદ કરો — નશાથી મુક્ત રહો.',
-    ['SayNoToDrugs','DrugFree'],'brain'),
-  T(9,28,'Health','World Rabies Day','વિશ્વ હડકવા દિવસ',
-    'Rabies is deadly but 100% preventable with timely care.',
-    'હડકવા ઘાતક છે પણ સમયસર સંભાળથી 100% અટકાવી શકાય.',
-    ['Wash any animal bite with soap','Get anti-rabies vaccine promptly','Vaccinate pet dogs yearly','Never ignore a stray bite'],
-    ['કોઈપણ પ્રાણી કરડે તો સાબુથી ધોવો','તરત હડકવા વિરોધી રસી લો','પાળેલા કૂતરાને દર વર્ષે રસી આપો','રખડતા કરડવાને અવગણશો નહીં'],
-    'Bitten by an animal? Wash and get vaccinated now.',
-    'પ્રાણી કરડ્યું? ધોવો અને તરત રસી લો.',
-    ['WorldRabiesDay','VaccinateToEliminate'],'drop'),
-  T(10,29,'Health','World Stroke Day','વિશ્વ સ્ટ્રોક દિવસ',
-    'Recognising stroke fast can save a life and prevent disability.',
-    'સ્ટ્રોકને ઝડપથી ઓળખવાથી જીવન બચે અને અપંગતા અટકે.',
-    ['Face drooping — act fast','Arm weakness on one side','Slurred or difficult speech','Rush to hospital immediately'],
-    ['ચહેરો લબડે — ઝડપથી કાર્ય કરો','એક બાજુ હાથમાં નબળાઈ','અસ્પષ્ટ કે મુશ્કેલ બોલી','તરત હોસ્પિટલ પહોંચો'],
-    'Remember F.A.S.T. — every minute matters in a stroke.',
-    'F.A.S.T. યાદ રાખો — સ્ટ્રોકમાં દરેક મિનિટ મહત્વની.',
-    ['WorldStrokeDay','ActFAST'],'brain'),
-  T(11,17,'Women','World Prematurity Day','વિશ્વ અકાળ પ્રસૂતિ દિવસ',
-    'Small and early babies need extra warmth, care and feeding.',
-    'નાના અને અકાળ બાળકોને વધારાની ઉષ્મા, સંભાળ અને દૂધ જોઈએ.',
-    ['Kangaroo care keeps babies warm','Breast milk is vital for them','Attend all follow-up visits','Keep them safe from infection'],
-    ['કાંગારૂ કેર બાળકને ગરમ રાખે','માતાનું દૂધ તેમના માટે અતિ જરૂરી','બધી ફોલોઅપ મુલાકાત કરો','ચેપથી સુરક્ષિત રાખો'],
-    'Give preterm babies the warmth and care they need.',
-    'અકાળ બાળકોને જરૂરી ઉષ્મા અને સંભાળ આપો.',
-    ['WorldPrematurityDay','EveryBabyCounts'],'baby'),
-  T(2,15,'Children','International Childhood Cancer Day','બાળ કેન્સર દિવસ',
-    'Childhood cancer is often treatable when detected early.',
-    'બાળ કેન્સર વહેલું ઓળખાય તો ઘણીવાર મટાડી શકાય.',
-    ['Notice unexplained lumps or fever','Persistent tiredness needs a check','Early care improves recovery','Support families through treatment'],
-    ['કારણ વગરની ગાંઠ કે તાવ ધ્યાનમાં લો','સતત થાક તપાસ માંગે','વહેલી સંભાળ સ્વસ્થતા સુધારે','સારવારમાં પરિવારને સાથ આપો'],
-    'Early signs matter — consult a doctor without delay.',
-    'વહેલા સંકેત મહત્વના — વિલંબ વગર ડોક્ટરને મળો.',
-    ['ChildhoodCancer','GoGold'],'ribbon'),
-  T(3,20,'Health','World Oral Health Day','વિશ્વ મૌખિક આરોગ્ય દિવસ',
-    'A healthy mouth supports a healthy body.',
-    'સ્વસ્થ મોઢું સ્વસ્થ શરીરને સાથ આપે છે.',
-    ['Brush twice a day','Limit sugary snacks and drinks','Avoid tobacco and paan','Visit a dentist regularly'],
-    ['દિવસમાં બે વાર બ્રશ કરો','ખાંડવાળા નાસ્તા-પીણાં ઓછાં કરો','તમાકુ અને પાન ટાળો','દાંતના ડોક્ટરને નિયમિત મળો'],
-    'Smile healthy — brush twice, snack less.',
-    'સ્વસ્થ સ્મિત — બે વાર બ્રશ કરો, ઓછું ખાઓ.',
-    ['WorldOralHealthDay','HealthySmile'],'hands'),
-  T(12,3,'Health','International Day of Persons with Disabilities','દિવ્યાંગ જન દિવસ',
-    'An inclusive society gives everyone equal opportunity.',
-    'સમાવેશી સમાજ દરેકને સમાન તક આપે છે.',
-    ['Build accessible spaces','Include, respect and support','Focus on ability, not disability','Provide equal opportunities'],
-    ['સુલભ જગ્યાઓ બનાવો','સમાવો, સન્માન અને સાથ આપો','અક્ષમતા નહીં, ક્ષમતા પર ધ્યાન','સમાન તક આપો'],
-    'Build a world that includes everyone.',
-    'એવી દુનિયા બનાવો જે દરેકને સમાવે.',
-    ['IDPD','Inclusion','DisabilityAwareness'],'heart')
-];
+/* ---- Calendar data (365 days) + bilingual subject content ---- */
+const CAL2=[[1,1,"Balanced Diet Awareness Day","સંતુલિત આહાર જાગૃતિ દિવસ","studio","Nutrition","diet"],[1,2,"Daily Walking Awareness Day","દૈનિક ચાલવા જાગૃતિ દિવસ","studio","Activity","walking"],[1,3,"Safe Drinking Water Awareness Day","સુરક્ષિત પીવાના પાણી જાગૃતિ દિવસ","studio","Environment","water"],[1,4,"World Braille Day","વિશ્વ બ્રેઇલ દિવસ","official","Social",""],[1,5,"Sleep Health Awareness Day","ઊંઘ આરોગ્ય જાગૃતિ દિવસ","studio","Mental","sleep"],[1,6,"Oral Hygiene Awareness Day","મૌખિક સ્વચ્છતા જાગૃતિ દિવસ","studio","Health","oral"],[1,7,"Handwashing Practice Day","હાથ ધોવાના અભ્યાસ દિવસ","studio","Health","handwashing"],[1,8,"Healthy Heart Habits Day","સ્વસ્થ હૃદય આદતો દિવસ","studio","Health","heart"],[1,9,"Pravasi Bharatiya Divas","પ્રવાસી ભારતીય દિવસ","official","National",""],[1,10,"World Hindi Day","વિશ્વ હિન્દી દિવસ","official","Education",""],[1,11,"Diabetes Prevention Awareness Day","ડાયાબિટીસ નિવારણ જાગૃતિ દિવસ","studio","Health","diabetes"],[1,12,"National Youth Day","રાષ્ટ્રીય યુવા દિવસ","official","National",""],[1,13,"Blood Pressure Check Awareness Day","બ્લડ પ્રેશર તપાસ જાગૃતિ દિવસ","studio","Health","bp"],[1,14,"Cancer Prevention Awareness Day","કેન્સર નિવારણ જાગૃતિ દિવસ","studio","Health","cancer"],[1,15,"Indian Army Day","ભારતીય સેના દિવસ","official","National",""],[1,16,"Tobacco-Free Living Day","તમાકુ મુક્ત જીવન દિવસ","studio","Health","tobacco"],[1,17,"Mental Well-being Awareness Day","માનસિક સુખાકારી જાગૃતિ દિવસ","studio","Mental","mental"],[1,18,"Maternal Health Awareness Day","માતૃ આરોગ્ય જાગૃતિ દિવસ","studio","Women","maternal"],[1,19,"Child Nutrition Awareness Day","બાળ પોષણ જાગૃતિ દિવસ","studio","Nutrition","childnutrition"],[1,20,"Adolescent Health Awareness Day","કિશોર આરોગ્ય જાગૃતિ દિવસ","studio","Children","adolescent"],[1,21,"Senior Citizen Wellness Day","વરિષ્ઠ નાગરિક સુખાકારી દિવસ","studio","Ageing","senior"],[1,22,"Road Safety Awareness Day","માર્ગ સલામતી જાગૃતિ દિવસ","studio","Safety","road"],[1,23,"Parakram Diwas","પરાક્રમ દિવસ","official","National",""],[1,24,"National Girl Child Day","રાષ્ટ્રીય કન્યા બાળ દિવસ","official","Women",""],[1,25,"National Voters' Day","રાષ્ટ્રીય મતદાર દિવસ","official","National",""],[1,26,"Republic Day","પ્રજાસત્તાક દિવસ","official","National",""],[1,27,"Mosquito-Borne Disease Prevention Day","મચ્છરજન્ય રોગ નિવારણ દિવસ","studio","Vector","vector"],[1,28,"Dengue Prevention Awareness Day","ડેન્ગ્યુ નિવારણ જાગૃતિ દિવસ","studio","Vector","dengue"],[1,29,"Malaria Prevention Awareness Day","મેલેરિયા નિવારણ જાગૃતિ દિવસ","studio","Vector","malaria"],[1,30,"Martyrs' Day / Anti-Leprosy Day","શહીદ દિવસ / વિરોધી રક્તપિત્ત દિવસ","official","National","leprosy"],[1,31,"Tuberculosis Prevention Awareness Day","ક્ષય રોગ નિવારણ જાગૃતિ દિવસ","studio","Health","tb"],[2,1,"Vaccination Awareness Day","રસીકરણ જાગૃતિ દિવસ","studio","Immunization","vaccination"],[2,2,"World Wetlands Day","વિશ્વ ભીની ભૂમિ દિવસ","official","Environment",""],[2,3,"Anaemia Prevention Awareness Day","એનિમિયા નિવારણ જાગૃતિ દિવસ","studio","Nutrition","anaemia"],[2,4,"World Cancer Day","વિશ્વ કેન્સર દિવસ","official","Health","cancer"],[2,5,"Women's Health Awareness Day","મહિલા આરોગ્ય જાગૃતિ દિવસ","studio","Women","women"],[2,6,"International Day of Zero Tolerance for FGM","આંતરરાષ્ટ્રીય દિવસ નો શૂન્ય સહિષ્ણુતા માટે એફજીએમ","official","National",""],[2,7,"Men's Health Awareness Day","પુરુષ આરોગ્ય જાગૃતિ દિવસ","studio","Health","men"],[2,8,"Eye Health Awareness Day","આંખ આરોગ્ય જાગૃતિ દિવસ","studio","Health","eye"],[2,9,"Hearing Health Awareness Day","શ્રવણ આરોગ્ય જાગૃતિ દિવસ","studio","Health","hearing"],[2,10,"National Deworming Day","રાષ્ટ્રીય કૃમિમુક્તિ દિવસ","official","Immunization","deworming"],[2,11,"International Day of Women and Girls in Science","આંતરરાષ્ટ્રીય દિવસ નો મહિલા અને કન્યાઓ માં વિજ્ઞાન","official","Women",""],[2,12,"Kidney Health Awareness Day","કિડની આરોગ્ય જાગૃતિ દિવસ","studio","Health","kidney"],[2,13,"World Radio Day","વિશ્વ રેડિયો દિવસ","official","Health",""],[2,14,"Liver Health Awareness Day","યકૃત આરોગ્ય જાગૃતિ દિવસ","studio","Health","liver"],[2,15,"International Childhood Cancer Day","આંતરરાષ્ટ્રીય બાળપણ કેન્સર દિવસ","official","Children","childhoodcancer"],[2,16,"Respiratory Health Awareness Day","શ્વસન આરોગ્ય જાગૃતિ દિવસ","studio","Health","respiratory"],[2,17,"Food Safety Awareness Day","ખોરાક સલામતી જાગૃતિ દિવસ","studio","Nutrition","foodsafety"],[2,18,"Sanitation Awareness Day","સ્વચ્છતા જાગૃતિ દિવસ","studio","Health","sanitation"],[2,19,"Occupational Health Awareness Day","વ્યાવસાયિક આરોગ્ય જાગૃતિ દિવસ","studio","Occupational","occupational"],[2,20,"World Day of Social Justice","વિશ્વ દિવસ નો સામાજિક ન્યાય","official","Social",""],[2,21,"International Mother Language Day","આંતરરાષ્ટ્રીય માતૃ ભાષા દિવસ","official","National",""],[2,22,"First Aid Awareness Day","પ્રાથમિક સારવાર જાગૃતિ દિવસ","studio","Safety","firstaid"],[2,23,"Organ Donation Awareness Day","અંગદાન જાગૃતિ દિવસ","studio","Health","organ"],[2,24,"Blood Donation Awareness Day","રક્તદાન જાગૃતિ દિવસ","studio","Health","blooddon"],[2,25,"Antimicrobial Resistance Awareness Day","એન્ટિમાઇક્રોબાયલ પ્રતિકાર જાગૃતિ દિવસ","studio","Health","amr"],[2,26,"Zoonotic Disease Prevention Day","પ્રાણીજન્ય રોગ નિવારણ દિવસ","studio","Health","zoonotic"],[2,27,"World NGO Day","વિશ્વ એનજીઓ દિવસ","official","Social",""],[2,28,"National Science Day","રાષ્ટ્રીય વિજ્ઞાન દિવસ","official","National",""],[3,1,"Zero Discrimination Day","શૂન્ય ભેદભાવ દિવસ","official","Social",""],[3,2,"One Health Awareness Day","વન હેલ્થ જાગૃતિ દિવસ","studio","Health","onehealth"],[3,3,"World Hearing Day / World Wildlife Day","વિશ્વ શ્રવણ દિવસ / વિશ્વ વન્યજીવ દિવસ","official","Environment","hearing"],[3,4,"World Obesity Day","વિશ્વ સ્થૂળતા દિવસ","official","Health","obesity"],[3,5,"Climate and Health Awareness Day","આબોહવા અને આરોગ્ય જાગૃતિ દિવસ","studio","Environment","climate"],[3,6,"Balanced Diet Awareness Day","સંતુલિત આહાર જાગૃતિ દિવસ","studio","Nutrition","diet"],[3,7,"Daily Walking Awareness Day","દૈનિક ચાલવા જાગૃતિ દિવસ","studio","Activity","walking"],[3,8,"International Women's Day","આંતરરાષ્ટ્રીય મહિલા દિવસ","official","Women",""],[3,9,"Safe Drinking Water Awareness Day","સુરક્ષિત પીવાના પાણી જાગૃતિ દિવસ","studio","Environment","water"],[3,10,"CISF Raising Day","સીઆઇએસએફ સ્થાપના દિવસ","official","National",""],[3,11,"Sleep Health Awareness Day","ઊંઘ આરોગ્ય જાગૃતિ દિવસ","studio","Mental","sleep"],[3,12,"World Kidney Day","વિશ્વ કિડની દિવસ","recognized","Health","kidney"],[3,13,"Oral Hygiene Awareness Day","મૌખિક સ્વચ્છતા જાગૃતિ દિવસ","studio","Health","oral"],[3,14,"Handwashing Practice Day","હાથ ધોવાના અભ્યાસ દિવસ","studio","Health","handwashing"],[3,15,"World Consumer Rights Day","વિશ્વ ગ્રાહક અધિકાર દિવસ","official","Social",""],[3,16,"National Vaccination Day","રાષ્ટ્રીય રસીકરણ દિવસ","official","Immunization","vaccination"],[3,17,"Healthy Heart Habits Day","સ્વસ્થ હૃદય આદતો દિવસ","studio","Health","heart"],[3,18,"Diabetes Prevention Awareness Day","ડાયાબિટીસ નિવારણ જાગૃતિ દિવસ","studio","Health","diabetes"],[3,19,"Blood Pressure Check Awareness Day","બ્લડ પ્રેશર તપાસ જાગૃતિ દિવસ","studio","Health","bp"],[3,20,"World Oral Health Day","વિશ્વ મૌખિક આરોગ્ય દિવસ","official","Health","oral"],[3,21,"World Down Syndrome Day / International Day of Forests","વિશ્વ ડાઉન સિન્ડ્રોમ દિવસ / આંતરરાષ્ટ્રીય દિવસ નો જંગલ","official","Environment",""],[3,22,"World Water Day","વિશ્વ જળ દિવસ","official","Environment","water"],[3,23,"Shaheed Diwas","શહીદ દિવસ","official","National",""],[3,24,"World Tuberculosis Day","વિશ્વ ક્ષય રોગ દિવસ","official","Health","tb"],[3,25,"Cancer Prevention Awareness Day","કેન્સર નિવારણ જાગૃતિ દિવસ","studio","Health","cancer"],[3,26,"Tobacco-Free Living Day","તમાકુ મુક્ત જીવન દિવસ","studio","Health","tobacco"],[3,27,"Mental Well-being Awareness Day","માનસિક સુખાકારી જાગૃતિ દિવસ","studio","Mental","mental"],[3,28,"Maternal Health Awareness Day","માતૃ આરોગ્ય જાગૃતિ દિવસ","studio","Women","maternal"],[3,29,"Child Nutrition Awareness Day","બાળ પોષણ જાગૃતિ દિવસ","studio","Nutrition","childnutrition"],[3,30,"Adolescent Health Awareness Day","કિશોર આરોગ્ય જાગૃતિ દિવસ","studio","Children","adolescent"],[3,31,"Senior Citizen Wellness Day","વરિષ્ઠ નાગરિક સુખાકારી દિવસ","studio","Ageing","senior"],[4,1,"Road Safety Awareness Day","માર્ગ સલામતી જાગૃતિ દિવસ","studio","Safety","road"],[4,2,"World Autism Awareness Day","વિશ્વ ઓટિઝમ જાગૃતિ દિવસ","official","Social","autism"],[4,3,"Mosquito-Borne Disease Prevention Day","મચ્છરજન્ય રોગ નિવારણ દિવસ","studio","Vector","vector"],[4,4,"Dengue Prevention Awareness Day","ડેન્ગ્યુ નિવારણ જાગૃતિ દિવસ","studio","Vector","dengue"],[4,5,"National Maritime Day","રાષ્ટ્રીય દરિયાઈ દિવસ","official","National",""],[4,6,"Malaria Prevention Awareness Day","મેલેરિયા નિવારણ જાગૃતિ દિવસ","studio","Vector","malaria"],[4,7,"World Health Day","વિશ્વ આરોગ્ય દિવસ","official","Health",""],[4,8,"Tuberculosis Prevention Awareness Day","ક્ષય રોગ નિવારણ જાગૃતિ દિવસ","studio","Health","tb"],[4,9,"Vaccination Awareness Day","રસીકરણ જાગૃતિ દિવસ","studio","Immunization","vaccination"],[4,10,"World Homeopathy Day","વિશ્વ હોમિયોપેથી દિવસ","official","Health",""],[4,11,"National Safe Motherhood Day / World Parkinson's Day","રાષ્ટ્રીય સુરક્ષિત માતૃત્વ દિવસ / વિશ્વ પાર્કિન્સન દિવસ","official","National","maternal"],[4,12,"Anaemia Prevention Awareness Day","એનિમિયા નિવારણ જાગૃતિ દિવસ","studio","Nutrition","anaemia"],[4,13,"Women's Health Awareness Day","મહિલા આરોગ્ય જાગૃતિ દિવસ","studio","Women","women"],[4,14,"Dr. B. R. Ambedkar Jayanti","ડૉ. બી. આર. આંબેડકર જયંતિ","official","National",""],[4,15,"Men's Health Awareness Day","પુરુષ આરોગ્ય જાગૃતિ દિવસ","studio","Health","men"],[4,16,"Eye Health Awareness Day","આંખ આરોગ્ય જાગૃતિ દિવસ","studio","Health","eye"],[4,17,"World Haemophilia Day","વિશ્વ હીમોફિલિયા દિવસ","official","Health","haemophilia"],[4,18,"World Heritage Day","વિશ્વ વારસો દિવસ","official","Education",""],[4,19,"Hearing Health Awareness Day","શ્રવણ આરોગ્ય જાગૃતિ દિવસ","studio","Health","hearing"],[4,20,"Kidney Health Awareness Day","કિડની આરોગ્ય જાગૃતિ દિવસ","studio","Health","kidney"],[4,21,"Liver Health Awareness Day","યકૃત આરોગ્ય જાગૃતિ દિવસ","studio","Health","liver"],[4,22,"Earth Day","પૃથ્વી દિવસ","official","Environment",""],[4,23,"Respiratory Health Awareness Day","શ્વસન આરોગ્ય જાગૃતિ દિવસ","studio","Health","respiratory"],[4,24,"National Panchayati Raj Day","રાષ્ટ્રીય પંચાયતી રાજ દિવસ","official","National",""],[4,25,"World Malaria Day","વિશ્વ મેલેરિયા દિવસ","official","Vector","malaria"],[4,26,"Food Safety Awareness Day","ખોરાક સલામતી જાગૃતિ દિવસ","studio","Nutrition","foodsafety"],[4,27,"Sanitation Awareness Day","સ્વચ્છતા જાગૃતિ દિવસ","studio","Health","sanitation"],[4,28,"World Day for Safety and Health at Work","વિશ્વ દિવસ માટે સલામતી અને આરોગ્ય પર કાર્ય","official","Safety","occupational"],[4,29,"Occupational Health Awareness Day","વ્યાવસાયિક આરોગ્ય જાગૃતિ દિવસ","studio","Occupational","occupational"],[4,30,"First Aid Awareness Day","પ્રાથમિક સારવાર જાગૃતિ દિવસ","studio","Safety","firstaid"],[5,1,"International Labour Day","આંતરરાષ્ટ્રીય શ્રમ દિવસ","official","Occupational",""],[5,2,"Organ Donation Awareness Day","અંગદાન જાગૃતિ દિવસ","studio","Health","organ"],[5,3,"World Press Freedom Day","વિશ્વ પ્રેસ સ્વતંત્રતા દિવસ","official","Education",""],[5,4,"Blood Donation Awareness Day","રક્તદાન જાગૃતિ દિવસ","studio","Health","blooddon"],[5,5,"World Hand Hygiene Day","વિશ્વ હાથ સ્વચ્છતા દિવસ","official","Health","handwashing"],[5,6,"Antimicrobial Resistance Awareness Day","એન્ટિમાઇક્રોબાયલ પ્રતિકાર જાગૃતિ દિવસ","studio","Health","amr"],[5,7,"Zoonotic Disease Prevention Day","પ્રાણીજન્ય રોગ નિવારણ દિવસ","studio","Health","zoonotic"],[5,8,"World Red Cross and Red Crescent Day","વિશ્વ રેડ ક્રોસ અને રેડ ક્રેસન્ટ દિવસ","official","Social","blooddon"],[5,9,"One Health Awareness Day","વન હેલ્થ જાગૃતિ દિવસ","studio","Health","onehealth"],[5,10,"Mother's Day","Mother's દિવસ","recognized","Social",""],[5,11,"National Technology Day","રાષ્ટ્રીય ટેકનોલોજી દિવસ","official","National",""],[5,12,"International Nurses Day","આંતરરાષ્ટ્રીય નર્સ દિવસ","official","National",""],[5,13,"Climate and Health Awareness Day","આબોહવા અને આરોગ્ય જાગૃતિ દિવસ","studio","Environment","climate"],[5,14,"Balanced Diet Awareness Day","સંતુલિત આહાર જાગૃતિ દિવસ","studio","Nutrition","diet"],[5,15,"International Day of Families","આંતરરાષ્ટ્રીય દિવસ નો પરિવાર","official","National",""],[5,16,"Daily Walking Awareness Day","દૈનિક ચાલવા જાગૃતિ દિવસ","studio","Activity","walking"],[5,17,"World Hypertension Day","વિશ્વ હાયપરટેન્શન દિવસ","official","Health","bp"],[5,18,"World AIDS Vaccine Day","વિશ્વ એઇડ્સ રસી દિવસ","official","Immunization","vaccination"],[5,19,"Safe Drinking Water Awareness Day","સુરક્ષિત પીવાના પાણી જાગૃતિ દિવસ","studio","Environment","water"],[5,20,"World Bee Day","વિશ્વ મધમાખી દિવસ","official","Environment",""],[5,21,"International Tea Day","આંતરરાષ્ટ્રીય ચા દિવસ","official","National",""],[5,22,"International Day for Biological Diversity","આંતરરાષ્ટ્રીય દિવસ માટે જૈવિક વિવિધતા","official","Environment",""],[5,23,"Sleep Health Awareness Day","ઊંઘ આરોગ્ય જાગૃતિ દિવસ","studio","Mental","sleep"],[5,24,"Oral Hygiene Awareness Day","મૌખિક સ્વચ્છતા જાગૃતિ દિવસ","studio","Health","oral"],[5,25,"Handwashing Practice Day","હાથ ધોવાના અભ્યાસ દિવસ","studio","Health","handwashing"],[5,26,"Healthy Heart Habits Day","સ્વસ્થ હૃદય આદતો દિવસ","studio","Health","heart"],[5,27,"Diabetes Prevention Awareness Day","ડાયાબિટીસ નિવારણ જાગૃતિ દિવસ","studio","Health","diabetes"],[5,28,"Menstrual Hygiene Day","માસિક સ્વચ્છતા દિવસ","official","Women","menstrual"],[5,29,"Blood Pressure Check Awareness Day","બ્લડ પ્રેશર તપાસ જાગૃતિ દિવસ","studio","Health","bp"],[5,30,"Cancer Prevention Awareness Day","કેન્સર નિવારણ જાગૃતિ દિવસ","studio","Health","cancer"],[5,31,"World No Tobacco Day","વિશ્વ તમાકુ નિષેધ દિવસ","official","Health","tobacco"],[6,1,"Global Day of Parents","વૈશ્વિક દિવસ નો માતાપિતા","official","Social",""],[6,2,"Tobacco-Free Living Day","તમાકુ મુક્ત જીવન દિવસ","studio","Health","tobacco"],[6,3,"World Bicycle Day","વિશ્વ સાયકલ દિવસ","official","Activity",""],[6,4,"Mental Well-being Awareness Day","માનસિક સુખાકારી જાગૃતિ દિવસ","studio","Mental","mental"],[6,5,"World Environment Day","વિશ્વ પર્યાવરણ દિવસ","official","Environment",""],[6,6,"Maternal Health Awareness Day","માતૃ આરોગ્ય જાગૃતિ દિવસ","studio","Women","maternal"],[6,7,"World Food Safety Day","વિશ્વ ખોરાક સલામતી દિવસ","official","Nutrition","foodsafety"],[6,8,"World Oceans Day","વિશ્વ મહાસાગર દિવસ","official","Environment",""],[6,9,"Child Nutrition Awareness Day","બાળ પોષણ જાગૃતિ દિવસ","studio","Nutrition","childnutrition"],[6,10,"Adolescent Health Awareness Day","કિશોર આરોગ્ય જાગૃતિ દિવસ","studio","Children","adolescent"],[6,11,"Senior Citizen Wellness Day","વરિષ્ઠ નાગરિક સુખાકારી દિવસ","studio","Ageing","senior"],[6,12,"World Day Against Child Labour","વિશ્વ દિવસ વિરુદ્ધ બાળ શ્રમ","official","Children",""],[6,13,"Road Safety Awareness Day","માર્ગ સલામતી જાગૃતિ દિવસ","studio","Safety","road"],[6,14,"World Blood Donor Day","વિશ્વ રક્તદાતા દિવસ","official","Health","blooddon"],[6,15,"Mosquito-Borne Disease Prevention Day","મચ્છરજન્ય રોગ નિવારણ દિવસ","studio","Vector","vector"],[6,16,"Dengue Prevention Awareness Day","ડેન્ગ્યુ નિવારણ જાગૃતિ દિવસ","studio","Vector","dengue"],[6,17,"Malaria Prevention Awareness Day","મેલેરિયા નિવારણ જાગૃતિ દિવસ","studio","Vector","malaria"],[6,18,"Tuberculosis Prevention Awareness Day","ક્ષય રોગ નિવારણ જાગૃતિ દિવસ","studio","Health","tb"],[6,19,"World Sickle Cell Day","વિશ્વ સિકલ સેલ દિવસ","official","Health","sicklecell"],[6,20,"World Refugee Day","વિશ્વ શરણાર્થી દિવસ","official","Social",""],[6,21,"Father's Day / International Day of Yoga","પિતૃ દિવસ / આંતરરાષ્ટ્રીય દિવસ નો યોગ","recognized","Activity","yoga"],[6,22,"Vaccination Awareness Day","રસીકરણ જાગૃતિ દિવસ","studio","Immunization","vaccination"],[6,23,"Anaemia Prevention Awareness Day","એનિમિયા નિવારણ જાગૃતિ દિવસ","studio","Nutrition","anaemia"],[6,24,"Women's Health Awareness Day","મહિલા આરોગ્ય જાગૃતિ દિવસ","studio","Women","women"],[6,25,"Men's Health Awareness Day","પુરુષ આરોગ્ય જાગૃતિ દિવસ","studio","Health","men"],[6,26,"International Day Against Drug Abuse and Illicit Trafficking","આંતરરાષ્ટ્રીય દિવસ વિરુદ્ધ નશા દુરુપયોગ અને ગેરકાયદે હેરફેર","official","National",""],[6,27,"Eye Health Awareness Day","આંખ આરોગ્ય જાગૃતિ દિવસ","studio","Health","eye"],[6,28,"Hearing Health Awareness Day","શ્રવણ આરોગ્ય જાગૃતિ દિવસ","studio","Health","hearing"],[6,29,"Kidney Health Awareness Day","કિડની આરોગ્ય જાગૃતિ દિવસ","studio","Health","kidney"],[6,30,"Liver Health Awareness Day","યકૃત આરોગ્ય જાગૃતિ દિવસ","studio","Health","liver"],[7,1,"National Doctors' Day","રાષ્ટ્રીય ડોક્ટર દિવસ","official","National",""],[7,2,"Respiratory Health Awareness Day","શ્વસન આરોગ્ય જાગૃતિ દિવસ","studio","Health","respiratory"],[7,3,"Food Safety Awareness Day","ખોરાક સલામતી જાગૃતિ દિવસ","studio","Nutrition","foodsafety"],[7,4,"Sanitation Awareness Day","સ્વચ્છતા જાગૃતિ દિવસ","studio","Health","sanitation"],[7,5,"Occupational Health Awareness Day","વ્યાવસાયિક આરોગ્ય જાગૃતિ દિવસ","studio","Occupational","occupational"],[7,6,"World Zoonoses Day","વિશ્વ પ્રાણીજન્ય રોગ દિવસ","official","Health","zoonotic"],[7,7,"First Aid Awareness Day","પ્રાથમિક સારવાર જાગૃતિ દિવસ","studio","Safety","firstaid"],[7,8,"Organ Donation Awareness Day","અંગદાન જાગૃતિ દિવસ","studio","Health","organ"],[7,9,"Blood Donation Awareness Day","રક્તદાન જાગૃતિ દિવસ","studio","Health","blooddon"],[7,10,"Antimicrobial Resistance Awareness Day","એન્ટિમાઇક્રોબાયલ પ્રતિકાર જાગૃતિ દિવસ","studio","Health","amr"],[7,11,"World Population Day","વિશ્વ વસ્તી દિવસ","official","Social",""],[7,12,"Zoonotic Disease Prevention Day","પ્રાણીજન્ય રોગ નિવારણ દિવસ","studio","Health","zoonotic"],[7,13,"One Health Awareness Day","વન હેલ્થ જાગૃતિ દિવસ","studio","Health","onehealth"],[7,14,"Climate and Health Awareness Day","આબોહવા અને આરોગ્ય જાગૃતિ દિવસ","studio","Environment","climate"],[7,15,"World Youth Skills Day","વિશ્વ યુવા કૌશલ્ય દિવસ","official","Education",""],[7,16,"Balanced Diet Awareness Day","સંતુલિત આહાર જાગૃતિ દિવસ","studio","Nutrition","diet"],[7,17,"Daily Walking Awareness Day","દૈનિક ચાલવા જાગૃતિ દિવસ","studio","Activity","walking"],[7,18,"Nelson Mandela International Day","નેલ્સન મંડેલા આંતરરાષ્ટ્રીય દિવસ","official","National",""],[7,19,"Safe Drinking Water Awareness Day","સુરક્ષિત પીવાના પાણી જાગૃતિ દિવસ","studio","Environment","water"],[7,20,"Sleep Health Awareness Day","ઊંઘ આરોગ્ય જાગૃતિ દિવસ","studio","Mental","sleep"],[7,21,"Oral Hygiene Awareness Day","મૌખિક સ્વચ્છતા જાગૃતિ દિવસ","studio","Health","oral"],[7,22,"Handwashing Practice Day","હાથ ધોવાના અભ્યાસ દિવસ","studio","Health","handwashing"],[7,23,"Healthy Heart Habits Day","સ્વસ્થ હૃદય આદતો દિવસ","studio","Health","heart"],[7,24,"Diabetes Prevention Awareness Day","ડાયાબિટીસ નિવારણ જાગૃતિ દિવસ","studio","Health","diabetes"],[7,25,"Blood Pressure Check Awareness Day","બ્લડ પ્રેશર તપાસ જાગૃતિ દિવસ","studio","Health","bp"],[7,26,"Kargil Vijay Diwas","કારગિલ વિજય દિવસ","official","National",""],[7,27,"Cancer Prevention Awareness Day","કેન્સર નિવારણ જાગૃતિ દિવસ","studio","Health","cancer"],[7,28,"World Hepatitis Day","વિશ્વ હિપેટાઇટિસ દિવસ","official","Health","hepatitis"],[7,29,"International Tiger Day","આંતરરાષ્ટ્રીય વાઘ દિવસ","official","Environment",""],[7,30,"World Day Against Trafficking in Persons","વિશ્વ દિવસ વિરુદ્ધ હેરફેર માં વ્યક્તિ","official","Social",""],[7,31,"Tobacco-Free Living Day","તમાકુ મુક્ત જીવન દિવસ","studio","Health","tobacco"],[8,1,"World Lung Cancer Day","વિશ્વ ફેફસાં કેન્સર દિવસ","official","Health","respiratory"],[8,2,"Friendship Day","મિત્રતા દિવસ","recognized","Social",""],[8,3,"Mental Well-being Awareness Day","માનસિક સુખાકારી જાગૃતિ દિવસ","studio","Mental","mental"],[8,4,"Maternal Health Awareness Day","માતૃ આરોગ્ય જાગૃતિ દિવસ","studio","Women","maternal"],[8,5,"Child Nutrition Awareness Day","બાળ પોષણ જાગૃતિ દિવસ","studio","Nutrition","childnutrition"],[8,6,"Hiroshima Day","હિરોશિમા દિવસ","official","Social",""],[8,7,"National Handloom Day","રાષ્ટ્રીય હાથવણાટ દિવસ","official","Occupational",""],[8,8,"Adolescent Health Awareness Day","કિશોર આરોગ્ય જાગૃતિ દિવસ","studio","Children","adolescent"],[8,9,"Quit India Movement Day","છોડો ભારત આંદોલન દિવસ","official","National",""],[8,10,"World Biofuel Day","વિશ્વ જૈવ ઇંધણ દિવસ","official","Environment",""],[8,11,"Senior Citizen Wellness Day","વરિષ્ઠ નાગરિક સુખાકારી દિવસ","studio","Ageing","senior"],[8,12,"International Youth Day","આંતરરાષ્ટ્રીય યુવા દિવસ","official","National",""],[8,13,"Road Safety Awareness Day","માર્ગ સલામતી જાગૃતિ દિવસ","studio","Safety","road"],[8,14,"Mosquito-Borne Disease Prevention Day","મચ્છરજન્ય રોગ નિવારણ દિવસ","studio","Vector","vector"],[8,15,"Independence Day","સ્વતંત્રતા દિવસ","official","National",""],[8,16,"Dengue Prevention Awareness Day","ડેન્ગ્યુ નિવારણ જાગૃતિ દિવસ","studio","Vector","dengue"],[8,17,"Malaria Prevention Awareness Day","મેલેરિયા નિવારણ જાગૃતિ દિવસ","studio","Vector","malaria"],[8,18,"Tuberculosis Prevention Awareness Day","ક્ષય રોગ નિવારણ જાગૃતિ દિવસ","studio","Health","tb"],[8,19,"World Humanitarian Day","વિશ્વ માનવતાવાદી દિવસ","official","Social",""],[8,20,"Sadbhavana Diwas","સદ્ભાવના દિવસ","official","National",""],[8,21,"Vaccination Awareness Day","રસીકરણ જાગૃતિ દિવસ","studio","Immunization","vaccination"],[8,22,"Anaemia Prevention Awareness Day","એનિમિયા નિવારણ જાગૃતિ દિવસ","studio","Nutrition","anaemia"],[8,23,"International Day for the Remembrance of the Slave Trade","આંતરરાષ્ટ્રીય દિવસ માટે સ્મરણ નો ગુલામ વેપાર","official","National",""],[8,24,"Women's Health Awareness Day","મહિલા આરોગ્ય જાગૃતિ દિવસ","studio","Women","women"],[8,25,"Men's Health Awareness Day","પુરુષ આરોગ્ય જાગૃતિ દિવસ","studio","Health","men"],[8,26,"Eye Health Awareness Day","આંખ આરોગ્ય જાગૃતિ દિવસ","studio","Health","eye"],[8,27,"Hearing Health Awareness Day","શ્રવણ આરોગ્ય જાગૃતિ દિવસ","studio","Health","hearing"],[8,28,"Kidney Health Awareness Day","કિડની આરોગ્ય જાગૃતિ દિવસ","studio","Health","kidney"],[8,29,"National Sports Day","રાષ્ટ્રીય રમત દિવસ","official","Activity",""],[8,30,"National Small Industry Day","રાષ્ટ્રીય લઘુ ઉદ્યોગ દિવસ","official","Occupational",""],[8,31,"Liver Health Awareness Day","યકૃત આરોગ્ય જાગૃતિ દિવસ","studio","Health","liver"],[9,1,"Respiratory Health Awareness Day","શ્વસન આરોગ્ય જાગૃતિ દિવસ","studio","Health","respiratory"],[9,2,"Food Safety Awareness Day","ખોરાક સલામતી જાગૃતિ દિવસ","studio","Nutrition","foodsafety"],[9,3,"Sanitation Awareness Day","સ્વચ્છતા જાગૃતિ દિવસ","studio","Health","sanitation"],[9,4,"Occupational Health Awareness Day","વ્યાવસાયિક આરોગ્ય જાગૃતિ દિવસ","studio","Occupational","occupational"],[9,5,"Teachers' Day","શિક્ષક દિવસ","official","National",""],[9,6,"First Aid Awareness Day","પ્રાથમિક સારવાર જાગૃતિ દિવસ","studio","Safety","firstaid"],[9,7,"Organ Donation Awareness Day","અંગદાન જાગૃતિ દિવસ","studio","Health","organ"],[9,8,"International Literacy Day","આંતરરાષ્ટ્રીય સાક્ષરતા દિવસ","official","National",""],[9,9,"Blood Donation Awareness Day","રક્તદાન જાગૃતિ દિવસ","studio","Health","blooddon"],[9,10,"World Suicide Prevention Day","વિશ્વ આત્મહત્યા નિવારણ દિવસ","official","Mental","mental"],[9,11,"Antimicrobial Resistance Awareness Day","એન્ટિમાઇક્રોબાયલ પ્રતિકાર જાગૃતિ દિવસ","studio","Health","amr"],[9,12,"Zoonotic Disease Prevention Day","પ્રાણીજન્ય રોગ નિવારણ દિવસ","studio","Health","zoonotic"],[9,13,"One Health Awareness Day","વન હેલ્થ જાગૃતિ દિવસ","studio","Health","onehealth"],[9,14,"Hindi Diwas","હિન્દી દિવસ","official","National",""],[9,15,"Engineers' Day","ઇજનેર દિવસ","official","National",""],[9,16,"World Ozone Day","વિશ્વ ઓઝોન દિવસ","official","Environment",""],[9,17,"World Patient Safety Day","વિશ્વ દર્દી સલામતી દિવસ","official","Safety",""],[9,18,"Climate and Health Awareness Day","આબોહવા અને આરોગ્ય જાગૃતિ દિવસ","studio","Environment","climate"],[9,19,"Balanced Diet Awareness Day","સંતુલિત આહાર જાગૃતિ દિવસ","studio","Nutrition","diet"],[9,20,"Daily Walking Awareness Day","દૈનિક ચાલવા જાગૃતિ દિવસ","studio","Activity","walking"],[9,21,"World Alzheimer's Day / International Day of Peace","વિશ્વ અલ્ઝાઇમર દિવસ / આંતરરાષ્ટ્રીય દિવસ નો શાંતિ","official","Mental","alzheimer"],[9,22,"Safe Drinking Water Awareness Day","સુરક્ષિત પીવાના પાણી જાગૃતિ દિવસ","studio","Environment","water"],[9,23,"Sleep Health Awareness Day","ઊંઘ આરોગ્ય જાગૃતિ દિવસ","studio","Mental","sleep"],[9,24,"Oral Hygiene Awareness Day","મૌખિક સ્વચ્છતા જાગૃતિ દિવસ","studio","Health","oral"],[9,25,"World Pharmacists Day","વિશ્વ ફાર્માસિસ્ટ દિવસ","official","Health",""],[9,26,"World Environmental Health Day","વિશ્વ પર્યાવરણીય આરોગ્ય દિવસ","official","Mental","mental"],[9,27,"World Rivers Day / World Tourism Day","વિશ્વ નદી દિવસ / વિશ્વ પર્યટન દિવસ","recognized","Environment",""],[9,28,"World Rabies Day","વિશ્વ હડકવા દિવસ","official","Health","rabies"],[9,29,"World Heart Day","વિશ્વ હૃદય દિવસ","official","Health","heart"],[9,30,"Handwashing Practice Day","હાથ ધોવાના અભ્યાસ દિવસ","studio","Health","handwashing"],[10,1,"National Voluntary Blood Donation Day / International Day of Older Persons","રાષ્ટ્રીય સ્વૈચ્છિક લોહી દાન દિવસ / આંતરરાષ્ટ્રીય દિવસ નો વૃદ્ધ વ્યક્તિ","official","Ageing","senior"],[10,2,"Gandhi Jayanti / International Day of Non-Violence","ગાંધી જયંતિ / આંતરરાષ્ટ્રીય અહિંસા દિવસ","official","National",""],[10,3,"Healthy Heart Habits Day","સ્વસ્થ હૃદય આદતો દિવસ","studio","Health","heart"],[10,4,"World Animal Day","વિશ્વ પ્રાણી દિવસ","official","Environment",""],[10,5,"World Teachers' Day","વિશ્વ શિક્ષક દિવસ","official","Education",""],[10,6,"Diabetes Prevention Awareness Day","ડાયાબિટીસ નિવારણ જાગૃતિ દિવસ","studio","Health","diabetes"],[10,7,"Blood Pressure Check Awareness Day","બ્લડ પ્રેશર તપાસ જાગૃતિ દિવસ","studio","Health","bp"],[10,8,"Indian Air Force Day","ભારતીય હવાઈ દળ દિવસ","official","National",""],[10,9,"World Post Day","વિશ્વ ટપાલ દિવસ","official","Health",""],[10,10,"World Mental Health Day","વિશ્વ માનસિક આરોગ્ય દિવસ","official","Mental","mental"],[10,11,"International Day of the Girl Child","આંતરરાષ્ટ્રીય દિવસ નો કન્યા બાળ","official","Women",""],[10,12,"World Arthritis Day","વિશ્વ સંધિવા દિવસ","official","Ageing","arthritis"],[10,13,"International Day for Disaster Risk Reduction","આંતરરાષ્ટ્રીય દિવસ માટે આપત્તિ જોખમ ઘટાડો","official","Safety",""],[10,14,"Cancer Prevention Awareness Day","કેન્સર નિવારણ જાગૃતિ દિવસ","studio","Health","cancer"],[10,15,"Global Handwashing Day","વૈશ્વિક હાથ ધોવા દિવસ","official","Health","handwashing"],[10,16,"World Food Day","વિશ્વ ખાદ્ય દિવસ","official","Nutrition","diet"],[10,17,"Tobacco-Free Living Day","તમાકુ મુક્ત જીવન દિવસ","studio","Health","tobacco"],[10,18,"Mental Well-being Awareness Day","માનસિક સુખાકારી જાગૃતિ દિવસ","studio","Mental","mental"],[10,19,"Maternal Health Awareness Day","માતૃ આરોગ્ય જાગૃતિ દિવસ","studio","Women","maternal"],[10,20,"World Osteoporosis Day","વિશ્વ ઓસ્ટિયોપોરોસિસ દિવસ","official","Ageing","osteoporosis"],[10,21,"Child Nutrition Awareness Day","બાળ પોષણ જાગૃતિ દિવસ","studio","Nutrition","childnutrition"],[10,22,"Adolescent Health Awareness Day","કિશોર આરોગ્ય જાગૃતિ દિવસ","studio","Children","adolescent"],[10,23,"Senior Citizen Wellness Day","વરિષ્ઠ નાગરિક સુખાકારી દિવસ","studio","Ageing","senior"],[10,24,"United Nations Day / World Polio Day","સંયુક્ત રાષ્ટ્ર દિવસ / વિશ્વ પોલિયો દિવસ","official","Immunization","polio"],[10,25,"Road Safety Awareness Day","માર્ગ સલામતી જાગૃતિ દિવસ","studio","Safety","road"],[10,26,"Mosquito-Borne Disease Prevention Day","મચ્છરજન્ય રોગ નિવારણ દિવસ","studio","Vector","vector"],[10,27,"Dengue Prevention Awareness Day","ડેન્ગ્યુ નિવારણ જાગૃતિ દિવસ","studio","Vector","dengue"],[10,28,"Malaria Prevention Awareness Day","મેલેરિયા નિવારણ જાગૃતિ દિવસ","studio","Vector","malaria"],[10,29,"World Stroke Day","વિશ્વ સ્ટ્રોક દિવસ","official","Health","stroke"],[10,30,"Tuberculosis Prevention Awareness Day","ક્ષય રોગ નિવારણ જાગૃતિ દિવસ","studio","Health","tb"],[10,31,"National Unity Day","રાષ્ટ્રીય એકતા દિવસ","official","National",""],[11,1,"Vaccination Awareness Day","રસીકરણ જાગૃતિ દિવસ","studio","Immunization","vaccination"],[11,2,"Anaemia Prevention Awareness Day","એનિમિયા નિવારણ જાગૃતિ દિવસ","studio","Nutrition","anaemia"],[11,3,"Women's Health Awareness Day","મહિલા આરોગ્ય જાગૃતિ દિવસ","studio","Women","women"],[11,4,"Men's Health Awareness Day","પુરુષ આરોગ્ય જાગૃતિ દિવસ","studio","Health","men"],[11,5,"World Tsunami Awareness Day","વિશ્વ સુનામી જાગૃતિ દિવસ","official","Environment",""],[11,6,"Eye Health Awareness Day","આંખ આરોગ્ય જાગૃતિ દિવસ","studio","Health","eye"],[11,7,"National Cancer Awareness Day","રાષ્ટ્રીય કેન્સર જાગૃતિ દિવસ","official","National","cancer"],[11,8,"Hearing Health Awareness Day","શ્રવણ આરોગ્ય જાગૃતિ દિવસ","studio","Health","hearing"],[11,9,"National Legal Services Day","રાષ્ટ્રીય કાનૂની સેવા દિવસ","official","National",""],[11,10,"World Science Day for Peace and Development","વિશ્વ વિજ્ઞાન દિવસ માટે શાંતિ અને વિકાસ","official","Education",""],[11,11,"National Education Day","રાષ્ટ્રીય શિક્ષણ દિવસ","official","National",""],[11,12,"World Pneumonia Day","વિશ્વ ન્યુમોનિયા દિવસ","official","Health","respiratory"],[11,13,"Kidney Health Awareness Day","કિડની આરોગ્ય જાગૃતિ દિવસ","studio","Health","kidney"],[11,14,"Children's Day / World Diabetes Day","બાળ દિવસ / વિશ્વ ડાયાબિટીસ દિવસ","official","Children","diabetes"],[11,15,"Liver Health Awareness Day","યકૃત આરોગ્ય જાગૃતિ દિવસ","studio","Health","liver"],[11,16,"National Press Day","રાષ્ટ્રીય પ્રેસ દિવસ","official","National",""],[11,17,"World Prematurity Day","વિશ્વ અકાળ પ્રસૂતિ દિવસ","official","Children","prematurity"],[11,18,"Respiratory Health Awareness Day","શ્વસન આરોગ્ય જાગૃતિ દિવસ","studio","Health","respiratory"],[11,19,"World Toilet Day / International Men's Day","વિશ્વ શૌચાલય દિવસ / આંતરરાષ્ટ્રીય પુરુષ દિવસ","official","National","men"],[11,20,"Universal Children's Day","સાર્વત્રિક બાળ દિવસ","official","Children",""],[11,21,"World Fisheries Day","વિશ્વ મત્સ્ય દિવસ","official","Environment",""],[11,22,"Food Safety Awareness Day","ખોરાક સલામતી જાગૃતિ દિવસ","studio","Nutrition","foodsafety"],[11,23,"Sanitation Awareness Day","સ્વચ્છતા જાગૃતિ દિવસ","studio","Health","sanitation"],[11,24,"Occupational Health Awareness Day","વ્યાવસાયિક આરોગ્ય જાગૃતિ દિવસ","studio","Occupational","occupational"],[11,25,"First Aid Awareness Day","પ્રાથમિક સારવાર જાગૃતિ દિવસ","studio","Safety","firstaid"],[11,26,"Constitution Day","બંધારણ દિવસ","official","National",""],[11,27,"Organ Donation Awareness Day","અંગદાન જાગૃતિ દિવસ","studio","Health","organ"],[11,28,"Blood Donation Awareness Day","રક્તદાન જાગૃતિ દિવસ","studio","Health","blooddon"],[11,29,"Antimicrobial Resistance Awareness Day","એન્ટિમાઇક્રોબાયલ પ્રતિકાર જાગૃતિ દિવસ","studio","Health","amr"],[11,30,"Zoonotic Disease Prevention Day","પ્રાણીજન્ય રોગ નિવારણ દિવસ","studio","Health","zoonotic"],[12,1,"World AIDS Day","વિશ્વ એઇડ્સ દિવસ","official","Health","aids"],[12,2,"National Pollution Control Day","રાષ્ટ્રીય પ્રદૂષણ નિયંત્રણ દિવસ","official","Environment",""],[12,3,"International Day of Persons with Disabilities","આંતરરાષ્ટ્રીય દિવસ નો વ્યક્તિ સાથે દિવ્યાંગ","official","National","disability"],[12,4,"Indian Navy Day","ભારતીય નૌકાદળ દિવસ","official","National",""],[12,5,"World Soil Day","વિશ્વ માટી દિવસ","official","Environment",""],[12,6,"One Health Awareness Day","વન હેલ્થ જાગૃતિ દિવસ","studio","Health","onehealth"],[12,7,"Armed Forces Flag Day","સશસ્ત્ર દળ ધ્વજ દિવસ","official","National",""],[12,8,"Climate and Health Awareness Day","આબોહવા અને આરોગ્ય જાગૃતિ દિવસ","studio","Environment","climate"],[12,9,"International Anti-Corruption Day","આંતરરાષ્ટ્રીય વિરોધી ભ્રષ્ટાચાર દિવસ","official","National",""],[12,10,"Human Rights Day","માનવ અધિકાર દિવસ","official","Social",""],[12,11,"International Mountain Day","આંતરરાષ્ટ્રીય પર્વત દિવસ","official","Environment",""],[12,12,"Balanced Diet Awareness Day","સંતુલિત આહાર જાગૃતિ દિવસ","studio","Nutrition","diet"],[12,13,"Daily Walking Awareness Day","દૈનિક ચાલવા જાગૃતિ દિવસ","studio","Activity","walking"],[12,14,"National Energy Conservation Day","રાષ્ટ્રીય ઊર્જા સંરક્ષણ દિવસ","official","Environment",""],[12,15,"Safe Drinking Water Awareness Day","સુરક્ષિત પીવાના પાણી જાગૃતિ દિવસ","studio","Environment","water"],[12,16,"Sleep Health Awareness Day","ઊંઘ આરોગ્ય જાગૃતિ દિવસ","studio","Mental","sleep"],[12,17,"Oral Hygiene Awareness Day","મૌખિક સ્વચ્છતા જાગૃતિ દિવસ","studio","Health","oral"],[12,18,"International Migrants Day","આંતરરાષ્ટ્રીય સ્થળાંતરિત દિવસ","official","National",""],[12,19,"Handwashing Practice Day","હાથ ધોવાના અભ્યાસ દિવસ","studio","Health","handwashing"],[12,20,"Healthy Heart Habits Day","સ્વસ્થ હૃદય આદતો દિવસ","studio","Health","heart"],[12,21,"Diabetes Prevention Awareness Day","ડાયાબિટીસ નિવારણ જાગૃતિ દિવસ","studio","Health","diabetes"],[12,22,"National Mathematics Day","રાષ્ટ્રીય ગણિત દિવસ","official","National",""],[12,23,"Kisan Diwas / National Farmers' Day","કિસાન દિવસ / રાષ્ટ્રીય ખેડૂત દિવસ","official","Occupational",""],[12,24,"National Consumer Day","રાષ્ટ્રીય ગ્રાહક દિવસ","official","National",""],[12,25,"Good Governance Day","સુશાસન શાસન દિવસ","official","National",""],[12,26,"Blood Pressure Check Awareness Day","બ્લડ પ્રેશર તપાસ જાગૃતિ દિવસ","studio","Health","bp"],[12,27,"Cancer Prevention Awareness Day","કેન્સર નિવારણ જાગૃતિ દિવસ","studio","Health","cancer"],[12,28,"Tobacco-Free Living Day","તમાકુ મુક્ત જીવન દિવસ","studio","Health","tobacco"],[12,29,"Mental Well-being Awareness Day","માનસિક સુખાકારી જાગૃતિ દિવસ","studio","Mental","mental"],[12,30,"Maternal Health Awareness Day","માતૃ આરોગ્ય જાગૃતિ દિવસ","studio","Women","maternal"],[12,31,"Child Nutrition Awareness Day","બાળ પોષણ જાગૃતિ દિવસ","studio","Nutrition","childnutrition"]];
+const SUBJECTS={"diet":{"ie":"A balanced diet gives your body the energy and nutrients it needs.","ig":"સંતુલિત આહાર શરીરને જરૂરી ઊર્જા અને પોષક તત્વો આપે છે.","ke":["Fill half your plate with vegetables and fruit","Choose whole grains over refined ones","Include pulses, dairy or other protein","Limit fried, sugary and packaged food"],"kg":["અડધી થાળી શાકભાજી અને ફળથી ભરો","રિફાઇન્ડને બદલે આખા અનાજ પસંદ કરો","કઠોળ, દૂધ કે અન્ય પ્રોટીન ઉમેરો","તળેલું, ખાંડવાળું અને પેકેજ્ડ ખોરાક ઓછું કરો"],"ce":"Plan one balanced, colourful meal today.","cg":"આજે એક સંતુલિત, રંગીન ભોજન બનાવો.","icon":"leaf","tags":["BalancedDiet","EatHealthy"]},"walking":{"ie":"A daily walk is one of the simplest ways to stay healthy.","ig":"રોજ ચાલવું સ્વસ્થ રહેવાનો સૌથી સરળ ઉપાય છે.","ke":["Aim for about 30 minutes most days","Start slow and build up gradually","Wear comfortable, well-fitting shoes","Walk with family to stay motivated"],"kg":["મોટાભાગના દિવસે લગભગ 30 મિનિટ ચાલો","ધીમે શરૂ કરો અને ધીરે વધારો","આરામદાયક, યોગ્ય પગરખાં પહેરો","પ્રેરિત રહેવા પરિવાર સાથે ચાલો"],"ce":"Take a 30-minute walk today.","cg":"આજે 30 મિનિટ ચાલવા જાઓ.","icon":"yoga","tags":["WalkDaily","StayActive"]},"water":{"ie":"Safe drinking water protects you from many diseases.","ig":"સુરક્ષિત પીવાનું પાણી તમને ઘણા રોગોથી બચાવે છે.","ke":["Store water in clean, covered containers","Boil or filter water if unsure","Do not mix drinking and washing water","Keep water sources clean"],"kg":["સ્વચ્છ, ઢાંકેલા વાસણમાં પાણી રાખો","શંકા હોય તો ઉકાળો કે ગાળો","પીવાનું અને ધોવાનું પાણી અલગ રાખો","પાણીના સ્ત્રોત સ્વચ્છ રાખો"],"ce":"Make sure your drinking water is safe today.","cg":"આજે તમારું પીવાનું પાણી સુરક્ષિત છે તે ખાતરી કરો.","icon":"drop","tags":["SafeWater","CleanWater"]},"sleep":{"ie":"Good sleep helps your body and mind recover and stay healthy.","ig":"સારી ઊંઘ શરીર અને મનને સ્વસ્થ થવામાં મદદ કરે છે.","ke":["Aim for 7–8 hours of sleep","Keep a regular sleep schedule","Avoid screens before bedtime","Keep the room dark and quiet"],"kg":["7–8 કલાક ઊંઘનું લક્ષ્ય રાખો","ઊંઘનો નિયમિત સમય રાખો","સૂતા પહેલા સ્ક્રીન ટાળો","ઓરડો અંધારો અને શાંત રાખો"],"ce":"Set a fixed bedtime and stick to it tonight.","cg":"આજે રાત્રે નિશ્ચિત સમયે સૂઓ.","icon":"brain","tags":["SleepWell","RestMatters"]},"oral":{"ie":"Healthy teeth and gums support your overall health.","ig":"સ્વસ્થ દાંત અને પેઢાં તમારા સંપૂર્ણ આરોગ્યને સાથ આપે છે.","ke":["Brush twice a day with fluoride toothpaste","Clean between teeth daily","Limit sugary snacks and drinks","Avoid tobacco and paan"],"kg":["ફ્લોરાઇડ ટૂથપેસ્ટથી દિવસમાં બે વાર બ્રશ કરો","દરરોજ દાંત વચ્ચે સાફ કરો","ખાંડવાળા નાસ્તા-પીણાં ઓછાં કરો","તમાકુ અને પાન ટાળો"],"ce":"Brush well tonight and cut one sugary snack.","cg":"આજે સારી રીતે બ્રશ કરો અને એક ખાંડવાળો નાસ્તો ઓછો કરો.","icon":"hands","tags":["OralHealth","HealthySmile"]},"handwashing":{"ie":"Washing hands with soap is a simple way to stop germs spreading.","ig":"સાબુથી હાથ ધોવા જંતુ ફેલાવા અટકાવવાનો સરળ ઉપાય છે.","ke":["Wash with soap for at least 20 seconds","Wash before eating and cooking","Wash after using the toilet","Teach children to wash hands"],"kg":["ઓછામાં ઓછી 20 સેકન્ડ સાબુથી ધોવો","ખાવા અને રાંધતા પહેલા ધોવો","શૌચાલય પછી ધોવો","બાળકોને હાથ ધોવાનું શીખવો"],"ce":"Wash your hands properly before your next meal.","cg":"આગલા ભોજન પહેલા યોગ્ય રીતે હાથ ધોવો.","icon":"hands","tags":["CleanHands","Handwashing"]},"heart":{"ie":"Simple lifestyle choices keep your heart strong.","ig":"સાદી જીવનશૈલી પસંદગી તમારા હૃદયને મજબૂત રાખે છે.","ke":["Eat less salt, oil and sugar","Be physically active daily","Avoid tobacco completely","Check blood pressure regularly"],"kg":["મીઠું, તેલ અને ખાંડ ઓછું લો","રોજ શારીરિક રીતે સક્રિય રહો","તમાકુ સંપૂર્ણ ટાળો","બ્લડ પ્રેશર નિયમિત તપાસો"],"ce":"Do one heart-friendly thing today — move more or eat less salt.","cg":"આજે હૃદય માટે એક સારું કામ કરો — વધુ ચાલો કે ઓછું મીઠું ખાઓ.","icon":"heart","tags":["HealthyHeart","UseHeart"]},"diabetes":{"ie":"Diabetes can be prevented or managed with healthy habits.","ig":"સ્વસ્થ આદતોથી ડાયાબિટીસ અટકાવી કે સંભાળી શકાય.","ke":["Reduce sugar and refined foods","Stay active every day","Keep a healthy body weight","Check blood sugar if advised"],"kg":["ખાંડ અને રિફાઇન્ડ ખોરાક ઓછું કરો","રોજ સક્રિય રહો","શરીરનું વજન સ્વસ્થ રાખો","સલાહ મળે તો બ્લડ સુગર તપાસો"],"ce":"Cut one sugary drink and take a walk today.","cg":"આજે એક ખાંડવાળું પીણું છોડો અને ચાલવા જાઓ.","icon":"drop","tags":["BeatDiabetes","Diabetes"]},"bp":{"ie":"High blood pressure often has no symptoms — get it checked.","ig":"હાઈ બ્લડ પ્રેશરના ઘણીવાર લક્ષણ હોતાં નથી — તપાસ કરાવો.","ke":["Get your blood pressure checked regularly","Reduce salt in your food","Stay active and manage stress","Take medicines as prescribed"],"kg":["બ્લડ પ્રેશર નિયમિત તપાસાવો","ખોરાકમાં મીઠું ઓછું કરો","સક્રિય રહો અને તણાવ ઓછો કરો","સૂચવ્યા મુજબ દવા લો"],"ce":"Get your blood pressure checked this week.","cg":"આ અઠવાડિયે બ્લડ પ્રેશર તપાસાવો.","icon":"heart","tags":["KnowYourNumbers","BloodPressure"]},"cancer":{"ie":"Many cancers can be prevented or treated when found early.","ig":"ઘણા કેન્સર વહેલા ઓળખાય તો અટકાવી કે મટાડી શકાય છે.","ke":["Avoid tobacco and limit alcohol","Eat more fruits and vegetables","Get recommended screenings on time","Notice unusual changes in your body"],"kg":["તમાકુ ટાળો અને દારૂ મર્યાદિત કરો","વધુ ફળ અને શાકભાજી ખાઓ","સમયસર ભલામણ કરેલ તપાસ કરાવો","શરીરમાં અસામાન્ય બદલાવ ધ્યાનમાં લો"],"ce":"Talk to your doctor about screening you may need.","cg":"જરૂરી તપાસ વિશે ડોક્ટરને પૂછો.","icon":"ribbon","tags":["BeatCancer","EarlyDetection"]},"tobacco":{"ie":"Quitting tobacco lowers your risk of cancer, heart and lung disease.","ig":"તમાકુ છોડવાથી કેન્સર, હૃદય અને ફેફસાના રોગનું જોખમ ઘટે છે.","ke":["Every day without tobacco helps","Ask for help to quit — it works","Protect your family from smoke","Chewing tobacco harms too"],"kg":["તમાકુ વગરનો દરેક દિવસ મદદ કરે છે","છોડવા મદદ માંગો — તે કામ કરે છે","પરિવારને ધુમાડાથી બચાવો","ખાવાની તમાકુ પણ નુકસાનકારક"],"ce":"Take the first step — skip tobacco today.","cg":"પહેલું પગલું ભરો — આજે તમાકુ ટાળો.","icon":"nosmoke","tags":["QuitTobacco","TobaccoFree"]},"mental":{"ie":"Mental health is health. It is okay to ask for help.","ig":"માનસિક આરોગ્ય પણ આરોગ્ય છે. મદદ માંગવી યોગ્ય છે.","ke":["Talk to someone you trust","Keep a regular sleep and activity routine","Take breaks and breathe","Seek help early, without shame"],"kg":["વિશ્વાસુ વ્યક્તિ સાથે વાત કરો","ઊંઘ અને પ્રવૃત્તિની નિયમિત દિનચર્યા રાખો","વિરામ લો અને શ્વાસ લો","શરમ વગર વહેલી મદદ લો"],"ce":"Reach out to someone — a talk can help.","cg":"કોઈ સાથે વાત કરો — સંવાદ મદદ કરે.","icon":"brain","tags":["MentalHealth","YouMatter"]},"maternal":{"ie":"Good care during pregnancy protects both mother and baby.","ig":"ગર્ભાવસ્થા દરમિયાન સારી સંભાળ માતા અને બાળક બંનેને બચાવે છે.","ke":["Attend all antenatal check-ups","Take iron and folic acid","Plan a safe institutional delivery","Watch for danger signs"],"kg":["બધી પ્રસૂતિપૂર્વ તપાસ કરાવો","આયર્ન અને ફોલિક એસિડ લો","સુરક્ષિત સંસ્થાકીય પ્રસૂતિ યોજો","જોખમ સંકેતો પર ધ્યાન આપો"],"ce":"Support an expecting mother to attend her check-up.","cg":"ગર્ભવતી માતાને તપાસ માટે સાથ આપો.","icon":"venus","tags":["SafeMotherhood","MaternalHealth"]},"childnutrition":{"ie":"Good nutrition in childhood builds lifelong health.","ig":"બાળપણનું સારું પોષણ જીવનભરનું આરોગ્ય બનાવે છે.","ke":["Breastfeed babies for the first 6 months","Give varied, home-cooked food","Include fruits, vegetables and pulses","Complete growth and health check-ups"],"kg":["પ્રથમ 6 મહિના બાળકને સ્તનપાન કરાવો","વૈવિધ્યસભર, ઘરનું ભોજન આપો","ફળ, શાકભાજી અને કઠોળ ઉમેરો","વૃદ્ધિ અને આરોગ્ય તપાસ પૂરી કરાવો"],"ce":"Add one healthy food to your child’s plate today.","cg":"આજે બાળકની થાળીમાં એક પોષક ખોરાક ઉમેરો.","icon":"baby","tags":["ChildNutrition","HealthyChildren"]},"adolescent":{"ie":"The teenage years are a key time to build healthy habits.","ig":"કિશોરાવસ્થા સ્વસ્થ આદતો બનાવવાનો મહત્વનો સમય છે.","ke":["Eat well and stay active","Take care of mental wellbeing","Avoid tobacco, alcohol and drugs","Ask trusted adults for guidance"],"kg":["સારું ખાઓ અને સક્રિય રહો","માનસિક સુખાકારીની સંભાળ રાખો","તમાકુ, દારૂ અને નશો ટાળો","વિશ્વાસુ મોટાઓની સલાહ લો"],"ce":"Encourage a teenager toward one healthy choice.","cg":"કિશોરને એક સ્વસ્થ પસંદગી તરફ પ્રોત્સાહિત કરો.","icon":"baby","tags":["AdolescentHealth","TeenHealth"]},"senior":{"ie":"Caring for our elders keeps them healthy and happy.","ig":"આપણા વડીલોની સંભાળ તેમને સ્વસ્થ અને ખુશ રાખે છે.","ke":["Ensure regular health check-ups","Help them take medicines on time","Encourage light daily activity","Spend time and listen to them"],"kg":["નિયમિત આરોગ્ય તપાસ કરાવો","સમયસર દવા લે તે જુઓ","હળવી દૈનિક પ્રવૃત્તિ કરાવો","સમય આપો અને સાંભળો"],"ce":"Call or visit an elder today.","cg":"આજે વડીલને મળો કે ફોન કરો.","icon":"elder","tags":["ElderCare","HealthyAgeing"]},"road":{"ie":"Following road-safety rules prevents avoidable injuries.","ig":"માર્ગ સલામતી નિયમો પાળવાથી ટાળી શકાય તેવી ઈજા અટકે છે.","ke":["Always wear a helmet or seatbelt","Never drink and drive","Follow speed limits and signals","Do not use a phone while driving"],"kg":["હંમેશા હેલ્મેટ કે સીટબેલ્ટ પહેરો","દારૂ પીને વાહન ન ચલાવો","ગતિ મર્યાદા અને સિગ્નલ પાળો","વાહન ચલાવતી વખતે ફોન ન વાપરો"],"ce":"Buckle up and slow down on every trip today.","cg":"આજે દરેક સફરમાં બેલ્ટ પહેરો અને ધીમે ચલાવો.","icon":"hands","tags":["RoadSafety","DriveSafe"]},"vector":{"ie":"Mosquito-borne diseases are preventable with simple steps.","ig":"મચ્છરજન્ય રોગો સાદા પગલાંથી અટકાવી શકાય છે.","ke":["Empty stagnant water every week","Sleep under a mosquito net","Use repellents in the evening","Fever? Get a blood test early"],"kg":["દર અઠવાડિયે ભરાયેલું પાણી ખાલી કરો","મચ્છરદાની હેઠળ સૂઓ","સાંજે મચ્છર ભગાડનાર વાપરો","તાવ? વહેલી લોહી તપાસ કરાવો"],"ce":"Check your home for mosquito breeding this week.","cg":"આ અઠવાડિયે ઘરમાં મચ્છર ઉત્પત્તિ તપાસો.","icon":"mosquito","tags":["StopMosquito","FightVectorDisease"]},"dengue":{"ie":"Dengue spreads through day-biting mosquitoes and is preventable.","ig":"ડેન્ગ્યુ દિવસે કરડતા મચ્છરથી ફેલાય છે અને અટકાવી શકાય છે.","ke":["Remove stored water from pots and coolers","Cover water containers tightly","Wear full-sleeve clothes","High fever? See a doctor early"],"kg":["કૂંડા અને કૂલરમાંથી પાણી કાઢો","પાણીના વાસણ ચુસ્ત ઢાંકો","પૂરી બાંયના કપડાં પહેરો","તીવ્ર તાવ? વહેલા ડોક્ટરને મળો"],"ce":"Empty and scrub water containers at home today.","cg":"આજે ઘરના પાણીના વાસણ ખાલી કરી ઘસો.","icon":"mosquito","tags":["FightDengue","StopMosquito"]},"malaria":{"ie":"Malaria spreads through mosquito bites — and it is preventable.","ig":"મેલેરિયા મચ્છર કરડવાથી ફેલાય છે — અને અટકાવી શકાય છે.","ke":["Sleep under a mosquito net","Remove stagnant water around home","Use repellents in the evening","Fever with chills? Get a blood test"],"kg":["મચ્છરદાની હેઠળ સૂઓ","ઘરની આસપાસ ભરાયેલું પાણી દૂર કરો","સાંજે મચ્છર ભગાડનાર વાપરો","ટાઢ સાથે તાવ? લોહીની તપાસ કરાવો"],"ce":"Remove mosquito breeding spots at home this week.","cg":"આ અઠવાડિયે ઘરમાં મચ્છર ઉત્પત્તિ સ્થળ દૂર કરો.","icon":"mosquito","tags":["ZeroMalaria","StopMosquito"]},"tb":{"ie":"TB is preventable and curable with complete, on-time treatment.","ig":"ટીબી અટકાવી અને પૂરી, સમયસર સારવારથી મટાડી શકાય છે.","ke":["Cough over 2 weeks? Get tested","TB diagnosis and treatment are free","Complete the full course of medicine","Cover your mouth while coughing"],"kg":["2 અઠવાડિયાથી ખાંસી? તપાસ કરાવો","ટીબીની તપાસ અને સારવાર મફત છે","દવાનો પૂરો કોર્સ કરો","ખાંસતી વખતે મોઢું ઢાંકો"],"ce":"Cough for over 2 weeks? Get tested at a health centre.","cg":"2 અઠવાડિયાથી ખાંસી? આરોગ્ય કેન્દ્રે તપાસ કરાવો.","icon":"lungs","tags":["EndTB","TBHaregaDeshJeetega"]},"vaccination":{"ie":"Vaccines are a safe, proven way to prevent disease.","ig":"રસી રોગ અટકાવવાનો સલામત, સાબિત ઉપાય છે.","ke":["Follow the vaccination schedule","Vaccinate children on time","Keep vaccination records safe","Ask your health worker for advice"],"kg":["રસીકરણ સમયપત્રક અનુસરો","બાળકોને સમયસર રસી અપાવો","રસીકરણ રેકોર્ડ સાચવો","આરોગ્ય કાર્યકરની સલાહ લો"],"ce":"Check that your family’s vaccines are up to date.","cg":"તમારા પરિવારની રસી અદ્યતન છે તે તપાસો.","icon":"drop","tags":["Vaccinate","Immunization"]},"anaemia":{"ie":"Anaemia is common but can be prevented with iron-rich food.","ig":"એનિમિયા સામાન્ય છે પણ આયર્નયુક્ત ખોરાકથી અટકાવી શકાય.","ke":["Eat green leafy vegetables and pulses","Include jaggery, dates and beans","Take iron tablets if advised","Get tested if often tired or pale"],"kg":["લીલા પાંદડાવાળા શાક અને કઠોળ ખાઓ","ગોળ, ખજૂર અને કઠોળ ઉમેરો","સલાહ મળે તો આયર્ન ગોળી લો","વારંવાર થાક કે ફિક્કાશ હોય તો તપાસ કરાવો"],"ce":"Add one iron-rich food to your meals today.","cg":"આજે ભોજનમાં એક આયર્નયુક્ત ખોરાક ઉમેરો.","icon":"blood","tags":["BeatAnaemia","IronRich"]},"women":{"ie":"Women’s health and wellbeing strengthen every family.","ig":"મહિલા આરોગ્ય અને સુખાકારી દરેક પરિવારને મજબૂત કરે છે.","ke":["Attend regular health check-ups","Eat iron- and calcium-rich food","Do not ignore warning signs","Rest, nutrition and support matter"],"kg":["નિયમિત આરોગ્ય તપાસ કરાવો","આયર્ન અને કેલ્શિયમયુક્ત ખોરાક લો","ચેતવણી સંકેતોને અવગણશો નહીં","આરામ, પોષણ અને સાથ જરૂરી"],"ce":"Support a woman’s health check-up this month.","cg":"આ મહિને એક મહિલાની આરોગ્ય તપાસમાં સાથ આપો.","icon":"venus","tags":["WomensHealth","HealthyWomen"]},"men":{"ie":"Men often ignore health problems — regular checks matter.","ig":"પુરુષો ઘણીવાર આરોગ્ય સમસ્યાઓ અવગણે છે — નિયમિત તપાસ જરૂરી.","ke":["Do not delay check-ups","Limit tobacco and alcohol","Stay active and eat well","Talk about stress and mental health"],"kg":["તપાસમાં વિલંબ ન કરો","તમાકુ અને દારૂ ઓછું કરો","સક્રિય રહો અને સારું ખાઓ","તણાવ અને માનસિક આરોગ્ય વિશે વાત કરો"],"ce":"Book that health check-up you have been delaying.","cg":"જે તપાસ મુલતવી રાખી છે તે કરાવો.","icon":"heart","tags":["MensHealth","CheckUp"]},"eye":{"ie":"Simple eye care protects your vision for life.","ig":"સાદી આંખની સંભાળ જીવનભર દ્રષ્ટિનું રક્ષણ કરે છે.","ke":["Get eyes checked regularly","Rest your eyes from screens","Eat vitamin-A rich foods","Protect eyes from dust and injury"],"kg":["આંખ નિયમિત તપાસાવો","સ્ક્રીનથી આંખને આરામ આપો","વિટામિન-એ યુક્ત ખોરાક ખાઓ","ધૂળ અને ઈજાથી આંખ બચાવો"],"ce":"Give your eyes a screen break every 20 minutes today.","cg":"આજે દર 20 મિનિટે આંખને સ્ક્રીનથી વિરામ આપો.","icon":"drop","tags":["EyeHealth","SaveSight"]},"hearing":{"ie":"Protecting your ears keeps your hearing healthy.","ig":"કાનની સંભાળ શ્રવણ સ્વસ્થ રાખે છે.","ke":["Avoid very loud sounds","Keep music volume moderate","Never put objects in your ears","Get hearing checked if it feels reduced"],"kg":["ખૂબ મોટા અવાજ ટાળો","સંગીતનો અવાજ મધ્યમ રાખો","કાનમાં વસ્તુ ન નાખો","શ્રવણ ઓછું લાગે તો તપાસ કરાવો"],"ce":"Lower the volume and protect your hearing today.","cg":"આજે અવાજ ઓછો રાખો અને શ્રવણ બચાવો.","icon":"hands","tags":["HearingHealth","SafeListening"]},"kidney":{"ie":"Healthy habits protect your kidneys for the long term.","ig":"સ્વસ્થ આદતો લાંબા ગાળે તમારી કિડનીનું રક્ષણ કરે છે.","ke":["Drink enough water daily","Control blood pressure and sugar","Reduce salt and avoid painkiller overuse","Get tested if you have risk factors"],"kg":["રોજ પૂરતું પાણી પીઓ","બ્લડ પ્રેશર અને સુગર નિયંત્રિત રાખો","મીઠું ઓછું કરો, પેઇનકિલર વધુ ન લો","જોખમ હોય તો તપાસ કરાવો"],"ce":"Drink enough water and cut extra salt today.","cg":"આજે પૂરતું પાણી પીઓ અને વધારાનું મીઠું ઓછું કરો.","icon":"drop","tags":["KidneyHealth","LoveYourKidneys"]},"liver":{"ie":"Your liver does vital work — simple habits keep it healthy.","ig":"યકૃત મહત્વનું કાર્ય કરે છે — સાદી આદતો તેને સ્વસ્થ રાખે.","ke":["Avoid alcohol and excess fatty food","Get the hepatitis B vaccine","Use only sterile needles","Maintain a healthy weight"],"kg":["દારૂ અને વધુ ચરબીયુક્ત ખોરાક ટાળો","હિપેટાઇટિસ બી રસી લો","માત્ર જંતુમુક્ત સોય વાપરો","સ્વસ્થ વજન જાળવો"],"ce":"Skip alcohol and fried food to help your liver today.","cg":"આજે યકૃત માટે દારૂ અને તળેલું ટાળો.","icon":"drop","tags":["LiverHealth","ProtectYourLiver"]},"respiratory":{"ie":"Healthy lungs need clean air and no tobacco.","ig":"સ્વસ્થ ફેફસાંને સ્વચ્છ હવા અને તમાકુ મુક્તિ જોઈએ.","ke":["Avoid smoking and second-hand smoke","Reduce indoor air pollution","Wear a mask in dusty or polluted air","See a doctor for a lasting cough"],"kg":["ધૂમ્રપાન અને બીજાના ધુમાડા ટાળો","ઘરની અંદરનું પ્રદૂષણ ઘટાડો","ધૂળ કે પ્રદૂષણમાં માસ્ક પહેરો","સતત ખાંસી માટે ડોક્ટરને મળો"],"ce":"Keep your air smoke-free today.","cg":"આજે તમારી હવા ધુમાડા મુક્ત રાખો.","icon":"lungs","tags":["LungHealth","BreatheClean"]},"foodsafety":{"ie":"Safe food handling prevents illness and infection.","ig":"સુરક્ષિત ખોરાક વ્યવસ્થાપન બીમારી અને ચેપ અટકાવે છે.","ke":["Wash hands and surfaces before cooking","Keep raw and cooked food separate","Cook food thoroughly","Store food at the right temperature"],"kg":["રાંધતા પહેલા હાથ અને સપાટી ધોવો","કાચો અને રાંધેલો ખોરાક અલગ રાખો","ખોરાક બરાબર રાંધો","ખોરાક યોગ્ય તાપમાને રાખો"],"ce":"Follow one safe-food step in your kitchen today.","cg":"આજે રસોડામાં એક સુરક્ષિત-ખોરાક પગલું અપનાવો.","icon":"leaf","tags":["FoodSafety","SafeFood"]},"sanitation":{"ie":"Good sanitation keeps communities free of disease.","ig":"સારી સ્વચ્છતા સમાજને રોગમુક્ત રાખે છે.","ke":["Always use a toilet, not open spaces","Keep toilets clean and covered","Dispose of waste properly","Wash hands after using the toilet"],"kg":["ખુલ્લામાં નહીં, હંમેશા શૌચાલય વાપરો","શૌચાલય સ્વચ્છ અને ઢાંકેલું રાખો","કચરાનો યોગ્ય નિકાલ કરો","શૌચાલય પછી હાથ ધોવો"],"ce":"Keep your toilet and surroundings clean today.","cg":"આજે તમારું શૌચાલય અને આસપાસ સ્વચ્છ રાખો.","icon":"hands","tags":["Sanitation","SwachhBharat"]},"occupational":{"ie":"A safe, healthy workplace protects every worker.","ig":"સલામત, સ્વસ્થ કાર્યસ્થળ દરેક કામદારને બચાવે છે.","ke":["Use protective equipment","Take regular breaks","Report hazards early","Maintain good posture"],"kg":["રક્ષણાત્મક સાધનો વાપરો","નિયમિત વિરામ લો","જોખમો વહેલા જણાવો","સારી મુદ્રા જાળવો"],"ce":"Fix one safety risk at your workplace today.","cg":"આજે કાર્યસ્થળે એક જોખમ દૂર કરો.","icon":"hands","tags":["WorkplaceSafety","SafeAtWork"]},"firstaid":{"ie":"Knowing basic first aid can save a life in an emergency.","ig":"પ્રાથમિક સારવારનું જ્ઞાન કટોકટીમાં જીવન બચાવી શકે.","ke":["Learn CPR and basic first aid","Keep a first-aid kit at home","Know emergency numbers","Stay calm and call for help"],"kg":["સીપીઆર અને પ્રાથમિક સારવાર શીખો","ઘરે પ્રાથમિક સારવાર કીટ રાખો","કટોકટી નંબર જાણો","શાંત રહો અને મદદ બોલાવો"],"ce":"Learn one first-aid skill today.","cg":"આજે એક પ્રાથમિક સારવાર કૌશલ્ય શીખો.","icon":"hands","tags":["FirstAid","BePrepared"]},"organ":{"ie":"One organ donor can save and improve several lives.","ig":"એક અંગદાતા અનેક જીવન બચાવી અને સુધારી શકે.","ke":["Learn how organ donation works","Discuss your wish with family","Register as a donor if you choose","Donation is a gift of life"],"kg":["અંગદાન કેવી રીતે થાય તે જાણો","તમારી ઇચ્છા પરિવાર સાથે ચર્ચો","ઇચ્છા હોય તો દાતા તરીકે નોંધણી કરો","દાન જીવનની ભેટ છે"],"ce":"Talk to your family about organ donation today.","cg":"આજે પરિવાર સાથે અંગદાન વિશે વાત કરો.","icon":"heart","tags":["OrganDonation","GiftOfLife"]},"blooddon":{"ie":"One blood donation can save up to three lives.","ig":"એક વખતનું રક્તદાન ત્રણ જીવન સુધી બચાવી શકે છે.","ke":["Healthy adults can donate safely","Donate every three months","It takes only a few minutes","Your blood may save a stranger"],"kg":["સ્વસ્થ પુખ્ત વ્યક્તિ સલામતીથી દાન કરી શકે","દર ત્રણ મહિને દાન કરો","માત્ર થોડી મિનિટ લાગે છે","તમારું લોહી કોઈને બચાવી શકે"],"ce":"Consider donating blood at your nearest blood bank.","cg":"નજીકની બ્લડ બેંકે રક્તદાનનો વિચાર કરો.","icon":"blood","tags":["DonateBlood","GiveBlood"]},"amr":{"ie":"Using antibiotics wisely keeps them working when we need them.","ig":"એન્ટિબાયોટિકનો સમજદારીથી ઉપયોગ તેમને અસરકારક રાખે છે.","ke":["Take antibiotics only when prescribed","Complete the full course","Never share or reuse antibiotics","Prevent infections with hygiene"],"kg":["માત્ર સૂચવ્યા હોય ત્યારે એન્ટિબાયોટિક લો","પૂરો કોર્સ કરો","એન્ટિબાયોટિક શેર કે ફરી ન વાપરો","સ્વચ્છતાથી ચેપ અટકાવો"],"ce":"Never take antibiotics without a doctor’s advice.","cg":"ડોક્ટરની સલાહ વગર એન્ટિબાયોટિક ન લો.","icon":"drop","tags":["StopAMR","HandleWithCare"]},"zoonotic":{"ie":"Many diseases pass between animals and people — stay careful.","ig":"ઘણા રોગ પ્રાણી અને માણસ વચ્ચે ફેલાય છે — સાવધ રહો.","ke":["Wash hands after touching animals","Vaccinate pets and livestock","Cook meat and eggs well","Avoid contact with sick animals"],"kg":["પ્રાણીને સ્પર્શ પછી હાથ ધોવો","પાળતુ અને પશુને રસી અપાવો","માંસ અને ઈંડા બરાબર રાંધો","બીમાર પ્રાણીથી દૂર રહો"],"ce":"Wash your hands after any animal contact today.","cg":"આજે પ્રાણી સંપર્ક પછી હાથ ધોવો.","icon":"drop","tags":["OneHealth","ZoonoticDisease"]},"onehealth":{"ie":"The health of people, animals and the environment is connected.","ig":"લોકો, પ્રાણી અને પર્યાવરણનું આરોગ્ય એકબીજા સાથે જોડાયેલું છે.","ke":["Keep your surroundings clean","Protect water and food sources","Care for animals responsibly","Support clean, green communities"],"kg":["આસપાસ સ્વચ્છ રાખો","પાણી અને ખોરાકના સ્ત્રોત બચાવો","પ્રાણીની જવાબદારીથી સંભાળ રાખો","સ્વચ્છ, હરિત સમાજને સાથ આપો"],"ce":"Do one thing for a cleaner, healthier environment today.","cg":"આજે સ્વચ્છ, સ્વસ્થ પર્યાવરણ માટે એક કામ કરો.","icon":"leaf","tags":["OneHealth","HealthyPlanet"]},"climate":{"ie":"A healthy climate protects human health.","ig":"સ્વસ્થ આબોહવા માનવ આરોગ્યનું રક્ષણ કરે છે.","ke":["Save energy and water","Reduce, reuse and recycle","Plant and protect trees","Stay safe during heat and floods"],"kg":["ઊર્જા અને પાણી બચાવો","ઘટાડો, પુનઃવપરાશ અને રિસાયકલ કરો","વૃક્ષ વાવો અને બચાવો","ગરમી અને પૂરમાં સુરક્ષિત રહો"],"ce":"Take one climate-friendly action today.","cg":"આજે આબોહવા-મૈત્રીપૂર્ણ એક પગલું ભરો.","icon":"leaf","tags":["ClimateAndHealth","ClimateAction"]},"obesity":{"ie":"A healthy weight lowers the risk of many diseases.","ig":"સ્વસ્થ વજન ઘણા રોગોનું જોખમ ઘટાડે છે.","ke":["Eat balanced portions","Cut sugary drinks and snacks","Be active for 30 minutes daily","Choose water over soft drinks"],"kg":["સંતુલિત માત્રામાં ખાઓ","ખાંડવાળા પીણાં-નાસ્તા ઓછાં કરો","રોજ 30 મિનિટ સક્રિય રહો","સોફ્ટ ડ્રિંકને બદલે પાણી પીઓ"],"ce":"Swap one sugary drink for water today.","cg":"આજે એક ખાંડવાળા પીણાને બદલે પાણી પીઓ.","icon":"heart","tags":["HealthyWeight","BeatObesity"]},"hepatitis":{"ie":"Hepatitis B and C can be prevented and managed — get tested.","ig":"હિપેટાઇટિસ B અને C અટકાવી અને સંભાળી શકાય — તપાસ કરાવો.","ke":["Vaccination protects against Hepatitis B","Use only sterile needles","Get tested if at risk","Avoid sharing razors or blades"],"kg":["રસી હિપેટાઇટિસ Bથી બચાવે છે","માત્ર જંતુમુક્ત સોય વાપરો","જોખમ હોય તો તપાસ કરાવો","રેઝર કે બ્લેડ શેર ન કરો"],"ce":"Ask about hepatitis testing and vaccination.","cg":"હિપેટાઇટિસ તપાસ અને રસી વિશે પૂછો.","icon":"lungs","tags":["HepCantWait","WorldHepatitisDay"]},"aids":{"ie":"Knowledge, testing and treatment help us end HIV/AIDS.","ig":"જ્ઞાન, તપાસ અને સારવાર HIV/AIDS હટાવવામાં મદદ કરે છે.","ke":["HIV testing is free and confidential","Treatment lets people live long lives","No discrimination against patients","Prevention protects everyone"],"kg":["HIV તપાસ મફત અને ગુપ્ત છે","સારવારથી લોકો લાંબુ જીવે છે","દર્દી સાથે ભેદભાવ નહીં","બચાવ દરેકને રક્ષણ આપે છે"],"ce":"Get informed, get tested, end the stigma.","cg":"જાણો, તપાસ કરાવો, ભેદભાવ દૂર કરો.","icon":"ribbon","tags":["EndAIDS","KnowYourStatus"]},"stroke":{"ie":"Recognising stroke fast can save a life and prevent disability.","ig":"સ્ટ્રોકને ઝડપથી ઓળખવાથી જીવન બચે અને અપંગતા અટકે.","ke":["Face drooping — act fast","Arm weakness on one side","Slurred or difficult speech","Rush to hospital immediately"],"kg":["ચહેરો લબડે — ઝડપથી કાર્ય કરો","એક બાજુ હાથમાં નબળાઈ","અસ્પષ્ટ કે મુશ્કેલ બોલી","તરત હોસ્પિટલ પહોંચો"],"ce":"Remember F.A.S.T. — every minute matters in a stroke.","cg":"F.A.S.T. યાદ રાખો — સ્ટ્રોકમાં દરેક મિનિટ મહત્વની.","icon":"brain","tags":["ActFAST","WorldStrokeDay"]},"rabies":{"ie":"Rabies is deadly but 100% preventable with timely care.","ig":"હડકવા ઘાતક છે પણ સમયસર સંભાળથી 100% અટકાવી શકાય.","ke":["Wash any animal bite with soap and water","Get anti-rabies vaccine promptly","Vaccinate pet dogs every year","Never ignore a stray bite"],"kg":["કોઈપણ પ્રાણી કરડે તો સાબુ-પાણીથી ધોવો","તરત હડકવા વિરોધી રસી લો","પાળેલા કૂતરાને દર વર્ષે રસી આપો","રખડતા કરડવાને અવગણશો નહીં"],"ce":"Bitten by an animal? Wash and get vaccinated now.","cg":"પ્રાણી કરડ્યું? ધોવો અને તરત રસી લો.","icon":"drop","tags":["WorldRabiesDay","ZeroRabies"]},"suicide":{"ie":"Reaching out and listening can save a life.","ig":"વાત કરવી અને સાંભળવું જીવન બચાવી શકે.","ke":["Take talk of self-harm seriously","Listen without judgement","Help them reach professional support","Stay connected and check in"],"kg":["સ્વ-નુકસાનની વાતને ગંભીરતાથી લો","ન્યાય કર્યા વગર સાંભળો","વ્યાવસાયિક મદદ સુધી પહોંચાડો","સંપર્કમાં રહો અને ખબર પૂછો"],"ce":"Check in on someone who may be struggling.","cg":"જે મુશ્કેલીમાં હોય તેની ખબર પૂછો.","icon":"brain","tags":["SuicidePrevention","ReachOut"]},"alzheimer":{"ie":"Memory changes deserve attention, care and support.","ig":"યાદશક્તિમાં બદલાવ ધ્યાન, સંભાળ અને સાથ માંગે છે.","ke":["Notice ongoing memory changes","Keep the mind and body active","Support a familiar daily routine","Be patient and understanding"],"kg":["સતત યાદશક્તિ બદલાવ ધ્યાનમાં લો","મન અને શરીર સક્રિય રાખો","પરિચિત દિનચર્યાને સાથ આપો","ધીરજ અને સમજદારી રાખો"],"ce":"Spend patient time with someone who needs support.","cg":"જેને સાથ જોઈએ તેની સાથે ધીરજથી સમય કાઢો.","icon":"brain","tags":["Alzheimers","DementiaCare"]},"arthritis":{"ie":"Staying active helps keep joints flexible and strong.","ig":"સક્રિય રહેવાથી સાંધા લચીલા અને મજબૂત રહે છે.","ke":["Keep gently active every day","Maintain a healthy weight","Do not ignore lasting joint pain","Follow your doctor’s advice"],"kg":["રોજ હળવી રીતે સક્રિય રહો","સ્વસ્થ વજન જાળવો","સતત સાંધાના દુખાવાને અવગણશો નહીં","ડોક્ટરની સલાહ પાળો"],"ce":"Do gentle movement for your joints today.","cg":"આજે સાંધા માટે હળવી કસરત કરો.","icon":"elder","tags":["Arthritis","JointHealth"]},"osteoporosis":{"ie":"Strong bones need calcium, vitamin D and activity.","ig":"મજબૂત હાડકાંને કેલ્શિયમ, વિટામિન D અને પ્રવૃત્તિ જોઈએ.","ke":["Eat calcium-rich foods","Get some safe sunlight for vitamin D","Do weight-bearing activity","Avoid tobacco and excess alcohol"],"kg":["કેલ્શિયમયુક્ત ખોરાક ખાઓ","વિટામિન D માટે થોડો સુરક્ષિત તડકો લો","વજન-આધારિત પ્રવૃત્તિ કરો","તમાકુ અને વધુ દારૂ ટાળો"],"ce":"Add one calcium-rich food and some movement today.","cg":"આજે એક કેલ્શિયમયુક્ત ખોરાક અને થોડી પ્રવૃત્તિ ઉમેરો.","icon":"elder","tags":["BoneHealth","StrongBones"]},"pneumonia":{"ie":"Pneumonia is serious but often preventable and treatable.","ig":"ન્યુમોનિયા ગંભીર છે પણ ઘણીવાર અટકાવી અને મટાડી શકાય.","ke":["Keep children’s vaccines up to date","Seek care for fast or difficult breathing","Wash hands to prevent infection","Keep indoor air smoke-free"],"kg":["બાળકોની રસી અદ્યતન રાખો","ઝડપી કે મુશ્કેલ શ્વાસ માટે સારવાર લો","ચેપ અટકાવવા હાથ ધોવો","ઘરની હવા ધુમાડા મુક્ત રાખો"],"ce":"Watch for fast breathing in children — seek care early.","cg":"બાળકોમાં ઝડપી શ્વાસ પર ધ્યાન આપો — વહેલી સારવાર લો.","icon":"lungs","tags":["StopPneumonia","ChildHealth"]},"prematurity":{"ie":"Small and early babies need extra warmth, care and feeding.","ig":"નાના અને અકાળ બાળકોને વધારાની ઉષ્મા, સંભાળ અને દૂધ જોઈએ.","ke":["Kangaroo care keeps babies warm","Breast milk is vital for them","Attend all follow-up visits","Keep them safe from infection"],"kg":["કાંગારૂ કેર બાળકને ગરમ રાખે","માતાનું દૂધ તેમના માટે અતિ જરૂરી","બધી ફોલોઅપ મુલાકાત કરો","ચેપથી સુરક્ષિત રાખો"],"ce":"Give preterm babies the warmth and care they need.","cg":"અકાળ બાળકોને જરૂરી ઉષ્મા અને સંભાળ આપો.","icon":"baby","tags":["WorldPrematurityDay","EveryBabyCounts"]},"menstrual":{"ie":"Safe menstrual hygiene supports health and dignity.","ig":"સુરક્ષિત માસિક સ્વચ્છતા આરોગ્ય અને ગૌરવને સાથ આપે છે.","ke":["Use clean menstrual materials","Change regularly and wash hands","Dispose of materials safely","Talk openly, without shame"],"kg":["સ્વચ્છ માસિક સામગ્રી વાપરો","નિયમિત બદલો અને હાથ ધોવો","સામગ્રીનો સુરક્ષિત નિકાલ કરો","શરમ વગર ખુલ્લેઆમ વાત કરો"],"ce":"Support open, stigma-free conversations about periods.","cg":"માસિક વિશે ખુલ્લી, ભેદભાવ વગરની વાતને સાથ આપો.","icon":"venus","tags":["MenstrualHygiene","PeriodPositive"]},"childhoodcancer":{"ie":"Childhood cancer is often treatable when detected early.","ig":"બાળ કેન્સર વહેલું ઓળખાય તો ઘણીવાર મટાડી શકાય.","ke":["Notice unexplained lumps or fever","Persistent tiredness needs a check","Early care improves recovery","Support families through treatment"],"kg":["કારણ વગરની ગાંઠ કે તાવ ધ્યાનમાં લો","સતત થાક તપાસ માંગે","વહેલી સંભાળ સ્વસ્થતા સુધારે","સારવારમાં પરિવારને સાથ આપો"],"ce":"Do not delay if a child shows warning signs.","cg":"બાળકમાં ચેતવણી સંકેત દેખાય તો વિલંબ ન કરો.","icon":"ribbon","tags":["ChildhoodCancer","GoGold"]},"sicklecell":{"ie":"Sickle cell disease can be managed with the right care.","ig":"સિકલ સેલ રોગ યોગ્ય સંભાળથી સંભાળી શકાય.","ke":["Know if you are a carrier","Screening before marriage helps","Stay hydrated and avoid extreme cold","Follow regular medical care"],"kg":["તમે કેરિયર છો કે નહીં જાણો","લગ્ન પહેલાં તપાસ મદદરૂપ","પૂરતું પાણી પીઓ, અતિ ઠંડી ટાળો","નિયમિત તબીબી સંભાળ લો"],"ce":"Learn about sickle cell screening in your family.","cg":"પરિવારમાં સિકલ સેલ તપાસ વિશે જાણો.","icon":"blood","tags":["SickleCell","GetScreened"]},"haemophilia":{"ie":"People with haemophilia can live full lives with care.","ig":"હીમોફિલિયા ધરાવતા લોકો સંભાળથી પૂર્ણ જીવન જીવી શકે.","ke":["Avoid injuries and manage bleeds early","Follow specialist treatment","Stay gently active","Know the warning signs of bleeding"],"kg":["ઈજા ટાળો, રક્તસ્રાવ વહેલો સંભાળો","નિષ્ણાત સારવાર પાળો","હળવી રીતે સક્રિય રહો","રક્તસ્રાવના સંકેત જાણો"],"ce":"Support awareness and care for bleeding disorders.","cg":"રક્તસ્રાવ વિકારો માટે જાગૃતિ અને સંભાળને સાથ આપો.","icon":"blood","tags":["Haemophilia","BleedingDisorders"]},"autism":{"ie":"Understanding and inclusion help every child thrive.","ig":"સમજ અને સમાવેશ દરેક બાળકને વિકસવામાં મદદ કરે.","ke":["Every child develops differently","Early support makes a difference","Include, don’t exclude","Celebrate each child’s strengths"],"kg":["દરેક બાળક અલગ રીતે વિકસે છે","વહેલો સાથ ફરક પાડે છે","સમાવો, દૂર ન કરો","દરેક બાળકની ખૂબીઓ બિરદાવો"],"ce":"Choose understanding and inclusion today.","cg":"આજે સમજ અને સમાવેશ પસંદ કરો.","icon":"baby","tags":["Autism","Inclusion"]},"disability":{"ie":"An inclusive society gives everyone equal opportunity.","ig":"સમાવેશી સમાજ દરેકને સમાન તક આપે છે.","ke":["Build accessible spaces","Include, respect and support","Focus on ability, not disability","Provide equal opportunities"],"kg":["સુલભ જગ્યાઓ બનાવો","સમાવો, સન્માન અને સાથ આપો","અક્ષમતા નહીં, ક્ષમતા પર ધ્યાન","સમાન તક આપો"],"ce":"Make one space or task more accessible today.","cg":"આજે એક જગ્યા કે કાર્ય વધુ સુલભ બનાવો.","icon":"heart","tags":["Inclusion","DisabilityAwareness"]},"deworming":{"ie":"Regular deworming keeps children healthy and well-nourished.","ig":"નિયમિત કૃમિમુક્તિ બાળકોને સ્વસ્થ અને પોષિત રાખે છે.","ke":["Give deworming tablets as advised","Keep nails short and clean","Always use a toilet","Wash hands and food well"],"kg":["સલાહ મુજબ કૃમિની ગોળી આપો","નખ ટૂંકા અને સ્વચ્છ રાખો","હંમેશા શૌચાલય વાપરો","હાથ અને ખોરાક બરાબર ધોવો"],"ce":"Ensure children take deworming tablets on schedule.","cg":"બાળકોને સમયસર કૃમિની ગોળી અપાવો.","icon":"baby","tags":["Deworming","ChildHealth"]},"yoga":{"ie":"Daily yoga improves flexibility, calm and overall wellbeing.","ig":"રોજ યોગ કરવાથી લચક, શાંતિ અને સંપૂર્ણ સ્વાસ્થ્ય સુધરે છે.","ke":["Start with 15 minutes a day","Breathe deeply and slowly","Practise regularly, not perfectly","Yoga suits all ages"],"kg":["રોજ 15 મિનિટથી શરૂ કરો","ઊંડા અને ધીમા શ્વાસ લો","નિયમિત અભ્યાસ કરો","યોગ દરેક ઉંમર માટે યોગ્ય"],"ce":"Begin your day with a few minutes of yoga.","cg":"થોડી મિનિટના યોગથી દિવસ શરૂ કરો.","icon":"yoga","tags":["YogaForHealth","InternationalYogaDay"]},"polio":{"ie":"Vaccination keeps every child safe from polio.","ig":"રસીકરણ દરેક બાળકને પોલિયોથી સુરક્ષિત રાખે છે.","ke":["Give every child polio drops","Follow all vaccination rounds","No child should be missed","Vaccines are safe and free"],"kg":["દરેક બાળકને પોલિયો ટીપાં આપો","બધા રસીકરણ રાઉન્ડ પાળો","કોઈ બાળક બાકી ન રહે","રસી સલામત અને મફત છે"],"ce":"Make sure no child in your area misses polio drops.","cg":"તમારા વિસ્તારમાં કોઈ બાળક પોલિયો ટીપાં ચૂકે નહીં.","icon":"drop","tags":["EndPolio","PulsePolio"]},"leprosy":{"ie":"Leprosy is curable. Early detection and full treatment prevent disability.","ig":"રક્તપિત્ત મટાડી શકાય છે. વહેલી તપાસ અને પૂરી સારવારથી અપંગતા અટકે છે.","ke":["Watch for pale or reddish skin patches","Free treatment (MDT) is available","Leprosy does not spread by touch","No stigma — patients live normal lives"],"kg":["ત્વચા પર ફિક્કા કે લાલ ધબ્બા પર ધ્યાન આપો","મફત સારવાર (MDT) ઉપલબ્ધ છે","સ્પર્શથી રક્તપિત્ત ફેલાતું નથી","ભેદભાવ નહીં — દર્દી સામાન્ય જીવન જીવે છે"],"ce":"Notice a skin patch? Visit your nearest health centre.","cg":"ત્વચા પર ધબ્બો? નજીકના આરોગ્ય કેન્દ્રે જાઓ.","icon":"ribbon","tags":["LeprosyFree","EarlyDetection"]}};
 
-const CAL_ROWS=[[1,1,"Balanced Diet Awareness Day","Health & Nutrition"],[1,2,"Daily Walking Awareness Day","Physical Activity"],[1,3,"Safe Drinking Water Awareness Day","Public Health"],[1,4,"World Braille Day","Health & Inclusion"],[1,5,"Sleep Health Awareness Day","Mental & Physical Health"],[1,6,"Oral Hygiene Awareness Day","Health"],[1,7,"Handwashing Practice Day","Public Health"],[1,8,"Healthy Heart Habits Day","Health"],[1,9,"Pravasi Bharatiya Divas","National"],[1,10,"World Hindi Day","Language & Culture"],[1,11,"Diabetes Prevention Awareness Day","Health"],[1,12,"National Youth Day","National"],[1,13,"Blood Pressure Check Awareness Day","Health"],[1,14,"Cancer Prevention Awareness Day","Health"],[1,15,"Indian Army Day","National"],[1,16,"Tobacco-Free Living Day","Health"],[1,17,"Mental Well-being Awareness Day","Mental Health"],[1,18,"Maternal Health Awareness Day","Reproductive & Maternal Health"],[1,19,"Child Nutrition Awareness Day","Child Health"],[1,20,"Adolescent Health Awareness Day","Adolescent Health"],[1,21,"Senior Citizen Wellness Day","Healthy Ageing"],[1,22,"Road Safety Awareness Day","Safety & Injury Prevention"],[1,23,"Parakram Diwas","National"],[1,24,"National Girl Child Day","Health & Social"],[1,25,"National Voters' Day","National"],[1,26,"Republic Day","National"],[1,27,"Mosquito-Borne Disease Prevention Day","Vector-Borne Disease"],[1,28,"Dengue Prevention Awareness Day","Vector-Borne Disease"],[1,29,"Malaria Prevention Awareness Day","Vector-Borne Disease"],[1,30,"Martyrs' Day / Anti-Leprosy Day","National & Health"],[1,31,"Tuberculosis Prevention Awareness Day","Communicable Disease"],[2,1,"Vaccination Awareness Day","Immunization"],[2,2,"World Wetlands Day","Environment"],[2,3,"Anaemia Prevention Awareness Day","Nutrition"],[2,4,"World Cancer Day","Health"],[2,5,"Women's Health Awareness Day","Women's Health"],[2,6,"International Day of Zero Tolerance for FGM","Health & Rights"],[2,7,"Men's Health Awareness Day","Men's Health"],[2,8,"Eye Health Awareness Day","Health"],[2,9,"Hearing Health Awareness Day","Health"],[2,10,"National Deworming Day","Health"],[2,11,"International Day of Women and Girls in Science","Science & Inclusion"],[2,12,"Kidney Health Awareness Day","Health"],[2,13,"World Radio Day","Communication"],[2,14,"Liver Health Awareness Day","Health"],[2,15,"International Childhood Cancer Day","Health"],[2,16,"Respiratory Health Awareness Day","Health"],[2,17,"Food Safety Awareness Day","Public Health"],[2,18,"Sanitation Awareness Day","Public Health"],[2,19,"Occupational Health Awareness Day","Occupational Health"],[2,20,"World Day of Social Justice","Social"],[2,21,"International Mother Language Day","Language & Culture"],[2,22,"First Aid Awareness Day","Emergency Preparedness"],[2,23,"Organ Donation Awareness Day","Health"],[2,24,"Blood Donation Awareness Day","Health"],[2,25,"Antimicrobial Resistance Awareness Day","Public Health"],[2,26,"Zoonotic Disease Prevention Day","Public Health"],[2,27,"World NGO Day","Social"],[2,28,"National Science Day","National & Science"],[3,1,"Zero Discrimination Day","Health & Rights"],[3,2,"One Health Awareness Day","Public Health"],[3,3,"World Hearing Day / World Wildlife Day","Health & Environment"],[3,4,"World Obesity Day","Health"],[3,5,"Climate and Health Awareness Day","Health & Environment"],[3,6,"Balanced Diet Awareness Day","Health & Nutrition"],[3,7,"Daily Walking Awareness Day","Physical Activity"],[3,8,"International Women's Day","Health & Social"],[3,9,"Safe Drinking Water Awareness Day","Public Health"],[3,10,"CISF Raising Day","National"],[3,11,"Sleep Health Awareness Day","Mental & Physical Health"],[3,12,"World Kidney Day","Health"],[3,13,"Oral Hygiene Awareness Day","Health"],[3,14,"Handwashing Practice Day","Public Health"],[3,15,"World Consumer Rights Day","Consumer Affairs"],[3,16,"National Vaccination Day","Health"],[3,17,"Healthy Heart Habits Day","Health"],[3,18,"Diabetes Prevention Awareness Day","Health"],[3,19,"Blood Pressure Check Awareness Day","Health"],[3,20,"World Oral Health Day","Health"],[3,21,"World Down Syndrome Day / International Day of Forests","Health & Environment"],[3,22,"World Water Day","Health & Environment"],[3,23,"Shaheed Diwas","National"],[3,24,"World Tuberculosis Day","Health"],[3,25,"Cancer Prevention Awareness Day","Health"],[3,26,"Tobacco-Free Living Day","Health"],[3,27,"Mental Well-being Awareness Day","Mental Health"],[3,28,"Maternal Health Awareness Day","Reproductive & Maternal Health"],[3,29,"Child Nutrition Awareness Day","Child Health"],[3,30,"Adolescent Health Awareness Day","Adolescent Health"],[3,31,"Senior Citizen Wellness Day","Healthy Ageing"],[4,1,"Road Safety Awareness Day","Safety & Injury Prevention"],[4,2,"World Autism Awareness Day","Health & Inclusion"],[4,3,"Mosquito-Borne Disease Prevention Day","Vector-Borne Disease"],[4,4,"Dengue Prevention Awareness Day","Vector-Borne Disease"],[4,5,"National Maritime Day","National"],[4,6,"Malaria Prevention Awareness Day","Vector-Borne Disease"],[4,7,"World Health Day","Health"],[4,8,"Tuberculosis Prevention Awareness Day","Communicable Disease"],[4,9,"Vaccination Awareness Day","Immunization"],[4,10,"World Homeopathy Day","Health"],[4,11,"National Safe Motherhood Day / World Parkinson's Day","Health"],[4,12,"Anaemia Prevention Awareness Day","Nutrition"],[4,13,"Women's Health Awareness Day","Women's Health"],[4,14,"Dr. B. R. Ambedkar Jayanti","National"],[4,15,"Men's Health Awareness Day","Men's Health"],[4,16,"Eye Health Awareness Day","Health"],[4,17,"World Haemophilia Day","Health"],[4,18,"World Heritage Day","Culture"],[4,19,"Hearing Health Awareness Day","Health"],[4,20,"Kidney Health Awareness Day","Health"],[4,21,"Liver Health Awareness Day","Health"],[4,22,"Earth Day","Environment"],[4,23,"Respiratory Health Awareness Day","Health"],[4,24,"National Panchayati Raj Day","National"],[4,25,"World Malaria Day","Health"],[4,26,"Food Safety Awareness Day","Public Health"],[4,27,"Sanitation Awareness Day","Public Health"],[4,28,"World Day for Safety and Health at Work","Occupational Health"],[4,29,"Occupational Health Awareness Day","Occupational Health"],[4,30,"First Aid Awareness Day","Emergency Preparedness"],[5,1,"International Labour Day","National & Labour"],[5,2,"Organ Donation Awareness Day","Health"],[5,3,"World Press Freedom Day","Media"],[5,4,"Blood Donation Awareness Day","Health"],[5,5,"World Hand Hygiene Day","Health"],[5,6,"Antimicrobial Resistance Awareness Day","Public Health"],[5,7,"Zoonotic Disease Prevention Day","Public Health"],[5,8,"World Red Cross and Red Crescent Day","Health & Humanitarian"],[5,9,"One Health Awareness Day","Public Health"],[5,10,"Mother's Day","Family & Social"],[5,11,"National Technology Day","National & Science"],[5,12,"International Nurses Day","Health"],[5,13,"Climate and Health Awareness Day","Health & Environment"],[5,14,"Balanced Diet Awareness Day","Health & Nutrition"],[5,15,"International Day of Families","Social"],[5,16,"Daily Walking Awareness Day","Physical Activity"],[5,17,"World Hypertension Day","Health"],[5,18,"World AIDS Vaccine Day","Health"],[5,19,"Safe Drinking Water Awareness Day","Public Health"],[5,20,"World Bee Day","Environment"],[5,21,"International Tea Day","Agriculture"],[5,22,"International Day for Biological Diversity","Environment"],[5,23,"Sleep Health Awareness Day","Mental & Physical Health"],[5,24,"Oral Hygiene Awareness Day","Health"],[5,25,"Handwashing Practice Day","Public Health"],[5,26,"Healthy Heart Habits Day","Health"],[5,27,"Diabetes Prevention Awareness Day","Health"],[5,28,"Menstrual Hygiene Day","Health"],[5,29,"Blood Pressure Check Awareness Day","Health"],[5,30,"Cancer Prevention Awareness Day","Health"],[5,31,"World No Tobacco Day","Health"],[6,1,"Global Day of Parents","Social"],[6,2,"Tobacco-Free Living Day","Health"],[6,3,"World Bicycle Day","Health & Environment"],[6,4,"Mental Well-being Awareness Day","Mental Health"],[6,5,"World Environment Day","Environment"],[6,6,"Maternal Health Awareness Day","Reproductive & Maternal Health"],[6,7,"World Food Safety Day","Health & Nutrition"],[6,8,"World Oceans Day","Environment"],[6,9,"Child Nutrition Awareness Day","Child Health"],[6,10,"Adolescent Health Awareness Day","Adolescent Health"],[6,11,"Senior Citizen Wellness Day","Healthy Ageing"],[6,12,"World Day Against Child Labour","Social"],[6,13,"Road Safety Awareness Day","Safety & Injury Prevention"],[6,14,"World Blood Donor Day","Health"],[6,15,"Mosquito-Borne Disease Prevention Day","Vector-Borne Disease"],[6,16,"Dengue Prevention Awareness Day","Vector-Borne Disease"],[6,17,"Malaria Prevention Awareness Day","Vector-Borne Disease"],[6,18,"Tuberculosis Prevention Awareness Day","Communicable Disease"],[6,19,"World Sickle Cell Day","Health"],[6,20,"World Refugee Day","Humanitarian"],[6,21,"Father's Day / International Day of Yoga","Health & Family"],[6,22,"Vaccination Awareness Day","Immunization"],[6,23,"Anaemia Prevention Awareness Day","Nutrition"],[6,24,"Women's Health Awareness Day","Women's Health"],[6,25,"Men's Health Awareness Day","Men's Health"],[6,26,"International Day Against Drug Abuse and Illicit Trafficking","Health & Social"],[6,27,"Eye Health Awareness Day","Health"],[6,28,"Hearing Health Awareness Day","Health"],[6,29,"Kidney Health Awareness Day","Health"],[6,30,"Liver Health Awareness Day","Health"],[7,1,"National Doctors' Day","Health"],[7,2,"Respiratory Health Awareness Day","Health"],[7,3,"Food Safety Awareness Day","Public Health"],[7,4,"Sanitation Awareness Day","Public Health"],[7,5,"Occupational Health Awareness Day","Occupational Health"],[7,6,"World Zoonoses Day","Health"],[7,7,"First Aid Awareness Day","Emergency Preparedness"],[7,8,"Organ Donation Awareness Day","Health"],[7,9,"Blood Donation Awareness Day","Health"],[7,10,"Antimicrobial Resistance Awareness Day","Public Health"],[7,11,"World Population Day","Health & Social"],[7,12,"Zoonotic Disease Prevention Day","Public Health"],[7,13,"One Health Awareness Day","Public Health"],[7,14,"Climate and Health Awareness Day","Health & Environment"],[7,15,"World Youth Skills Day","Education & Skills"],[7,16,"Balanced Diet Awareness Day","Health & Nutrition"],[7,17,"Daily Walking Awareness Day","Physical Activity"],[7,18,"Nelson Mandela International Day","Social"],[7,19,"Safe Drinking Water Awareness Day","Public Health"],[7,20,"Sleep Health Awareness Day","Mental & Physical Health"],[7,21,"Oral Hygiene Awareness Day","Health"],[7,22,"Handwashing Practice Day","Public Health"],[7,23,"Healthy Heart Habits Day","Health"],[7,24,"Diabetes Prevention Awareness Day","Health"],[7,25,"Blood Pressure Check Awareness Day","Health"],[7,26,"Kargil Vijay Diwas","National"],[7,27,"Cancer Prevention Awareness Day","Health"],[7,28,"World Hepatitis Day","Health"],[7,29,"International Tiger Day","Environment"],[7,30,"World Day Against Trafficking in Persons","Social"],[7,31,"Tobacco-Free Living Day","Health"],[8,1,"World Lung Cancer Day","Health"],[8,2,"Friendship Day","Social"],[8,3,"Mental Well-being Awareness Day","Mental Health"],[8,4,"Maternal Health Awareness Day","Reproductive & Maternal Health"],[8,5,"Child Nutrition Awareness Day","Child Health"],[8,6,"Hiroshima Day","Peace"],[8,7,"National Handloom Day","National"],[8,8,"Adolescent Health Awareness Day","Adolescent Health"],[8,9,"Quit India Movement Day","National"],[8,10,"World Biofuel Day","Environment & Energy"],[8,11,"Senior Citizen Wellness Day","Healthy Ageing"],[8,12,"International Youth Day","Social"],[8,13,"Road Safety Awareness Day","Safety & Injury Prevention"],[8,14,"Mosquito-Borne Disease Prevention Day","Vector-Borne Disease"],[8,15,"Independence Day","National"],[8,16,"Dengue Prevention Awareness Day","Vector-Borne Disease"],[8,17,"Malaria Prevention Awareness Day","Vector-Borne Disease"],[8,18,"Tuberculosis Prevention Awareness Day","Communicable Disease"],[8,19,"World Humanitarian Day","Humanitarian"],[8,20,"Sadbhavana Diwas","National & Social"],[8,21,"Vaccination Awareness Day","Immunization"],[8,22,"Anaemia Prevention Awareness Day","Nutrition"],[8,23,"International Day for the Remembrance of the Slave Trade","Social"],[8,24,"Women's Health Awareness Day","Women's Health"],[8,25,"Men's Health Awareness Day","Men's Health"],[8,26,"Eye Health Awareness Day","Health"],[8,27,"Hearing Health Awareness Day","Health"],[8,28,"Kidney Health Awareness Day","Health"],[8,29,"National Sports Day","Health & Sports"],[8,30,"National Small Industry Day","National & Economy"],[8,31,"Liver Health Awareness Day","Health"],[9,1,"Respiratory Health Awareness Day","Health"],[9,2,"Food Safety Awareness Day","Public Health"],[9,3,"Sanitation Awareness Day","Public Health"],[9,4,"Occupational Health Awareness Day","Occupational Health"],[9,5,"Teachers' Day","National & Education"],[9,6,"First Aid Awareness Day","Emergency Preparedness"],[9,7,"Organ Donation Awareness Day","Health"],[9,8,"International Literacy Day","Education"],[9,9,"Blood Donation Awareness Day","Health"],[9,10,"World Suicide Prevention Day","Health"],[9,11,"Antimicrobial Resistance Awareness Day","Public Health"],[9,12,"Zoonotic Disease Prevention Day","Public Health"],[9,13,"One Health Awareness Day","Public Health"],[9,14,"Hindi Diwas","National & Language"],[9,15,"Engineers' Day","National & Science"],[9,16,"World Ozone Day","Environment"],[9,17,"World Patient Safety Day","Health"],[9,18,"Climate and Health Awareness Day","Health & Environment"],[9,19,"Balanced Diet Awareness Day","Health & Nutrition"],[9,20,"Daily Walking Awareness Day","Physical Activity"],[9,21,"World Alzheimer's Day / International Day of Peace","Health & Peace"],[9,22,"Safe Drinking Water Awareness Day","Public Health"],[9,23,"Sleep Health Awareness Day","Mental & Physical Health"],[9,24,"Oral Hygiene Awareness Day","Health"],[9,25,"World Pharmacists Day","Health"],[9,26,"World Environmental Health Day","Health & Environment"],[9,27,"World Rivers Day / World Tourism Day","Environment & Tourism"],[9,28,"World Rabies Day","Health"],[9,29,"World Heart Day","Health"],[9,30,"Handwashing Practice Day","Public Health"],[10,1,"National Voluntary Blood Donation Day / International Day of Older Persons","Health & Social"],[10,2,"Gandhi Jayanti / International Day of Non-Violence","National & Peace"],[10,3,"Healthy Heart Habits Day","Health"],[10,4,"World Animal Day","Environment"],[10,5,"World Teachers' Day","Education"],[10,6,"Diabetes Prevention Awareness Day","Health"],[10,7,"Blood Pressure Check Awareness Day","Health"],[10,8,"Indian Air Force Day","National"],[10,9,"World Post Day","Communication"],[10,10,"World Mental Health Day","Health"],[10,11,"International Day of the Girl Child","Health & Social"],[10,12,"World Arthritis Day","Health"],[10,13,"International Day for Disaster Risk Reduction","Safety"],[10,14,"Cancer Prevention Awareness Day","Health"],[10,15,"Global Handwashing Day","Health"],[10,16,"World Food Day","Health & Nutrition"],[10,17,"Tobacco-Free Living Day","Health"],[10,18,"Mental Well-being Awareness Day","Mental Health"],[10,19,"Maternal Health Awareness Day","Reproductive & Maternal Health"],[10,20,"World Osteoporosis Day","Health"],[10,21,"Child Nutrition Awareness Day","Child Health"],[10,22,"Adolescent Health Awareness Day","Adolescent Health"],[10,23,"Senior Citizen Wellness Day","Healthy Ageing"],[10,24,"United Nations Day / World Polio Day","Health & International"],[10,25,"Road Safety Awareness Day","Safety & Injury Prevention"],[10,26,"Mosquito-Borne Disease Prevention Day","Vector-Borne Disease"],[10,27,"Dengue Prevention Awareness Day","Vector-Borne Disease"],[10,28,"Malaria Prevention Awareness Day","Vector-Borne Disease"],[10,29,"World Stroke Day","Health"],[10,30,"Tuberculosis Prevention Awareness Day","Communicable Disease"],[10,31,"National Unity Day","National"],[11,1,"Vaccination Awareness Day","Immunization"],[11,2,"Anaemia Prevention Awareness Day","Nutrition"],[11,3,"Women's Health Awareness Day","Women's Health"],[11,4,"Men's Health Awareness Day","Men's Health"],[11,5,"World Tsunami Awareness Day","Safety"],[11,6,"Eye Health Awareness Day","Health"],[11,7,"National Cancer Awareness Day","Health"],[11,8,"Hearing Health Awareness Day","Health"],[11,9,"National Legal Services Day","National & Legal"],[11,10,"World Science Day for Peace and Development","Science"],[11,11,"National Education Day","National & Education"],[11,12,"World Pneumonia Day","Health"],[11,13,"Kidney Health Awareness Day","Health"],[11,14,"Children's Day / World Diabetes Day","Health & National"],[11,15,"Liver Health Awareness Day","Health"],[11,16,"National Press Day","National & Media"],[11,17,"World Prematurity Day","Health"],[11,18,"Respiratory Health Awareness Day","Health"],[11,19,"World Toilet Day / International Men's Day","Health & Social"],[11,20,"Universal Children's Day","Social"],[11,21,"World Fisheries Day","Environment & Livelihood"],[11,22,"Food Safety Awareness Day","Public Health"],[11,23,"Sanitation Awareness Day","Public Health"],[11,24,"Occupational Health Awareness Day","Occupational Health"],[11,25,"First Aid Awareness Day","Emergency Preparedness"],[11,26,"Constitution Day","National"],[11,27,"Organ Donation Awareness Day","Health"],[11,28,"Blood Donation Awareness Day","Health"],[11,29,"Antimicrobial Resistance Awareness Day","Public Health"],[11,30,"Zoonotic Disease Prevention Day","Public Health"],[12,1,"World AIDS Day","Health"],[12,2,"National Pollution Control Day","Health & Environment"],[12,3,"International Day of Persons with Disabilities","Health & Inclusion"],[12,4,"Indian Navy Day","National"],[12,5,"World Soil Day","Environment & Agriculture"],[12,6,"One Health Awareness Day","Public Health"],[12,7,"Armed Forces Flag Day","National"],[12,8,"Climate and Health Awareness Day","Health & Environment"],[12,9,"International Anti-Corruption Day","Governance"],[12,10,"Human Rights Day","Rights"],[12,11,"International Mountain Day","Environment"],[12,12,"Balanced Diet Awareness Day","Health & Nutrition"],[12,13,"Daily Walking Awareness Day","Physical Activity"],[12,14,"National Energy Conservation Day","Environment & Energy"],[12,15,"Safe Drinking Water Awareness Day","Public Health"],[12,16,"Sleep Health Awareness Day","Mental & Physical Health"],[12,17,"Oral Hygiene Awareness Day","Health"],[12,18,"International Migrants Day","Social"],[12,19,"Handwashing Practice Day","Public Health"],[12,20,"Healthy Heart Habits Day","Health"],[12,21,"Diabetes Prevention Awareness Day","Health"],[12,22,"National Mathematics Day","National & Education"],[12,23,"Kisan Diwas / National Farmers' Day","National & Agriculture"],[12,24,"National Consumer Day","National & Consumer Affairs"],[12,25,"Good Governance Day","National & Governance"],[12,26,"Blood Pressure Check Awareness Day","Health"],[12,27,"Cancer Prevention Awareness Day","Health"],[12,28,"Tobacco-Free Living Day","Health"],[12,29,"Mental Well-being Awareness Day","Mental Health"],[12,30,"Maternal Health Awareness Day","Reproductive & Maternal Health"],[12,31,"Child Nutrition Awareness Day","Child Health"]];
-
-/* Bucket → colour + icon (compact set the many sheet categories map to) */
+/* Bucket → colour, Gujarati label, icon */
 const CATEGORIES = {
-  Health:{color:'#1a9f6e',icon:'heart'}, Nutrition:{color:'#e1a300',icon:'leaf'},
-  Activity:{color:'#16a085',icon:'yoga'}, Mental:{color:'#6c5ce7',icon:'brain'},
-  Environment:{color:'#2e8b57',icon:'leaf'}, Women:{color:'#d6336c',icon:'venus'},
-  Children:{color:'#e67e22',icon:'baby'}, Ageing:{color:'#b8860b',icon:'elder'},
-  National:{color:'#c0392b',icon:'cross'}, Education:{color:'#8e44ad',icon:'flask'},
-  Vector:{color:'#c0651a',icon:'mosquito'}, Immunization:{color:'#0f9d9d',icon:'drop'},
-  Safety:{color:'#d9482b',icon:'hands'}, Occupational:{color:'#7f8c8d',icon:'hands'},
-  Social:{color:'#1668c1',icon:'heart'}
+  Health:{color:'#1a9f6e',gu:'આરોગ્ય',icon:'heart'}, Nutrition:{color:'#e1a300',gu:'પોષણ',icon:'leaf'},
+  Activity:{color:'#16a085',gu:'પ્રવૃત્તિ',icon:'yoga'}, Mental:{color:'#6c5ce7',gu:'માનસિક',icon:'brain'},
+  Environment:{color:'#2e8b57',gu:'પર્યાવરણ',icon:'leaf'}, Women:{color:'#d6336c',gu:'મહિલા',icon:'venus'},
+  Children:{color:'#e67e22',gu:'બાળ',icon:'baby'}, Ageing:{color:'#b8860b',gu:'વૃદ્ધ',icon:'elder'},
+  National:{color:'#c0392b',gu:'રાષ્ટ્રીય',icon:'cross'}, Education:{color:'#8e44ad',gu:'શિક્ષણ',icon:'flask'},
+  Vector:{color:'#c0651a',gu:'રોગવાહક',icon:'mosquito'}, Immunization:{color:'#0f9d9d',gu:'રસીકરણ',icon:'drop'},
+  Safety:{color:'#d9482b',gu:'સલામતી',icon:'hands'}, Occupational:{color:'#7f8c8d',gu:'વ્યાવસાયિક',icon:'hands'},
+  Social:{color:'#1668c1',gu:'સામાજિક',icon:'heart'}
 };
+const STATUS_LABEL={official:{en:'Official observance',gu:'સત્તાવાર દિવસ',cls:'blue'},
+  recognized:{en:'Recognised observance',gu:'માન્ય દિવસ',cls:''},
+  studio:{en:'Studio-created theme',gu:'સ્ટુડિયો થીમ',cls:'gray'}};
 
-/* Map a sheet category/title to one internal bucket */
-function bucketFor(cat,title){
-  const s=((cat||'')+' '+(title||'')).toLowerCase();
-  if(/nutrition|diet|\bfood\b|breastfeed|anaemia|anemia/.test(s)) return 'Nutrition';
-  if(/vector|malaria|dengue|mosquito|filaria|chikungunya|kala.?azar/.test(s)) return 'Vector';
-  if(/immun|vaccin/.test(s)) return 'Immunization';
-  if(/mental|depress|suicide|stress|psycho/.test(s)) return 'Mental';
-  if(/physical activity|\bwalk|fitness|exercise|\byoga\b|sport/.test(s)) return 'Activity';
-  if(/reproduct|maternal|\bwomen|girl|breast|cervical|menstru/.test(s)) return 'Women';
-  if(/child|adolescent|infant|newborn|paediatr|pediatr/.test(s)) return 'Children';
-  if(/age(ing|d)?\b|elder|older|senior/.test(s)) return 'Ageing';
-  if(/environment|climate|earth|\bwater\b|energy|forest|wildlife|ocean|pollution|tree/.test(s)) return 'Environment';
-  if(/safety|injury|emergency|disaster|road|\bfire\b|drown/.test(s)) return 'Safety';
-  if(/occupational/.test(s)) return 'Occupational';
-  if(/national/.test((cat||'').toLowerCase())) return 'National';
-  if(/education|literacy|skill|science|language|culture|media/.test((cat||'').toLowerCase())) return 'Education';
-  if(/social|inclusion|rights|humanitarian|peace|governance|consumer|disab/.test(s)) return 'Social';
-  return 'Health';
-}
-
-/* Generic, honest content per bucket (English + Gujarati) */
+/* Civic / non-health bucket templates (bilingual) — used for days without a health subject */
 const TEMPLATES={
-  Health:{ie:'Simple daily habits protect your long-term health.',ig:'સાદી રોજિંદી આદતો તમારા લાંબા ગાળાના આરોગ્યનું રક્ષણ કરે છે.',
-    ke:['Eat balanced, home-cooked meals','Stay active for 30 minutes daily','Drink safe water and wash hands','Get regular health check-ups'],
-    kg:['સંતુલિત, ઘરનું ભોજન લો','રોજ 30 મિનિટ સક્રિય રહો','સ્વચ્છ પાણી પીઓ અને હાથ ધોવો','નિયમિત આરોગ્ય તપાસ કરાવો'],
-    ce:'Take one small step for your health today.',cg:'આજે તમારા આરોગ્ય માટે એક નાનું પગલું ભરો.',tg:['StayHealthy','HealthForAll']},
-  Nutrition:{ie:'Good nutrition is the foundation of a healthy body and mind.',ig:'સારું પોષણ સ્વસ્થ શરીર અને મનનો પાયો છે.',
-    ke:['Eat more fruits and vegetables','Choose whole grains and pulses','Cut down on sugar, salt and oil','Drink enough clean water'],
-    kg:['વધુ ફળ અને શાકભાજી ખાઓ','આખા અનાજ અને કઠોળ પસંદ કરો','ખાંડ, મીઠું અને તેલ ઓછું કરો','પૂરતું સ્વચ્છ પાણી પીઓ'],
-    ce:'Add one healthy food to your plate today.',cg:'આજે તમારી થાળીમાં એક પોષક ખોરાક ઉમેરો.',tg:['Nutrition','EatHealthy']},
-  Activity:{ie:'Staying active keeps your body and mind strong.',ig:'સક્રિય રહેવાથી શરીર અને મન મજબૂત રહે છે.',
-    ke:['Aim for 30 minutes of activity daily','Walking counts — start where you are','Take stairs instead of the lift','Move a little every hour'],
-    kg:['રોજ 30 મિનિટ પ્રવૃત્તિનું લક્ષ્ય રાખો','ચાલવું પણ ગણાય — શરૂ કરો','લિફ્ટ નહીં, દાદરા વાપરો','દર કલાકે થોડું હલો-ચલો'],
-    ce:'Get moving — a short walk today makes a difference.',cg:'ચાલો — આજની ટૂંકી ચાલ ફરક લાવે છે.',tg:['StayActive','FitIndia']},
-  Mental:{ie:'Mental health is health. It is okay to ask for help.',ig:'માનસિક આરોગ્ય પણ આરોગ્ય છે. મદદ માંગવી યોગ્ય છે.',
-    ke:['Talk to someone you trust','Keep a regular sleep routine','Take breaks and breathe','Seek help early, without shame'],
-    kg:['વિશ્વાસુ વ્યક્તિ સાથે વાત કરો','નિયમિત ઊંઘનો સમય રાખો','વિરામ લો અને શ્વાસ લો','શરમ વગર વહેલી મદદ લો'],
-    ce:'Reach out — a conversation can help.',cg:'વાત કરો — એક સંવાદ મદદ કરી શકે.',tg:['MentalHealth','YouMatter']},
-  Environment:{ie:'A clean environment is the foundation of good health.',ig:'સ્વચ્છ પર્યાવરણ સારા આરોગ્યનો પાયો છે.',
-    ke:['Plant and care for trees','Reduce single-use plastic','Save water and electricity','Keep your surroundings clean'],
-    kg:['વૃક્ષ વાવો અને સંભાળો','એક વખત વપરાતું પ્લાસ્ટિક ઘટાડો','પાણી અને વીજળી બચાવો','આસપાસ સ્વચ્છ રાખો'],
-    ce:'Do one green act today for a healthier tomorrow.',cg:'સ્વસ્થ આવતીકાલ માટે આજે એક હરિત કાર્ય કરો.',tg:['SaveEnvironment','GoGreen']},
-  Women:{ie:'Women’s health and wellbeing strengthen every family.',ig:'મહિલા આરોગ્ય અને સુખાકારી દરેક પરિવારને મજબૂત કરે છે.',
-    ke:['Attend regular health check-ups','Eat iron- and calcium-rich food','Do not ignore warning signs','Rest, nutrition and support matter'],
-    kg:['નિયમિત આરોગ્ય તપાસ કરાવો','આયર્ન અને કેલ્શિયમયુક્ત ખોરાક લો','ચેતવણી સંકેતોને અવગણશો નહીં','આરામ, પોષણ અને સાથ જરૂરી'],
-    ce:'Support the women around you — health and respect.',cg:'આસપાસની મહિલાઓને સાથ આપો — આરોગ્ય અને સન્માન.',tg:['WomensHealth','HealthyWomen']},
-  Children:{ie:'Healthy, happy children build a stronger future.',ig:'સ્વસ્થ, ખુશ બાળકો મજબૂત ભવિષ્ય બનાવે છે.',
-    ke:['Complete all childhood vaccines','Give balanced, nutritious food','Encourage play and study','Protect children from harm'],
-    kg:['બાળપણની બધી રસી પૂરી કરાવો','સંતુલિત, પોષક ખોરાક આપો','રમત અને અભ્યાસને પ્રોત્સાહન','બાળકોને નુકસાનથી બચાવો'],
-    ce:'Give every child care, nutrition and love.',cg:'દરેક બાળકને સંભાળ, પોષણ અને પ્રેમ આપો.',tg:['ChildHealth','HealthyChildren']},
-  Ageing:{ie:'Caring for our elders keeps them healthy and happy.',ig:'આપણા વડીલોની સંભાળ તેમને સ્વસ્થ અને ખુશ રાખે છે.',
-    ke:['Ensure regular check-ups','Help them take medicines on time','Encourage light daily activity','Spend time and listen'],
-    kg:['નિયમિત તપાસ કરાવો','સમયસર દવા લે તે જુઓ','હળવી દૈનિક પ્રવૃત્તિ કરાવો','સમય આપો અને સાંભળો'],
-    ce:'Call or visit an elder today — care matters.',cg:'આજે વડીલને મળો કે ફોન કરો — સંભાળ મહત્વની છે.',tg:['ElderCare','HealthyAgeing']},
-  National:{ie:'A day to reflect, remember and move forward together.',ig:'સાથે મળી વિચારવા, યાદ કરવા અને આગળ વધવાનો દિવસ.',
-    ke:['Know the meaning of the day','Honour those we remember','Contribute to your community','Carry the spirit forward'],
-    kg:['દિવસનું મહત્વ જાણો','જેમને યાદ કરીએ તેમનું સન્માન કરો','સમાજ માટે યોગદાન આપો','ભાવના આગળ વધારો'],
-    ce:'Take a moment to mark the day meaningfully.',cg:'દિવસને અર્થપૂર્ણ રીતે ઉજવવા ક્ષણ કાઢો.',tg:['India','ProudIndian']},
-  Education:{ie:'Knowledge and learning open doors for everyone.',ig:'જ્ઞાન અને શિક્ષણ દરેક માટે દ્વાર ખોલે છે.',
-    ke:['Support learning at every age','Encourage reading and curiosity','Share skills with others','Never stop learning'],
-    kg:['દરેક ઉંમરે શિક્ષણને સાથ આપો','વાંચન અને જિજ્ઞાસાને પ્રોત્સાહન','બીજા સાથે કૌશલ્ય વહેંચો','શીખવાનું ક્યારેય બંધ ન કરો'],
-    ce:'Learn or teach something new today.',cg:'આજે કંઈક નવું શીખો કે શીખવો.',tg:['Education','KeepLearning']},
-  Vector:{ie:'Mosquito-borne diseases are preventable with simple steps.',ig:'મચ્છરજન્ય રોગો સાદા પગલાંથી અટકાવી શકાય છે.',
-    ke:['Remove stagnant water weekly','Sleep under a mosquito net','Use repellents in the evening','Fever? Get a blood test early'],
-    kg:['દર અઠવાડિયે ભરાયેલું પાણી દૂર કરો','મચ્છરદાની હેઠળ સૂઓ','સાંજે મચ્છર ભગાડનાર વાપરો','તાવ? વહેલી લોહી તપાસ કરાવો'],
-    ce:'Check your home for mosquito breeding this week.',cg:'આ અઠવાડિયે ઘરમાં મચ્છર ઉત્પત્તિ તપાસો.',tg:['StopMosquito','FightDengue']},
-  Immunization:{ie:'Vaccines are a safe, proven way to prevent disease.',ig:'રસી રોગ અટકાવવાનો સલામત, સાબિત ઉપાય છે.',
-    ke:['Follow the vaccination schedule','Vaccinate children on time','Keep vaccination records safe','Ask your health worker for advice'],
-    kg:['રસીકરણ સમયપત્રક અનુસરો','બાળકોને સમયસર રસી અપાવો','રસીકરણ રેકોર્ડ સાચવો','આરોગ્ય કાર્યકરની સલાહ લો'],
-    ce:'Check that your family’s vaccines are up to date.',cg:'તમારા પરિવારની રસી અદ્યતન છે તે તપાસો.',tg:['Vaccinate','Immunization']},
-  Safety:{ie:'A few precautions can prevent serious injury.',ig:'થોડી સાવચેતી ગંભીર ઈજા અટકાવી શકે છે.',
-    ke:['Follow road and fire safety rules','Wear helmets and seatbelts','Keep emergency numbers handy','Know basic first aid'],
-    kg:['માર્ગ અને અગ્નિ સલામતી નિયમો પાળો','હેલ્મેટ અને સીટબેલ્ટ પહેરો','કટોકટી નંબર તૈયાર રાખો','પ્રાથમિક સારવાર જાણો'],
-    ce:'Stay alert — safety protects you and others.',cg:'સાવધ રહો — સલામતી તમને અને બીજાને બચાવે.',tg:['StaySafe','SafetyFirst']},
-  Occupational:{ie:'A safe, healthy workplace protects every worker.',ig:'સલામત, સ્વસ્થ કાર્યસ્થળ દરેક કામદારને બચાવે છે.',
-    ke:['Use protective equipment','Take regular breaks','Report hazards early','Maintain good posture'],
-    kg:['રક્ષણાત્મક સાધનો વાપરો','નિયમિત વિરામ લો','જોખમો વહેલા જણાવો','સારી મુદ્રા જાળવો'],
-    ce:'Make your workplace safer today.',cg:'આજે તમારા કાર્યસ્થળને વધુ સલામત બનાવો.',tg:['WorkplaceSafety','SafeAtWork']},
-  Social:{ie:'Compassion and inclusion make a healthier society.',ig:'કરુણા અને સમાવેશ સ્વસ્થ સમાજ બનાવે છે.',
-    ke:['Respect and include everyone','Support those in need','Stand against discrimination','Small kindness goes far'],
-    kg:['દરેકને સન્માન અને સમાવો','જરૂરિયાતમંદને સાથ આપો','ભેદભાવ સામે ઊભા રહો','નાની દયા દૂર સુધી પહોંચે'],
-    ce:'Do one kind, inclusive act today.',cg:'આજે એક દયાળુ, સમાવેશી કાર્ય કરો.',tg:['Kindness','Inclusion']}
+  Health:{ie:'Simple daily habits protect your long-term health.',ig:'સાદી રોજિંદી આદતો તમારા લાંબા ગાળાના આરોગ્યનું રક્ષણ કરે છે.',ke:['Eat balanced, home-cooked meals','Stay active for 30 minutes daily','Drink safe water and wash hands','Get regular health check-ups'],kg:['સંતુલિત, ઘરનું ભોજન લો','રોજ 30 મિનિટ સક્રિય રહો','સ્વચ્છ પાણી પીઓ અને હાથ ધોવો','નિયમિત આરોગ્ય તપાસ કરાવો'],ce:'Take one small step for your health today.',cg:'આજે તમારા આરોગ્ય માટે એક નાનું પગલું ભરો.',tg:['StayHealthy','HealthForAll']},
+  Nutrition:{ie:'Good nutrition is the foundation of a healthy body and mind.',ig:'સારું પોષણ સ્વસ્થ શરીર અને મનનો પાયો છે.',ke:['Eat more fruits and vegetables','Choose whole grains and pulses','Cut down on sugar, salt and oil','Drink enough clean water'],kg:['વધુ ફળ અને શાકભાજી ખાઓ','આખા અનાજ અને કઠોળ પસંદ કરો','ખાંડ, મીઠું અને તેલ ઓછું કરો','પૂરતું સ્વચ્છ પાણી પીઓ'],ce:'Add one healthy food to your plate today.',cg:'આજે તમારી થાળીમાં એક પોષક ખોરાક ઉમેરો.',tg:['Nutrition','EatHealthy']},
+  Activity:{ie:'Staying active keeps your body and mind strong.',ig:'સક્રિય રહેવાથી શરીર અને મન મજબૂત રહે છે.',ke:['Aim for 30 minutes of activity daily','Walking counts — start where you are','Take stairs instead of the lift','Move a little every hour'],kg:['રોજ 30 મિનિટ પ્રવૃત્તિનું લક્ષ્ય રાખો','ચાલવું પણ ગણાય — શરૂ કરો','લિફ્ટ નહીં, દાદરા વાપરો','દર કલાકે થોડું હલો-ચલો'],ce:'Get moving — a short walk today makes a difference.',cg:'ચાલો — આજની ટૂંકી ચાલ ફરક લાવે છે.',tg:['StayActive','FitIndia']},
+  Mental:{ie:'Mental health is health. It is okay to ask for help.',ig:'માનસિક આરોગ્ય પણ આરોગ્ય છે. મદદ માંગવી યોગ્ય છે.',ke:['Talk to someone you trust','Keep a regular sleep routine','Take breaks and breathe','Seek help early, without shame'],kg:['વિશ્વાસુ વ્યક્તિ સાથે વાત કરો','નિયમિત ઊંઘનો સમય રાખો','વિરામ લો અને શ્વાસ લો','શરમ વગર વહેલી મદદ લો'],ce:'Reach out — a conversation can help.',cg:'વાત કરો — એક સંવાદ મદદ કરી શકે.',tg:['MentalHealth','YouMatter']},
+  Environment:{ie:'A clean environment is the foundation of good health.',ig:'સ્વચ્છ પર્યાવરણ સારા આરોગ્યનો પાયો છે.',ke:['Plant and care for trees','Reduce single-use plastic','Save water and electricity','Keep your surroundings clean'],kg:['વૃક્ષ વાવો અને સંભાળો','એક વખત વપરાતું પ્લાસ્ટિક ઘટાડો','પાણી અને વીજળી બચાવો','આસપાસ સ્વચ્છ રાખો'],ce:'Do one green act today for a healthier tomorrow.',cg:'સ્વસ્થ આવતીકાલ માટે આજે એક હરિત કાર્ય કરો.',tg:['SaveEnvironment','GoGreen']},
+  Women:{ie:'Women’s health and wellbeing strengthen every family.',ig:'મહિલા આરોગ્ય અને સુખાકારી દરેક પરિવારને મજબૂત કરે છે.',ke:['Attend regular health check-ups','Eat iron- and calcium-rich food','Do not ignore warning signs','Rest, nutrition and support matter'],kg:['નિયમિત આરોગ્ય તપાસ કરાવો','આયર્ન અને કેલ્શિયમયુક્ત ખોરાક લો','ચેતવણી સંકેતોને અવગણશો નહીં','આરામ, પોષણ અને સાથ જરૂરી'],ce:'Support the women around you — health and respect.',cg:'આસપાસની મહિલાઓને સાથ આપો — આરોગ્ય અને સન્માન.',tg:['WomensHealth','HealthyWomen']},
+  Children:{ie:'Healthy, happy children build a stronger future.',ig:'સ્વસ્થ, ખુશ બાળકો મજબૂત ભવિષ્ય બનાવે છે.',ke:['Complete all childhood vaccines','Give balanced, nutritious food','Encourage play and study','Protect children from harm'],kg:['બાળપણની બધી રસી પૂરી કરાવો','સંતુલિત, પોષક ખોરાક આપો','રમત અને અભ્યાસને પ્રોત્સાહન','બાળકોને નુકસાનથી બચાવો'],ce:'Give every child care, nutrition and love.',cg:'દરેક બાળકને સંભાળ, પોષણ અને પ્રેમ આપો.',tg:['ChildHealth','HealthyChildren']},
+  Ageing:{ie:'Caring for our elders keeps them healthy and happy.',ig:'આપણા વડીલોની સંભાળ તેમને સ્વસ્થ અને ખુશ રાખે છે.',ke:['Ensure regular check-ups','Help them take medicines on time','Encourage light daily activity','Spend time and listen'],kg:['નિયમિત તપાસ કરાવો','સમયસર દવા લે તે જુઓ','હળવી દૈનિક પ્રવૃત્તિ કરાવો','સમય આપો અને સાંભળો'],ce:'Call or visit an elder today — care matters.',cg:'આજે વડીલને મળો કે ફોન કરો — સંભાળ મહત્વની છે.',tg:['ElderCare','HealthyAgeing']},
+  National:{ie:'A day to reflect, remember and move forward together.',ig:'સાથે મળી વિચારવા, યાદ કરવા અને આગળ વધવાનો દિવસ.',ke:['Know the meaning of the day','Honour those we remember','Contribute to your community','Carry the spirit forward'],kg:['દિવસનું મહત્વ જાણો','જેમને યાદ કરીએ તેમનું સન્માન કરો','સમાજ માટે યોગદાન આપો','ભાવના આગળ વધારો'],ce:'Take a moment to mark the day meaningfully.',cg:'દિવસને અર્થપૂર્ણ રીતે ઉજવવા ક્ષણ કાઢો.',tg:['India','ProudIndian']},
+  Education:{ie:'Knowledge and learning open doors for everyone.',ig:'જ્ઞાન અને શિક્ષણ દરેક માટે દ્વાર ખોલે છે.',ke:['Support learning at every age','Encourage reading and curiosity','Share skills with others','Never stop learning'],kg:['દરેક ઉંમરે શિક્ષણને સાથ આપો','વાંચન અને જિજ્ઞાસાને પ્રોત્સાહન','બીજા સાથે કૌશલ્ય વહેંચો','શીખવાનું ક્યારેય બંધ ન કરો'],ce:'Learn or teach something new today.',cg:'આજે કંઈક નવું શીખો કે શીખવો.',tg:['Education','KeepLearning']},
+  Vector:{ie:'Mosquito-borne diseases are preventable with simple steps.',ig:'મચ્છરજન્ય રોગો સાદા પગલાંથી અટકાવી શકાય છે.',ke:['Remove stagnant water weekly','Sleep under a mosquito net','Use repellents in the evening','Fever? Get a blood test early'],kg:['દર અઠવાડિયે ભરાયેલું પાણી દૂર કરો','મચ્છરદાની હેઠળ સૂઓ','સાંજે મચ્છર ભગાડનાર વાપરો','તાવ? વહેલી લોહી તપાસ કરાવો'],ce:'Check your home for mosquito breeding this week.',cg:'આ અઠવાડિયે ઘરમાં મચ્છર ઉત્પત્તિ તપાસો.',tg:['StopMosquito','FightDengue']},
+  Immunization:{ie:'Vaccines are a safe, proven way to prevent disease.',ig:'રસી રોગ અટકાવવાનો સલામત, સાબિત ઉપાય છે.',ke:['Follow the vaccination schedule','Vaccinate children on time','Keep vaccination records safe','Ask your health worker for advice'],kg:['રસીકરણ સમયપત્રક અનુસરો','બાળકોને સમયસર રસી અપાવો','રસીકરણ રેકોર્ડ સાચવો','આરોગ્ય કાર્યકરની સલાહ લો'],ce:'Check that your family’s vaccines are up to date.',cg:'તમારા પરિવારની રસી અદ્યતન છે તે તપાસો.',tg:['Vaccinate','Immunization']},
+  Safety:{ie:'A few precautions can prevent serious injury.',ig:'થોડી સાવચેતી ગંભીર ઈજા અટકાવી શકે છે.',ke:['Follow road and fire safety rules','Wear helmets and seatbelts','Keep emergency numbers handy','Know basic first aid'],kg:['માર્ગ અને અગ્નિ સલામતી નિયમો પાળો','હેલ્મેટ અને સીટબેલ્ટ પહેરો','કટોકટી નંબર તૈયાર રાખો','પ્રાથમિક સારવાર જાણો'],ce:'Stay alert — safety protects you and others.',cg:'સાવધ રહો — સલામતી તમને અને બીજાને બચાવે.',tg:['StaySafe','SafetyFirst']},
+  Occupational:{ie:'A safe, healthy workplace protects every worker.',ig:'સલામત, સ્વસ્થ કાર્યસ્થળ દરેક કામદારને બચાવે છે.',ke:['Use protective equipment','Take regular breaks','Report hazards early','Maintain good posture'],kg:['રક્ષણાત્મક સાધનો વાપરો','નિયમિત વિરામ લો','જોખમો વહેલા જણાવો','સારી મુદ્રા જાળવો'],ce:'Make your workplace safer today.',cg:'આજે તમારા કાર્યસ્થળને વધુ સલામત બનાવો.',tg:['WorkplaceSafety','SafeAtWork']},
+  Social:{ie:'Compassion and inclusion make a healthier society.',ig:'કરુણા અને સમાવેશ સ્વસ્થ સમાજ બનાવે છે.',ke:['Respect and include everyone','Support those in need','Stand against discrimination','Small kindness goes far'],kg:['દરેકને સન્માન અને સમાવો','જરૂરિયાતમંદને સાથ આપો','ભેદભાવ સામે ઊભા રહો','નાની દયા દૂર સુધી પહોંચે'],ce:'Do one kind, inclusive act today.',cg:'આજે એક દયાળુ, સમાવેશી કાર્ય કરો.',tg:['Kindness','Inclusion']}
 };
 
-/* Build override map (rich curated content) keyed by normalized observance name */
-function normTitle(s){return String(s).toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();}
-const OVERRIDES={};
-AWARENESS.forEach(a=>{OVERRIDES[normTitle(a.title_en)]=a;});
-const OVERRIDE_ALIASES={ // sheet wording → my override title
-  'world tuberculosis day':'world tb day',
-  'international day against drug abuse and illicit trafficking':'anti drug abuse day',
-  'world leprosy day':'world leprosy day','anti leprosy day':'world leprosy day'
-};
-function findOverride(sheetTitle){
-  // sheet titles may combine two observances with " / "
-  const parts=String(sheetTitle).split('/').map(p=>normTitle(p));
-  for(const p of parts){
-    if(OVERRIDES[p]) return OVERRIDES[p];
-    const al=OVERRIDE_ALIASES[p]; if(al&&OVERRIDES[al]) return OVERRIDES[al];
-  }
-  return null;
-}
+/* Movable observances — computed per display year (Nth weekday of month) */
+const MOVABLE=[
+  {names:["mother's day","mothers day"],title_en:"Mother's Day",title_gu:'માતૃ દિવસ',month:5,nth:2,weekday:0,bucket:'Social',subject:'',
+    ie:"A day to thank and care for our mothers.",ig:'આપણી માતાઓનો આભાર માનવા અને સંભાળ રાખવાનો દિવસ.',
+    ke:['Spend time with your mother','Care for her health and check-ups','Say thank you and help out','Cherish the bond'],
+    kg:['માતા સાથે સમય વિતાવો','તેમના આરોગ્ય અને તપાસની સંભાળ રાખો','આભાર માનો અને મદદ કરો','સંબંધને વહાલ કરો'],
+    ce:'Do something kind for your mother today.',cg:'આજે માતા માટે કંઈક સારું કરો.',tg:['MothersDay','ThankYouMom'],icon:'venus'},
+  {names:["father's day","fathers day"],title_en:"Father's Day",title_gu:'પિતૃ દિવસ',month:6,nth:3,weekday:0,bucket:'Social',subject:'',
+    ie:"A day to thank and care for our fathers.",ig:'આપણા પિતાનો આભાર માનવા અને સંભાળ રાખવાનો દિવસ.',
+    ke:['Spend time with your father','Encourage his health check-ups','Say thank you','Cherish the bond'],
+    kg:['પિતા સાથે સમય વિતાવો','તેમની આરોગ્ય તપાસને પ્રોત્સાહન આપો','આભાર માનો','સંબંધને વહાલ કરો'],
+    ce:'Do something kind for your father today.',cg:'આજે પિતા માટે કંઈક સારું કરો.',tg:['FathersDay','ThankYouDad'],icon:'elder'},
+  {names:["friendship day"],title_en:'Friendship Day',title_gu:'મિત્રતા દિવસ',month:8,nth:1,weekday:0,bucket:'Social',subject:'',
+    ie:'Good friendships support our mental wellbeing.',ig:'સારી મિત્રતા આપણી માનસિક સુખાકારીને સાથ આપે છે.',
+    ke:['Reach out to a friend','Support each other’s wellbeing','Listen without judgement','Celebrate your friendships'],
+    kg:['મિત્રને સંપર્ક કરો','એકબીજાની સુખાકારીને સાથ આપો','ન્યાય વગર સાંભળો','તમારી મિત્રતા ઉજવો'],
+    ce:'Message or meet a friend today.',cg:'આજે મિત્રને સંદેશ મોકલો કે મળો.',tg:['FriendshipDay','StayConnected'],icon:'heart'}
+];
+function nthWeekday(y,m,wd,nth){let c=0;for(let d=1;d<=31;d++){const dt=new Date(y,m-1,d);if(dt.getMonth()!==m-1)break;if(dt.getDay()===wd){c++;if(c===nth)return d;}}return null;}
+function movableForDate(d){const y=d.getFullYear();for(const mv of MOVABLE){if((mv.month-1)===d.getMonth()){const day=nthWeekday(y,mv.month,mv.weekday,mv.nth);if(day===d.getDate())return mv;}}return null;}
+function normT(s){return String(s).toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();}
+const MOVABLE_NAMES=new Set(MOVABLE.flatMap(m=>m.names.map(normT)));
 
-/* Index the 365-day calendar by month-day */
+/* Build calendar index from CAL2, stripping movable observances (added back year-aware) */
 const CALENDAR={};
-CAL_ROWS.forEach(r=>{CALENDAR[r[0]+'-'+r[1]]={month:r[0],day:r[1],title:r[2],sheetCat:r[3]};});
+CAL2.forEach(r=>{
+  const [m,d,en,gu,status,bucket,subj]=r;
+  const ep=en.split('/').map(s=>s.trim()), gp=gu.split('/').map(s=>s.trim());
+  const keepE=[],keepG=[];
+  ep.forEach((p,i)=>{ if(!MOVABLE_NAMES.has(normT(p))){keepE.push(p); keepG.push(gp[i]!==undefined?gp[i]:p);} });
+  if(!keepE.length) return; // movable-only slot: skip (resolver supplies it)
+  CALENDAR[m+'-'+d]={month:m,day:d,title:keepE.join(' / '),title_gu:keepG.join(' / '),status,bucket,subj};
+});
 
 function deriveTags(title,seed){
   const words=String(title).replace(/[^A-Za-z0-9 ]/g,'').split(/\s+/).filter(Boolean).slice(0,4);
@@ -554,27 +249,31 @@ function deriveTags(title,seed){
   return t.slice(0,3);
 }
 
-/* Resolve full topic object for any date (365-day coverage, overrides + templates) */
+/* Resolve full topic for any date — 365-day, subject-specific + movable + status */
 function topicForDate(d){
   const key=(d.getMonth()+1)+'-'+d.getDate();
-  const row=CALENDAR[key]||{title:'Daily Health Awareness',sheetCat:'Health'};
-  const bucket=bucketFor(row.sheetCat,row.title);
-  const tmpl=TEMPLATES[bucket]||TEMPLATES.Health;
-  const ov=findOverride(row.title);
+  let row=CALENDAR[key], mv=movableForDate(d), movable=false;
+  // movable observances override arbitrary studio rotations, but yield to official/recognised fixed days
+  if(mv && (!row || row.status==='studio')) row=null;
+  let title_en,title_gu,status,bucket,subj;
+  if(row){ title_en=row.title; title_gu=row.title_gu; status=row.status; bucket=row.bucket; subj=row.subj; mv=null; }
+  else if(mv){ title_en=mv.title_en; title_gu=mv.title_gu; status='recognized'; bucket=mv.bucket; subj=mv.subject; movable=true; }
+  else { title_en='Daily Health Awareness'; title_gu='દૈનિક આરોગ્ય જાગૃતિ'; status='studio'; bucket='Health'; subj=''; }
+  // content source: health subject > movable's own content > civic template
+  let c;
+  if(subj && SUBJECTS[subj]) c=SUBJECTS[subj];
+  else if(mv) c={ie:mv.ie,ig:mv.ig,ke:mv.ke,kg:mv.kg,ce:mv.ce,cg:mv.cg,icon:mv.icon,tags:mv.tg};
+  else c=TEMPLATES[bucket]||TEMPLATES.Health;
+  const seed=c.tags||c.tg||[];
   return {
     month:d.getMonth()+1, day:d.getDate(),
-    title_en: row.title,
-    title_gu: ov? ov.title_gu : row.title,
-    category: bucket,
-    sheetCategory: row.sheetCat,
-    importance_en: ov? ov.importance_en : tmpl.ie,
-    importance_gu: ov? ov.importance_gu : tmpl.ig,
-    keyPoints_en: ov? ov.keyPoints_en : tmpl.ke,
-    keyPoints_gu: ov? ov.keyPoints_gu : tmpl.kg,
-    cta_en: ov? ov.cta_en : tmpl.ce,
-    cta_gu: ov? ov.cta_gu : tmpl.cg,
-    hashtags: ov? ov.hashtags : deriveTags(row.title,tmpl.tg),
-    icon: ov? ov.icon : (CATEGORIES[bucket]?tmpl.icon:'cross')
+    title_en, title_gu, category:bucket, status, movable,
+    importance_en:c.ie, importance_gu:c.ig,
+    keyPoints_en:c.ke, keyPoints_gu:c.kg,
+    cta_en:c.ce, cta_gu:c.cg,
+    hashtags:deriveTags(title_en,seed),
+    icon:c.icon||(CATEGORIES[bucket]?CATEGORIES[bucket].icon:'cross'),
+    specific: !!(subj && SUBJECTS[subj]) || movable
   };
 }
 
@@ -611,6 +310,9 @@ async function dbPut(rec){const db=await openDB();return new Promise((res,rej)=>
 async function dbAll(){const db=await openDB();return new Promise((res,rej)=>{const out=[];const tx=db.transaction(STORE,'readonly');tx.objectStore(STORE).openCursor().onsuccess=e=>{const c=e.target.result;if(c){out.push(c.value);c.continue();}else res(out);};tx.onerror=e=>rej(e.target.error);});}
 async function dbGet(id){const db=await openDB();return new Promise((res,rej)=>{const tx=db.transaction(STORE,'readonly');const rq=tx.objectStore(STORE).get(id);rq.onsuccess=()=>res(rq.result);rq.onerror=e=>rej(e.target.error);});}
 async function dbDelete(id){const db=await openDB();return new Promise((res,rej)=>{const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).delete(id);tx.oncomplete=()=>res();tx.onerror=e=>rej(e.target.error);});}
+/* Atomic batch: put all `puts` and updated `updates` in a SINGLE transaction (all-or-nothing). */
+async function dbBatch(puts,updates){const db=await openDB();return new Promise((res,rej)=>{const tx=db.transaction(STORE,'readwrite');const os=tx.objectStore(STORE);(puts||[]).forEach(r=>os.put(r));(updates||[]).forEach(r=>os.put(r));tx.oncomplete=()=>res();tx.onerror=e=>rej(e.target.error);tx.onabort=e=>rej(tx.error||new Error('transaction aborted'));});}
+async function dbClearAll(){const db=await openDB();return new Promise((res,rej)=>{const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).clear();tx.oncomplete=()=>res();tx.onerror=e=>rej(e.target.error);});}
 
 const LS={
   get(k,def){try{const v=localStorage.getItem('has_'+k);return v==null?def:JSON.parse(v);}catch(e){return def;}},
@@ -618,7 +320,7 @@ const LS={
 };
 const DEFAULT_SETTINGS={
   org:'Health Awareness Studio', footer:'Issued in public interest',
-  watermark:'', logoData:'', brandGreen:'#1a9f6e', brandBlue:'#1668c1',
+  watermark:'', logoData:'', qrData:'', brandGreen:'#1a9f6e', brandBlue:'#1668c1',
   quality:'high', defaultHashtags:'HealthForAll SwasthBharat', language:'English'
 };
 function getSettings(){return Object.assign({},DEFAULT_SETTINGS,LS.get('settings',{}));}
@@ -638,8 +340,10 @@ function fmtLongDate(d){
   return d.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 }
 function slug(s){return s.replace(/[^A-Za-z0-9]+/g,'-').replace(/^-|-$/g,'');}
-function fileName(dateStr,category,lang,size){return `${dateStr}_${slug(category)}_${lang}_${size}.png`;}
-function posterId(dateStr,lang,size){return `${dateStr}__${lang}__${size}`;}
+function extFor(quality){return quality==='standard'?'jpg':'png';}
+function fileName(dateStr,category,lang,size,quality,version){const v=version&&version>1?`_v${version}`:'';return `${dateStr}_${slug(category)}_${lang}_${size}${v}.${extFor(quality)}`;}
+function posterSlot(dateStr,lang,size){return `${dateStr}__${lang}__${size}`;}
+function posterId(dateStr,lang,size,version){return `${posterSlot(dateStr,lang,size)}__v${version}`;}
 
 /* =====================================================================
    4. POSTER RENDERING ENGINE (template-based, one master → 3 ratios)
@@ -678,143 +382,192 @@ function shade(hex,amt){
   r=Math.max(0,Math.min(255,r));g=Math.max(0,Math.min(255,g));b=Math.max(0,Math.min(255,b));
   return '#'+((r<<16)|(g<<8)|b).toString(16).padStart(6,'0');
 }
+const GFONT='Segoe UI,"Noto Sans Gujarati","Noto Sans",Arial,sans-serif';
+function ellipsize(ctx,text,maxW){
+  if(ctx.measureText(text).width<=maxW) return text;
+  let s=text;
+  while(s.length>1 && ctx.measureText(s+'…').width>maxW) s=s.slice(0,-1);
+  return s+'…';
+}
+/* wrap text to at most maxLines; the last line is ellipsised if content remains */
+function wrapCap(ctx,text,maxW,maxLines){
+  const words=String(text).split(/\s+/).filter(Boolean); const lines=[]; let cur='';
+  for(let i=0;i<words.length;i++){
+    const w=words[i], t=cur?cur+' '+w:w;
+    if(ctx.measureText(t).width>maxW && cur){
+      if(lines.length===maxLines-1){ lines.push(ellipsize(ctx, words.slice(i).join(' '), maxW)); return lines; }
+      lines.push(cur); cur=w;
+    } else cur=t;
+  }
+  if(cur) lines.push(ellipsize(ctx,cur,maxW));
+  return lines.slice(0,maxLines);
+}
 function renderPoster(topic,dateObj,lang,size,settings){
   const cv=document.createElement('canvas');cv.width=size.w;cv.height=size.h;
   const ctx=cv.getContext('2d');
   const en=lang.code==='en';
   const green=settings.brandGreen||'#1a9f6e', blue=settings.brandBlue||'#1668c1';
-  const S=size.w/1080; // scale factor relative to base width
+  const S=size.w/1080, W=cv.width, H=cv.height, M=60*S;
   const title=en?topic.title_en:topic.title_gu;
   const imp=en?topic.importance_en:topic.importance_gu;
-  const points=en?topic.keyPoints_en:topic.keyPoints_gu;
+  const points=(en?topic.keyPoints_en:topic.keyPoints_gu)||[];
   const cta=en?topic.cta_en:topic.cta_gu;
-
-  // Background
-  ctx.fillStyle='#ffffff';ctx.fillRect(0,0,cv.width,cv.height);
-  // subtle top band gradient (green health theme)
-  const headH=size.h*0.20;
-  const g=ctx.createLinearGradient(0,0,cv.width,headH);
-  g.addColorStop(0,green);g.addColorStop(1,shade(green,-25));
-  ctx.fillStyle=g;ctx.fillRect(0,0,cv.width,headH);
-  // decorative circle
-  ctx.fillStyle='rgba(255,255,255,.08)';ctx.beginPath();ctx.arc(cv.width*0.9,headH*0.3,headH*0.7,0,7);ctx.fill();
-
-  // Header: date + category chip
   ctx.textBaseline='top';
-  ctx.fillStyle='rgba(255,255,255,.92)';
-  ctx.font=`600 ${28*S}px ${'Segoe UI,Noto Sans Gujarati,sans-serif'}`;
+
+  // ---- fixed zones ----
+  const headH=H*0.185, illoH=H*0.185, footH=H*0.115;
+  const illoY=headH+H*0.015;
+  const footTop=H-footH;
+  const ctaBottom=footTop-H*0.02;
+
+  // ---- Header band ----
+  ctx.fillStyle='#ffffff';ctx.fillRect(0,0,W,H);
+  const g=ctx.createLinearGradient(0,0,W,headH);g.addColorStop(0,green);g.addColorStop(1,shade(green,-25));
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,headH);
+  ctx.fillStyle='rgba(255,255,255,.08)';ctx.beginPath();ctx.arc(W*0.9,headH*0.28,headH*0.75,0,7);ctx.fill();
+  // date
+  ctx.fillStyle='rgba(255,255,255,.92)';ctx.font=`600 ${26*S}px ${GFONT}`;
   const dateStr=en?fmtLongDate(dateObj):dateObj.toLocaleDateString('gu-IN',{day:'numeric',month:'long',year:'numeric'});
-  ctx.fillText(dateStr,60*S,48*S);
-  // category chip
-  ctx.font=`700 ${24*S}px Segoe UI,sans-serif`;
-  const chip=(en?topic.category:topic.category).toUpperCase();
-  const cw=ctx.measureText(chip).width+40*S;
-  ctx.fillStyle='rgba(255,255,255,.22)';roundRect(ctx,60*S,90*S,cw,44*S,22*S);ctx.fill();
-  ctx.fillStyle='#fff';ctx.fillText(chip,80*S,100*S);
+  ctx.fillText(ellipsize(ctx,dateStr,W*0.62),M,42*S);
+  // category chip (localised)
+  ctx.font=`700 ${22*S}px ${GFONT}`;
+  const chip=(en?topic.category:(CATEGORIES[topic.category]?.gu||topic.category)).toUpperCase();
+  const cw=Math.min(ctx.measureText(chip).width+36*S, W*0.5);
+  ctx.fillStyle='rgba(255,255,255,.22)';roundRect(ctx,M,82*S,cw,40*S,20*S);ctx.fill();
+  ctx.fillStyle='#fff';ctx.fillText(chip,M+18*S,90*S);
+  // title — fit into remaining header height, up to 3 lines, adaptive font
+  const titleTop=132*S, titleMaxH=headH-titleTop-14*S, titleMaxW=W-2*M;
+  let tPx=56*S, tLines;
+  for(;tPx>=32*S;tPx-=2*S){ ctx.font=`800 ${tPx}px ${GFONT}`; const lh=tPx*1.12;
+    const raw=wrapLines(ctx,title,titleMaxW);
+    if(raw.length*lh<=titleMaxH || tPx<=32*S){ tLines=wrapCap(ctx,title,titleMaxW,Math.max(1,Math.floor(titleMaxH/lh))); break; } }
+  ctx.fillStyle='#fff';ctx.font=`800 ${tPx}px ${GFONT}`;
+  { const lh=tPx*1.12; let yy=titleTop; for(const ln of tLines){ ctx.fillText(ln,M,yy); yy+=lh; } }
 
-  // Awareness title (large)
-  ctx.fillStyle='#ffffff';
-  let ty=150*S;
-  ctx.font=`800 ${58*S}px Segoe UI,Noto Sans Gujarati,sans-serif`;
-  const tLines=wrapLines(ctx,title,cv.width-120*S);
-  for(const ln of tLines.slice(0,2)){ctx.fillText(ln,60*S,ty);ty+=66*S;}
-
-  // Illustration area
-  const illoY=headH+ (size.h*0.02);
-  const illoH=size.h*0.24;
-  const cx=cv.width/2, cy=illoY+illoH/2;
-  // soft circle backing
-  ctx.fillStyle=shade(green,120);ctx.globalAlpha=0.5;ctx.beginPath();ctx.arc(cx,cy,illoH*0.46,0,7);ctx.fill();ctx.globalAlpha=1;
+  // ---- Illustration ----
+  const cx=W/2, cy=illoY+illoH/2;
+  ctx.fillStyle=shade(green,120);ctx.globalAlpha=0.5;ctx.beginPath();ctx.arc(cx,cy,illoH*0.48,0,7);ctx.fill();ctx.globalAlpha=1;
   drawIcon(ctx,topic.icon,cx,cy,illoH*0.30,green);
 
-  // Importance line
-  let y=illoY+illoH+ size.h*0.015;
-  ctx.fillStyle=blue;
-  ctx.font=`700 ${34*S}px Segoe UI,Noto Sans Gujarati,sans-serif`;
-  const impLines=wrapLines(ctx,imp,cv.width-120*S);
-  for(const ln of impLines.slice(0,3)){ctx.fillText(ln,60*S,y);y+=44*S;}
-  y+=14*S;
+  // ---- CTA (fit first so we know its top) ----
+  const ctaMaxW=W-160*S; let cPx=34*S, cLines;
+  for(;cPx>=22*S;cPx-=2*S){ ctx.font=`800 ${cPx}px ${GFONT}`; const l=wrapLines(ctx,cta,ctaMaxW); if(l.length<=3){ cLines=l; break; } cLines=l; }
+  const cLh=cPx*1.2, ctaH=Math.min(H*0.14, cLines.length*cLh+40*S), ctaTop=ctaBottom-ctaH;
 
-  // Four key points
-  ctx.font=`600 ${30*S}px Segoe UI,Noto Sans Gujarati,sans-serif`;
-  const bulletR=11*S;
-  for(let i=0;i<Math.min(4,points.length);i++){
-    ctx.fillStyle=green;ctx.beginPath();ctx.arc(74*S,y+18*S,bulletR,0,7);ctx.fill();
-    ctx.fillStyle='#243039';
-    const pl=wrapLines(ctx,points[i],cv.width-150*S);
-    for(let j=0;j<pl.length;j++){ctx.fillText(pl[j],104*S,y+ (j*38*S));}
-    y+=Math.max(52*S, pl.length*38*S+14*S);
+  // ---- Middle zone: importance + 4 bullets, adaptive to fit ----
+  const midTop=illoY+illoH+H*0.015, midBottom=ctaTop-H*0.015, availH=midBottom-midTop, midW=W-2*M;
+  let chosen=null;
+  for(let k=1.0;k>=0.62;k-=0.04){
+    const iPx=33*S*k, iLh=iPx*1.24, bPx=29*S*k, bLh=bPx*1.22, bGap=14*S*k;
+    ctx.font=`700 ${iPx}px ${GFONT}`; const iL=wrapCap(ctx,imp,midW,3);
+    ctx.font=`600 ${bPx}px ${GFONT}`;
+    const bLstore=[]; let total=iL.length*iLh+18*S*k;
+    for(let i=0;i<Math.min(4,points.length);i++){ const bl=wrapCap(ctx,points[i],midW-44*S,2); bLstore.push(bl); total+=bl.length*bLh+bGap; }
+    if(total<=availH || k<=0.62){ chosen={iPx,iLh,bPx,bLh,bGap,iL,bLstore,total}; break; }
+  }
+  let y=midTop;
+  ctx.fillStyle=blue;ctx.font=`700 ${chosen.iPx}px ${GFONT}`;
+  for(const ln of chosen.iL){ ctx.fillText(ln,M,y); y+=chosen.iLh; }
+  y+=18*S*(chosen.iPx/(33*S));
+  const bulletR=Math.max(7,10*S*(chosen.bPx/(29*S)));
+  for(let i=0;i<chosen.bLstore.length;i++){
+    ctx.fillStyle=green;ctx.beginPath();ctx.arc(M+14*S,y+chosen.bPx*0.55,bulletR,0,7);ctx.fill();
+    ctx.fillStyle='#243039';ctx.font=`600 ${chosen.bPx}px ${GFONT}`;
+    const bl=chosen.bLstore[i]; for(let j=0;j<bl.length;j++){ ctx.fillText(bl[j],M+44*S,y+j*chosen.bLh); }
+    y+=bl.length*chosen.bLh+chosen.bGap;
   }
 
-  // Call to action band
-  y+=6*S;
-  const ctaH=size.h*0.09;
-  const cg=ctx.createLinearGradient(0,y,cv.width,y+ctaH);cg.addColorStop(0,blue);cg.addColorStop(1,shade(blue,-30));
-  ctx.fillStyle=cg;roundRect(ctx,40*S,y,cv.width-80*S,ctaH,20*S);ctx.fill();
-  ctx.fillStyle='#fff';ctx.font=`800 ${34*S}px Segoe UI,Noto Sans Gujarati,sans-serif`;
-  const ctaLines=wrapLines(ctx,cta,cv.width-160*S);
-  const ctaStartY=y+ (ctaH-ctaLines.length*42*S)/2;
-  for(let i=0;i<ctaLines.length;i++){const t=ctaLines[i];const w=ctx.measureText(t).width;ctx.fillText(t,(cv.width-w)/2,ctaStartY+i*42*S);}
+  // ---- CTA band ----
+  const cg=ctx.createLinearGradient(0,ctaTop,W,ctaTop+ctaH);cg.addColorStop(0,blue);cg.addColorStop(1,shade(blue,-30));
+  ctx.fillStyle=cg;roundRect(ctx,40*S,ctaTop,W-80*S,ctaH,20*S);ctx.fill();
+  ctx.fillStyle='#fff';ctx.font=`800 ${cPx}px ${GFONT}`;ctx.textAlign='center';
+  { let yy=ctaTop+(ctaH-cLines.length*cLh)/2; for(const t of cLines){ ctx.fillText(t,W/2,yy); yy+=cLh; } }
+  ctx.textAlign='left';
 
-  // Footer
-  const footY=cv.height-size.h*0.11;
-  ctx.fillStyle='#f2f6f8';ctx.fillRect(0,footY,cv.width,cv.height-footY);
-  ctx.fillStyle=green;ctx.fillRect(0,footY,cv.width,4*S);
-  // hashtags
-  ctx.fillStyle=green;ctx.font=`700 ${24*S}px Segoe UI,sans-serif`;
-  const tags=(topic.hashtags||[]).map(h=>'#'+h).join('  ');
-  ctx.fillText(tags,60*S,footY+22*S);
-  // org + footer note
-  ctx.fillStyle='#4a5761';ctx.font=`600 ${22*S}px Segoe UI,Noto Sans Gujarati,sans-serif`;
-  ctx.fillText((settings.org||'')+ (settings.footer?('  •  '+settings.footer):''),60*S,footY+56*S);
-  // logo placeholder / logo
-  const lpx=cv.width-150*S, lpy=footY+18*S, lps=size.h*0.055;
-  if(settings.logoData){
-    const im=logoImageCache; if(im&&im.complete&&im.naturalWidth){try{ctx.drawImage(im,lpx,lpy,lps,lps);}catch(e){}}
+  // ---- Footer ----
+  const lps=Math.min(footH*0.62, 78*S), pad=24*S;
+  const logoX=W-M-lps, qrX=logoX-16*S-lps;
+  ctx.fillStyle='#f2f6f8';ctx.fillRect(0,footTop,W,H-footTop);
+  ctx.fillStyle=green;ctx.fillRect(0,footTop,W,4*S);
+  const textMaxW=qrX-M-20*S;
+  // hashtags (truncated to fit, never into QR/logo)
+  ctx.fillStyle=green;ctx.font=`700 ${22*S}px ${GFONT}`;
+  ctx.fillText(ellipsize(ctx,(topic.hashtags||[]).map(h=>'#'+h).join('  '),textMaxW), M, footTop+20*S);
+  // org + footer note (truncated)
+  ctx.fillStyle='#4a5761';ctx.font=`600 ${20*S}px ${GFONT}`;
+  ctx.fillText(ellipsize(ctx,(settings.org||'')+(settings.footer?('  •  '+settings.footer):''),textMaxW), M, footTop+52*S);
+  const slotY=footTop+(footH-lps)/2;
+  // logo
+  if(settings.logoData && logoImageCache && logoImageCache.complete && logoImageCache.naturalWidth){
+    try{ctx.drawImage(logoImageCache,logoX,slotY,lps,lps);}catch(e){}
   } else {
-    ctx.strokeStyle='#c3ced5';ctx.lineWidth=2*S;ctx.setLineDash([6*S,5*S]);ctx.strokeRect(lpx,lpy,lps,lps);ctx.setLineDash([]);
-    ctx.fillStyle='#9aa7b0';ctx.font=`600 ${16*S}px Segoe UI`;ctx.fillText('LOGO',lpx+lps*0.22,lpy+lps*0.4);
+    ctx.strokeStyle='#c3ced5';ctx.lineWidth=2*S;ctx.setLineDash([6*S,5*S]);ctx.strokeRect(logoX,slotY,lps,lps);ctx.setLineDash([]);
+    ctx.fillStyle='#9aa7b0';ctx.font=`600 ${15*S}px ${GFONT}`;ctx.textAlign='center';ctx.fillText('LOGO',logoX+lps/2,slotY+lps*0.4);ctx.textAlign='left';
   }
-  // QR placeholder
-  const qx=cv.width-lps-190*S, qy=footY+18*S;
-  ctx.strokeStyle='#c3ced5';ctx.lineWidth=2*S;ctx.setLineDash([6*S,5*S]);ctx.strokeRect(qx,qy,lps,lps);ctx.setLineDash([]);
-  ctx.fillStyle='#9aa7b0';ctx.font=`600 ${15*S}px Segoe UI`;ctx.fillText('QR',qx+lps*0.34,qy+lps*0.4);
-
+  // QR (uploaded image if provided, else labelled placeholder)
+  if(settings.qrData && qrImageCache && qrImageCache.complete && qrImageCache.naturalWidth){
+    try{ctx.drawImage(qrImageCache,qrX,slotY,lps,lps);}catch(e){}
+  } else {
+    ctx.strokeStyle='#c3ced5';ctx.lineWidth=2*S;ctx.setLineDash([6*S,5*S]);ctx.strokeRect(qrX,slotY,lps,lps);ctx.setLineDash([]);
+    ctx.fillStyle='#9aa7b0';ctx.font=`600 ${15*S}px ${GFONT}`;ctx.textAlign='center';ctx.fillText('QR',qrX+lps/2,slotY+lps*0.4);ctx.textAlign='left';
+  }
   // Watermark
   if(settings.watermark){
-    ctx.save();ctx.globalAlpha=0.10;ctx.translate(cv.width/2,cv.height/2);ctx.rotate(-0.5);
-    ctx.fillStyle='#0f7a52';ctx.font=`800 ${70*S}px Segoe UI`;ctx.textAlign='center';
-    ctx.fillText(settings.watermark,0,0);ctx.restore();ctx.textAlign='left';
+    ctx.save();ctx.globalAlpha=0.10;ctx.translate(W/2,H/2);ctx.rotate(-0.5);
+    ctx.fillStyle='#0f7a52';ctx.font=`800 ${70*S}px ${GFONT}`;ctx.textAlign='center';
+    ctx.fillText(ellipsize(ctx,settings.watermark,W*1.1),0,0);ctx.restore();ctx.textAlign='left';
   }
   return cv;
 }
 function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
-let logoImageCache=null;
-function refreshLogoCache(){const s=getSettings();if(s.logoData){logoImageCache=new Image();logoImageCache.src=s.logoData;}else logoImageCache=null;}
+let logoImageCache=null, qrImageCache=null;
+function loadImg(src){return new Promise(r=>{const im=new Image();im.onload=()=>r(im);im.onerror=()=>r(im);im.src=src;});}
+async function refreshLogoCache(){const s=getSettings();
+  logoImageCache=s.logoData?await loadImg(s.logoData):null;
+  qrImageCache=s.qrData?await loadImg(s.qrData):null;}
+function canvasToDataURL(cv,quality){return quality==='standard'?cv.toDataURL('image/jpeg',0.85):cv.toDataURL('image/png');}
 
-function canvasToDataURL(cv,quality){return cv.toDataURL('image/png');}
-
-/* Generate + store a set of posters for a date/lang(s)/size(s) */
+/* Generate a full poster set — all renders happen first, then ALL records are
+   committed in ONE transaction (atomic: on any failure, nothing is stored).
+   Non-destructive versioning: each generation makes a new version and marks it
+   active; previous versions are retained but flagged inactive. */
 async function generateSet(dateObj,langs,sizes){
-  const settings=getSettings();refreshLogoCache();
-  if(settings.logoData){await new Promise(r=>{if(logoImageCache.complete)r();else{logoImageCache.onload=r;logoImageCache.onerror=r;}});}
+  const settings=getSettings();await refreshLogoCache();
   const topic=topicForDate(dateObj);const dateStr=ymd(dateObj);
-  const made=[];
+  const existing=await dbAll();
+  const puts=[], updates=[];
   for(const lang of langs){
     for(const size of sizes){
-      const cv=renderPoster(topic,dateObj,lang,size,settings);
+      const slot=posterSlot(dateStr,lang.key,size.key);
+      const slotRecs=existing.filter(p=>p.slot===slot);
+      const nextV=slotRecs.reduce((m,p)=>Math.max(m,p.version||1),0)+1;
+      // deactivate previous active version of this slot (in the same tx)
+      slotRecs.filter(p=>p.active).forEach(p=>updates.push(Object.assign({},p,{active:false})));
+      const cv=renderPoster(topic,dateObj,lang,size,settings); // may throw -> abort, nothing stored
       const url=canvasToDataURL(cv,settings.quality);
-      const rec={id:posterId(dateStr,lang.key,size.key),date:dateStr,category:topic.category,
+      puts.push({id:posterId(dateStr,lang.key,size.key,nextV),slot,version:nextV,active:true,
+        date:dateStr,category:topic.category,status:topic.status,
         topic:lang.code==='en'?topic.title_en:topic.title_gu,topicEn:topic.title_en,
         language:lang.key,size:size.key,w:size.w,h:size.h,dataURL:url,
         published:false,downloaded:false,createdAt:Date.now(),
-        fileName:fileName(dateStr,topic.category,lang.key,size.key)};
-      await dbPut(rec);made.push(rec);
+        fileName:fileName(dateStr,topic.category,lang.key,size.key,settings.quality,nextV)});
     }
   }
-  addLog({date:dateStr,topic:topic.title_en,category:topic.category,event:'Generated',count:made.length});
-  return made;
+  await dbBatch(puts,updates); // atomic commit of the whole set
+  addLog({date:dateStr,topic:topic.title_en,category:topic.category,event:'Generated',count:puts.length});
+  return puts;
 }
+/* Mark all of a day's active posters published in ONE transaction (atomic). */
+async function markPublishedForDate(dateStr){
+  const active=(await dbAll()).filter(p=>p.date===dateStr && p.active!==false);
+  if(!active.length) return 0;
+  await dbBatch([], active.map(p=>Object.assign({},p,{published:true})));
+  const t=topicForDate(new Date(dateStr.split('-')[0],dateStr.split('-')[1]-1,dateStr.split('-')[2]));
+  addLog({date:dateStr,topic:t.title_en,category:t.category,event:'Published',count:active.length});
+  return active.length;
+}
+/* Active posters only (latest version per slot) — the default view everywhere. */
+function activeOnly(list){return list.filter(p=>p.active!==false);}
 
 /* =====================================================================
    5. CAPTIONS
@@ -892,20 +645,29 @@ function go(page,arg){
 function topbar(title,sub,rightHtml){
   return `<div class="topbar"><div><h2>${esc(title)}</h2><div class="sub">${sub||''}</div></div><div>${rightHtml||''}</div></div>`;
 }
+/* Official vs studio-created classification badge */
+function statusBadge(topic){
+  const s=STATUS_LABEL[topic.status]||STATUS_LABEL.studio;
+  const mv=topic.movable?' <span class="pill gray" title="Date varies each year (movable observance)">↻ movable</span>':'';
+  return `<span class="pill ${s.cls}" title="${topic.status==='studio'?'A studio-created daily wellness theme, not a formally declared observance.':'A recognised public observance.'}">${s.en}</span>${mv}`;
+}
+function catPill(topic,gu){const c=CATEGORIES[topic.category];const label=gu?(c?.gu||topic.category):topic.category;
+  return `<span class="pill" style="background:${(c?.color||'#888')}22;color:${c?.color||'#888'}">${esc(label)}</span>`;}
 
 /* -------- HOME -------- */
 async function pageHome(){
   const today=new Date();const topic=topicForDate(today);const dateStr=ymd(today);
-  const all=await dbAll();
+  const allRaw=await dbAll();
+  const all=activeOnly(allRaw);
   const todays=all.filter(p=>p.date===dateStr);
   const enCount=todays.filter(p=>p.language==='English').length;
   const guCount=todays.filter(p=>p.language==='Gujarati').length;
   const downloads=all.filter(p=>p.downloaded).length;
   const published=all.filter(p=>p.published).length;
   const pending=all.length-published;
-  const storageKB=Math.round(all.reduce((a,p)=>a+(p.dataURL?p.dataURL.length:0),0)/1024);
+  const storageKB=Math.round(allRaw.reduce((a,p)=>a+(p.dataURL?p.dataURL.length:0),0)/1024);
   main.innerHTML=topbar('Home Dashboard',fmtLongDate(today),
-    `<span class="pill">Scheduler 08:00 IST</span>`);
+    `${statusBadge(topic)} <span class="pill gray" title="This app generates the day's set the first time you open it each day (target 08:00 IST). It cannot run while closed — see Settings to wire a real 08:00 scheduler.">⏱ Auto on first open</span>`);
   const cards=el(`<div class="grid cards" style="margin-bottom:16px"></div>`);
   const stat=(lbl,val,hint,cls)=>`<div class="card stat"><span class="lbl">${lbl}</span><span class="val" style="color:${cls||'var(--ink)'}">${val}</span><span class="hint">${hint||''}</span></div>`;
   cards.innerHTML=
@@ -938,7 +700,10 @@ async function pageHome(){
   const langStatus=(n,c,total)=>`<div class="kv"><span>${n}</span><b>${c}/${total}</b></div>`;
   right.innerHTML=`<h3 class="sec">Daily Status</h3>
     <div class="kv"><span>Awareness Day</span><b>${esc(topic.title_en)}</b></div>
-    <div class="kv"><span>Category</span><span class="pill" style="background:${CATEGORIES[topic.category]?.color+'22'};color:${CATEGORIES[topic.category]?.color}">${esc(topic.category)}</span></div>
+    <div class="kv"><span>ગુજરાતી</span><b>${esc(topic.title_gu)}</b></div>
+    <div class="kv"><span>Category</span>${catPill(topic)}</div>
+    <div class="kv"><span>Classification</span>${statusBadge(topic)}</div>
+    <div class="kv"><span>Content</span>${topic.specific?'<span class="pill">Topic-specific</span>':'<span class="pill gray">Category template</span>'}</div>
     ${langStatus('English images',enCount,3)}
     ${langStatus('Gujarati images',guCount,3)}
     <div class="kv"><span>Publishing status</span>${todays.length&&todays.every(p=>p.published)?'<span class="pill">Published</span>':(todays.length?'<span class="pill warn">Pending</span>':'<span class="pill gray">Not generated</span>')}</div>
@@ -958,18 +723,19 @@ async function pageHome(){
   const cdI=setInterval(tickCD,1000);tickCD();
 
   async function renderTodayPreview(){
-    const list=await dbAll();const t=list.filter(p=>p.date===dateStr&&p.size==='Square');
+    const t=activeOnly(await dbAll()).filter(p=>p.date===dateStr&&p.size==='Square');
     const box=document.getElementById('homePoster');if(!box)return;
     const pick=t.find(p=>p.language==='English')||t[0];
     if(pick){box.innerHTML=`<img src="${pick.dataURL}" alt="poster"/>`;}
   }
   renderTodayPreview();
 
-  document.getElementById('hGen').onclick=async()=>{toast('Generating 6 posters…');await generateSet(today,LANGS,SIZES);toast('✓ Generated today’s posters');pageHome();};
-  document.getElementById('hRegen').onclick=async()=>{toast('Regenerating…');await generateSet(today,LANGS,SIZES);toast('✓ Regenerated');pageHome();};
-  document.getElementById('hDl').onclick=async()=>{const list=await dbAll();const p=list.find(x=>x.date===dateStr&&x.language==='English'&&x.size==='Square');if(!p)return toast('Generate first');downloadDataURL(p.dataURL,p.fileName);await dbPut(Object.assign(p,{downloaded:true}));toast('Downloaded');};
+  const busy=(b,fn)=>async()=>{const el=document.getElementById(b);if(el)el.disabled=true;try{await fn();}catch(e){showError(e);}};
+  document.getElementById('hGen').onclick=busy('hGen',async()=>{toast('Generating 6 posters…');await generateSet(today,LANGS,SIZES);toast('✓ Generated today’s posters');pageHome();});
+  document.getElementById('hRegen').onclick=busy('hRegen',async()=>{toast('Regenerating (new version)…');await generateSet(today,LANGS,SIZES);toast('✓ New version saved');pageHome();});
+  document.getElementById('hDl').onclick=async()=>{const p=activeOnly(await dbAll()).find(x=>x.date===dateStr&&x.language==='English'&&x.size==='Square');if(!p)return toast('Generate first');downloadDataURL(p.dataURL,p.fileName);await dbPut(Object.assign(p,{downloaded:true}));toast('Downloaded');};
   document.getElementById('hDlAll').onclick=()=>downloadDay(dateStr);
-  document.getElementById('hPub').onclick=async()=>{const list=await dbAll();const t=list.filter(p=>p.date===dateStr);if(!t.length)return toast('Generate first');for(const p of t)await dbPut(Object.assign(p,{published:true}));addLog({date:dateStr,topic:topic.title_en,category:topic.category,event:'Published',count:t.length});toast('✓ Marked published');pageHome();};
+  document.getElementById('hPub').onclick=async()=>{const n=await markPublishedForDate(dateStr);if(!n)return toast('Generate first');toast('✓ Marked published');pageHome();};
   document.getElementById('hCap').onclick=()=>{const caps=buildCaptions(topic,today,'en');navigator.clipboard?.writeText(caps.WhatsApp);toast('WhatsApp caption copied');};
 }
 
@@ -1025,7 +791,7 @@ function pageCalendar(){
   function showDay(dateStr){
     const [Y,M,D]=dateStr.split('-').map(Number);const dObj=new Date(Y,M-1,D);const t=topicForDate(dObj);
     const w=el(`<div class="card" style="margin-top:16px" id="dayCard"></div>`);
-    w.innerHTML=`<div class="topbar" style="margin-bottom:8px"><div><h2 style="font-size:16px">${esc(t.title_en)} <span class="badge-lang gu">${esc(t.title_gu)}</span></h2><div class="sub">${fmtLongDate(dObj)} • ${esc(t.category)}</div></div>
+    w.innerHTML=`<div class="topbar" style="margin-bottom:8px"><div><h2 style="font-size:16px">${esc(t.title_en)} <span class="badge-lang gu">${esc(t.title_gu)}</span></h2><div class="sub">${fmtLongDate(dObj)} • ${catPill(t)} ${statusBadge(t)} ${t.specific?'':'<span class="pill gray">category template</span>'}</div></div>
       <button class="btn primary sm" id="goGenDay">🎨 Generate posters</button></div>
       <div class="row">
         <div class="col"><h3 class="sec">Importance</h3><p class="muted">${esc(t.importance_en)}</p><p class="muted">${esc(t.importance_gu)}</p>
@@ -1050,7 +816,10 @@ function pageGenerator(){
   const row=el('<div class="row"></div>');
   const left=el(`<div class="col card" style="max-width:380px"></div>`);
   left.innerHTML=`<h3 class="sec">${esc(topic.title_en)}</h3>
-    <div class="kv"><span>Category</span><span class="pill" style="background:${CATEGORIES[topic.category]?.color+'22'};color:${CATEGORIES[topic.category]?.color}">${esc(topic.category)}</span></div>
+    <div class="kv"><span>ગુજરાતી</span><b>${esc(topic.title_gu)}</b></div>
+    <div class="kv"><span>Category</span>${catPill(topic)}</div>
+    <div class="kv"><span>Classification</span>${statusBadge(topic)}</div>
+    <div class="kv"><span>Content</span>${topic.specific?'<span class="pill">Topic-specific</span>':'<span class="pill gray">Category template</span>'}</div>
     <h3 class="sec" style="margin-top:14px">Importance</h3><p class="muted">${esc(topic.importance_en)}</p>
     <h3 class="sec">Key Messages</h3><ul style="padding-left:18px;color:#38454f">${topic.keyPoints_en.map(p=>`<li>${esc(p)}</li>`).join('')}</ul>
     <h3 class="sec">Image Prompt (for AI image APIs)</h3>
@@ -1069,7 +838,7 @@ function pageGenerator(){
   main.appendChild(row);
 
   document.getElementById('genDate').onchange=e=>{genState.date=e.target.value;pageGenerator();};
-  const gen=async(langs,sizes,msg)=>{toast(msg);await generateSet(dObj,langs,sizes);toast('✓ Done');loadPreview();};
+  const gen=async(langs,sizes,msg)=>{try{toast(msg);await generateSet(dObj,langs,sizes);toast('✓ Done (new version saved)');loadPreview();}catch(e){showError(e);}};
   document.getElementById('gEn').onclick=()=>gen([LANGS[0]],SIZES,'Generating English…');
   document.getElementById('gGu').onclick=()=>gen([LANGS[1]],SIZES,'Generating Gujarati…');
   document.getElementById('gBoth').onclick=()=>gen(LANGS,SIZES,'Generating both languages…');
@@ -1077,7 +846,7 @@ function pageGenerator(){
   document.getElementById('gRegen').onclick=()=>gen(LANGS,SIZES,'Regenerating…');
 
   async function loadPreview(){
-    const all=(await dbAll()).filter(p=>p.date===dateStr).sort((a,b)=>a.language.localeCompare(b.language)||a.size.localeCompare(b.size));
+    const all=activeOnly(await dbAll()).filter(p=>p.date===dateStr).sort((a,b)=>a.language.localeCompare(b.language)||a.size.localeCompare(b.size));
     const tabs=document.getElementById('prevTabs');const prev=document.getElementById('genPrev');
     if(!all.length){return;}
     tabs.innerHTML=all.map((p,i)=>`<button data-i="${i}" class="${i===0?'active':''}">${p.language[0]==='E'?'EN':'GU'} ${p.size}</button>`).join('');
@@ -1093,8 +862,10 @@ function imagePrompt(topic){
 /* -------- POSTER LIBRARY -------- */
 let libState={group:'Month',search:'',fCat:'',fLang:'',fStatus:''};
 async function pageLibrary(){
-  const all=(await dbAll()).sort((a,b)=>b.date.localeCompare(a.date)||a.language.localeCompare(b.language));
-  main.innerHTML=topbar('Poster Library',all.length+' posters stored',
+  const raw=await dbAll();
+  const versionsBySlot={};raw.forEach(p=>{(versionsBySlot[p.slot]=versionsBySlot[p.slot]||[]).push(p);});
+  const all=activeOnly(raw).sort((a,b)=>b.date.localeCompare(a.date)||a.language.localeCompare(b.language));
+  main.innerHTML=topbar('Poster Library',all.length+' active • '+raw.length+' incl. versions',
     `<div class="searchbox"><span>🔍</span><input id="libSearch" placeholder="Search…" value="${esc(libState.search)}"></div>`);
   const bar=el(`<div class="card" style="margin-bottom:16px"><div class="btnrow">
     <select class="inp" id="libGroup" style="width:auto"><option>Month</option><option>Category</option><option>Language</option><option>Status</option><option>Year</option></select>
@@ -1128,13 +899,31 @@ async function pageLibrary(){
     wrap.querySelectorAll('[data-dl]').forEach(b=>b.onclick=async()=>{const p=await dbGet(b.dataset.dl);downloadDataURL(p.dataURL,p.fileName);await dbPut(Object.assign(p,{downloaded:true}));toast('Downloaded');});
     wrap.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{await dbDelete(b.dataset.del);toast('Deleted');pageLibrary();});
     wrap.querySelectorAll('[data-pub]').forEach(b=>b.onclick=async()=>{const p=await dbGet(b.dataset.pub);await dbPut(Object.assign(p,{published:!p.published}));toast(p.published?'Marked pending':'Marked published');pageLibrary();});
+    wrap.querySelectorAll('[data-hist]').forEach(b=>b.onclick=()=>showHistory(b.dataset.hist));
   }
   function thumb(p){
+    const vers=(versionsBySlot[p.slot]||[]).length;
+    const hist=vers>1?`<button class="btn" data-hist="${p.slot}" title="${vers} versions">🕘${vers}</button>`:'';
     return `<div class="thumb"><div class="imgbox"><img src="${p.dataURL}" loading="lazy"></div>
       <div class="meta"><b>${esc(p.topicEn)}</b>
-      <span class="badge-lang ${p.language[0]==='E'?'en':'gu'}">${p.language[0]==='E'?'EN':'GU'}</span> ${p.size} • ${p.date}
-      <div style="margin-top:4px">${p.published?'<span class="pill">Published</span>':'<span class="pill warn">Pending</span>'} ${p.downloaded?'<span class="pill gray">DL</span>':''}</div></div>
-      <div class="actions"><button class="btn" data-dl="${p.id}">⬇️</button><button class="btn" data-pub="${p.id}">✓</button><button class="btn" data-del="${p.id}">🗑️</button></div></div>`;
+      <span class="badge-lang ${p.language[0]==='E'?'en':'gu'}">${p.language[0]==='E'?'EN':'GU'}</span> ${p.size} • ${p.date} <span class="pill gray">v${p.version||1}</span>
+      <div style="margin-top:4px">${(STATUS_LABEL[p.status]?('<span class="pill '+STATUS_LABEL[p.status].cls+'">'+(p.status==='official'?'Official':p.status==='recognized'?'Recognised':'Studio')+'</span>'):'')} ${p.published?'<span class="pill">Published</span>':'<span class="pill warn">Pending</span>'} ${p.downloaded?'<span class="pill gray">DL</span>':''}</div></div>
+      <div class="actions"><button class="btn" data-dl="${p.id}">⬇️</button><button class="btn" data-pub="${p.id}">✓</button>${hist}<button class="btn" data-del="${p.id}">🗑️</button></div></div>`;
+  }
+  function showHistory(slot){
+    const vs=(versionsBySlot[slot]||[]).slice().sort((a,b)=>(b.version||1)-(a.version||1));
+    const card=el(`<div class="card" style="margin-top:16px" id="histCard"><div class="topbar" style="margin-bottom:8px"><h3 class="sec" style="margin:0">Version history — ${esc(vs[0].topicEn)} • ${vs[0].language} ${vs[0].size}</h3><button class="btn sm" id="histClose">Close</button></div>
+      <div class="thumbgrid">${vs.map(p=>`<div class="thumb"><div class="imgbox"><img src="${p.dataURL}"></div><div class="meta"><b>v${p.version||1}</b> ${p.active!==false?'<span class="pill">Active</span>':''}<div class="muted" style="margin-top:3px">${new Date(p.createdAt).toLocaleString('en-IN')}</div></div><div class="actions"><button class="btn" data-rdl="${p.id}">⬇️</button>${p.active!==false?'':`<button class="btn" data-restore="${p.id}">↩ Restore</button>`}<button class="btn" data-rdel="${p.id}">🗑️</button></div></div>`).join('')}</div></div>`);
+    const old=document.getElementById('histCard');if(old)old.remove();
+    main.appendChild(card);
+    card.querySelector('#histClose').onclick=()=>card.remove();
+    card.querySelectorAll('[data-rdl]').forEach(b=>b.onclick=async()=>{const p=await dbGet(b.dataset.rdl);downloadDataURL(p.dataURL,p.fileName);toast('Downloaded');});
+    card.querySelectorAll('[data-rdel]').forEach(b=>b.onclick=async()=>{await dbDelete(b.dataset.rdel);toast('Version deleted');pageLibrary();});
+    card.querySelectorAll('[data-restore]').forEach(b=>b.onclick=async()=>{
+      const id=b.dataset.restore;const p=await dbGet(id);const others=(versionsBySlot[p.slot]||[]).filter(x=>x.active!==false);
+      await dbBatch([Object.assign({},p,{active:true})], others.map(x=>Object.assign({},x,{active:false})));
+      toast('Restored v'+(p.version||1));pageLibrary();});
+    card.scrollIntoView({behavior:'smooth',block:'nearest'});
   }
   render();
 }
@@ -1166,7 +955,7 @@ function pageCaptions(){
 
 /* -------- DOWNLOADS -------- */
 async function pageDownloads(){
-  const all=await dbAll();const dateStr=ymd(new Date());const todays=all.filter(p=>p.date===dateStr);
+  const all=activeOnly(await dbAll());const dateStr=ymd(new Date());const todays=all.filter(p=>p.date===dateStr);
   main.innerHTML=topbar('Downloads','Export individual images, language sets, or full ZIP packages','');
   const c=el('<div class="row"></div>');
   const left=el(`<div class="col card"></div>`);
@@ -1200,7 +989,7 @@ async function pageDownloads(){
   document.getElementById('dMeta').onclick=async()=>{const meta=(await dbAll()).map(({dataURL,...m})=>m);downloadBlob(new Blob([JSON.stringify(meta,null,2)],{type:'application/json'}),'metadata.json');toast('Exported metadata.json');};
 }
 async function downloadDay(dateStr){
-  const all=(await dbAll()).filter(p=>p.date===dateStr);
+  const all=activeOnly(await dbAll()).filter(p=>p.date===dateStr);
   if(!all.length)return toast('Nothing generated for '+dateStr);
   const [Y,M,D]=dateStr.split('-').map(Number);const dObj=new Date(Y,M-1,D);const topic=topicForDate(dObj);
   const files=all.map(p=>({name:p.fileName,bytes:dataURLtoBytes(p.dataURL)}));
@@ -1212,7 +1001,7 @@ async function downloadDay(dateStr){
   toast('ZIP downloaded');
 }
 async function downloadFiltered(pred,name){
-  const all=(await dbAll()).filter(pred);
+  const all=activeOnly(await dbAll()).filter(pred);
   if(!all.length)return toast('Nothing to download');
   const files=all.map(p=>({name:p.date.slice(0,7)+'/'+p.fileName,bytes:dataURLtoBytes(p.dataURL)}));
   files.push({name:'metadata.json',bytes:new Uint8Array(strBytes(JSON.stringify(all.map(({dataURL,...m})=>m),null,2)))});
@@ -1241,7 +1030,7 @@ function eventPill(ev){const map={Generated:'blue',Downloaded:'gray',Published:'
 
 /* -------- ANALYTICS (custom lightweight canvas charts) -------- */
 async function pageAnalytics(){
-  const all=await dbAll();
+  const all=activeOnly(await dbAll());
   main.innerHTML=topbar('Analytics','Generation, category, language and publishing insights','');
   if(!all.length){main.appendChild(el(`<div class="card"><div class="empty-state"><div class="big">📊</div>No data yet. Generate posters to see analytics.</div></div>`));return;}
   const row=el('<div class="row"></div>');
@@ -1304,51 +1093,76 @@ function pageSettings(){
       <div class="col">
         <div class="field"><label class="fld">Brand green</label><input class="inp" id="sGreen" type="color" value="${s.brandGreen}" style="height:42px;padding:4px"></div>
         <div class="field"><label class="fld">Brand blue</label><input class="inp" id="sBlue" type="color" value="${s.brandBlue}" style="height:42px;padding:4px"></div>
-        <div class="field"><label class="fld">Image quality</label><select class="inp" id="sQual"><option value="high" ${s.quality==='high'?'selected':''}>High</option><option value="standard" ${s.quality==='standard'?'selected':''}>Standard</option></select></div>
+        <div class="field"><label class="fld">Image quality</label><select class="inp" id="sQual"><option value="high" ${s.quality==='high'?'selected':''}>High — PNG (lossless, larger)</option><option value="standard" ${s.quality==='standard'?'selected':''}>Standard — JPEG (smaller files)</option></select></div>
       </div>
     </div>
     <div class="field"><label class="fld">Default language</label><select class="inp" id="sLang" style="max-width:240px"><option ${s.language==='English'?'selected':''}>English</option><option ${s.language==='Gujarati'?'selected':''}>Gujarati</option></select></div>
     <div class="field"><label class="fld">Default hashtags (space separated)</label><input class="inp" id="sTags" value="${esc(s.defaultHashtags)}"></div>
-    <div class="field"><label class="fld">Logo (PNG, appears on posters)</label><input class="inp" id="sLogo" type="file" accept="image/*"><div id="logoPrev" style="margin-top:8px">${s.logoData?`<img src="${s.logoData}" style="height:56px;border:1px solid var(--line);border-radius:8px;padding:4px;background:#fff">`:'<span class="muted">No logo uploaded</span>'}</div></div>
+    <div class="row">
+      <div class="col"><div class="field"><label class="fld">Logo (appears on posters)</label><input class="inp" id="sLogo" type="file" accept="image/*"><div id="logoPrev" style="margin-top:8px">${s.logoData?`<img src="${s.logoData}" style="height:52px;border:1px solid var(--line);border-radius:8px;padding:4px;background:#fff">`:'<span class="muted">No logo uploaded</span>'}</div></div></div>
+      <div class="col"><div class="field"><label class="fld">QR image (generate elsewhere, upload here)</label><input class="inp" id="sQr" type="file" accept="image/*"><div id="qrPrev" style="margin-top:8px">${s.qrData?`<img src="${s.qrData}" style="height:52px;border:1px solid var(--line);border-radius:8px;padding:4px;background:#fff">`:'<span class="muted">No QR uploaded — a labelled placeholder is drawn</span>'}</div></div></div>
+    </div>
     <div class="field"><label class="fld">Storage location</label><input class="inp" value="Browser IndexedDB + LocalStorage (offline, on this device)" readonly></div>
-    <div class="btnrow"><button class="btn primary" id="saveS">💾 Save Settings</button><button class="btn" id="clearLogo">Remove logo</button><button class="btn ghost" id="resetS">Reset defaults</button></div>
-    <h3 class="sec" style="margin-top:22px">Automation-ready</h3>
-    <p class="muted" style="font-size:12.5px">This app is structured to later connect with n8n, Make, Google Drive/Sheets, OpenAI &amp; image APIs, and WhatsApp/LinkedIn/Facebook/Instagram/Telegram. Metadata and captions export as JSON to feed those workflows.</p>`;
+    <div class="btnrow"><button class="btn primary" id="saveS">💾 Save Settings</button><button class="btn" id="clearLogo">Remove logo</button><button class="btn" id="clearQr">Remove QR</button><button class="btn ghost" id="resetS">Reset defaults</button></div>
+    <h3 class="sec" style="margin-top:22px">Storage management</h3>
+    <div class="btnrow"><button class="btn" id="clearPosters">🗑️ Clear all posters</button><button class="btn danger-btn" id="resetAll" style="border-color:var(--danger);color:var(--danger)">⚠ Reset everything (posters + settings + log)</button></div>
+    <h3 class="sec" style="margin-top:22px">Daily scheduler</h3>
+    <p class="muted" style="font-size:12.5px">This single HTML file has no background process, so it cannot generate at exactly 08:00 IST while closed. Instead it generates the day's set the <b>first time you open the app each day</b>. For a true unattended 08:00 IST run, trigger this from an external scheduler (n8n, Make, cron, or Google Apps Script) — the JSON metadata/captions exports are designed to feed those workflows.</p>
+    <h3 class="sec" style="margin-top:18px">Automation-ready</h3>
+    <p class="muted" style="font-size:12.5px">Structured to connect later with n8n, Make, Google Drive/Sheets, OpenAI &amp; image APIs, and WhatsApp/LinkedIn/Facebook/Instagram/Telegram.</p>`;
   main.appendChild(card);
-  let logoData=s.logoData;
-  document.getElementById('sLogo').onchange=e=>{const file=e.target.files[0];if(!file)return;const r=new FileReader();r.onload=()=>{logoData=r.result;document.getElementById('logoPrev').innerHTML=`<img src="${logoData}" style="height:56px;border:1px solid var(--line);border-radius:8px;padding:4px;background:#fff">`;};r.readAsDataURL(file);};
+  let logoData=s.logoData, qrData=s.qrData;
+  const readImg=(input,cb)=>{const file=input.files[0];if(!file)return;const r=new FileReader();r.onload=()=>cb(r.result);r.readAsDataURL(file);};
+  document.getElementById('sLogo').onchange=e=>readImg(e.target,d=>{logoData=d;document.getElementById('logoPrev').innerHTML=`<img src="${d}" style="height:52px;border:1px solid var(--line);border-radius:8px;padding:4px;background:#fff">`;});
+  document.getElementById('sQr').onchange=e=>readImg(e.target,d=>{qrData=d;document.getElementById('qrPrev').innerHTML=`<img src="${d}" style="height:52px;border:1px solid var(--line);border-radius:8px;padding:4px;background:#fff">`;});
   document.getElementById('clearLogo').onclick=()=>{logoData='';document.getElementById('logoPrev').innerHTML='<span class="muted">No logo uploaded</span>';};
-  document.getElementById('saveS').onclick=()=>{
-    saveSettings({org:val('sOrg'),footer:val('sFooter'),watermark:val('sWm'),brandGreen:val('sGreen'),brandBlue:val('sBlue'),quality:val('sQual'),language:val('sLang'),defaultHashtags:val('sTags'),logoData});
-    refreshLogoCache();toast('✓ Settings saved');
+  document.getElementById('clearQr').onclick=()=>{qrData='';document.getElementById('qrPrev').innerHTML='<span class="muted">No QR uploaded</span>';};
+  document.getElementById('saveS').onclick=async()=>{
+    saveSettings({org:val('sOrg'),footer:val('sFooter'),watermark:val('sWm'),brandGreen:val('sGreen'),brandBlue:val('sBlue'),quality:val('sQual'),language:val('sLang'),defaultHashtags:val('sTags'),logoData,qrData});
+    await refreshLogoCache();toast('✓ Settings saved');
   };
-  document.getElementById('resetS').onclick=()=>{saveSettings(DEFAULT_SETTINGS);refreshLogoCache();toast('Reset to defaults');pageSettings();};
+  document.getElementById('resetS').onclick=async()=>{saveSettings(DEFAULT_SETTINGS);await refreshLogoCache();toast('Reset to defaults');pageSettings();};
+  document.getElementById('clearPosters').onclick=async()=>{if(!confirm('Delete ALL generated posters (all versions)? This cannot be undone.'))return;await dbClearAll();toast('All posters cleared');pageSettings();};
+  document.getElementById('resetAll').onclick=async()=>{if(!confirm('Reset EVERYTHING — posters, settings and log? This cannot be undone.'))return;await dbClearAll();['settings','log','lastAutoRun'].forEach(k=>localStorage.removeItem('has_'+k));await refreshLogoCache();toast('Everything reset');go('home');};
   function val(id){return document.getElementById(id).value;}
 }
 
 /* =====================================================================
-   8. DAILY SCHEDULER (client-side): auto-generate today's set once/day
+   8. ERROR REPORTING + DAILY CATCH-UP GENERATION
    ===================================================================== */
+function showError(err){
+  const msg=(err&&err.message)?err.message:String(err);
+  let bar=document.getElementById('errbar');
+  if(!bar){bar=el('<div id="errbar" style="position:fixed;top:0;left:0;right:0;z-index:10000;background:#d9482b;color:#fff;padding:10px 16px;font-size:13px;display:flex;justify-content:space-between;gap:12px;box-shadow:0 2px 8px rgba(0,0,0,.2)"></div>');document.body.appendChild(bar);}
+  bar.innerHTML=`<span>⚠ ${esc(msg)}</span><button style="background:transparent;border:1px solid rgba(255,255,255,.6);color:#fff;border-radius:6px;cursor:pointer;padding:2px 8px">Dismiss</button>`;
+  bar.querySelector('button').onclick=()=>bar.remove();
+  console.error(err);
+}
+window.addEventListener('error',e=>showError(e.error||e.message));
+window.addEventListener('unhandledrejection',e=>showError(e.reason||'Unhandled promise rejection'));
+
+/* On-open catch-up: generate the day's set the first time the app is opened
+   each day (honest substitute for a true 08:00 IST scheduler — see Settings). */
 async function dailyAutoRun(){
   const dateStr=ymd(new Date());
-  const lastRun=LS.get('lastAutoRun','');
-  if(lastRun===dateStr)return;
-  // Only auto-generate if nothing exists for today yet
+  if(LS.get('lastAutoRun','')===dateStr)return;
   const all=await dbAll();
   if(!all.some(p=>p.date===dateStr)){
     await generateSet(new Date(),LANGS,SIZES);
-    LS.set('lastAutoRun',dateStr);
     toast('✓ Today’s posters auto-generated');
-  } else {LS.set('lastAutoRun',dateStr);}
+  }
+  LS.set('lastAutoRun',dateStr);
 }
 
 /* =====================================================================
    9. BOOT
    ===================================================================== */
 (async function boot(){
-  refreshLogoCache();
-  await dailyAutoRun().catch(()=>{});
-  go('home');
+  try{
+    await refreshLogoCache();
+    await dailyAutoRun();
+  }catch(e){ showError(new Error('Startup generation failed: '+(e&&e.message||e))); }
+  finally{ go('home'); }
 })();
 </script>
 </body>

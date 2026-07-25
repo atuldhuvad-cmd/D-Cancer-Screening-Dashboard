@@ -1,0 +1,1889 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Health Awareness Studio · v5.1</title>
+<style>
+/* ============================================================
+Self-contained, offline-capable, no external dependencies.
+Theme: White / Green / Medical Blue.
+============================================================ */
+:root {
+--green: #1a9f6e; --green-dark: #0f7a52; --green-soft: #e7f6ef;
+--blue: #1668c1; --blue-soft: #e8f1fb;
+--ink: #1f2a33; --muted: #65727d; --line: #e6ebef; --bg: #f4f7f9;
+--card: #ffffff; --warn: #d98a1a; --danger: #d9482b;
+--radius: 16px; --shadow: 0 1px 2px rgba(16,40,60,.05),0 6px 18px rgba(16,40,60,.06);
+--font: 'Segoe UI', system-ui, -apple-system, Roboto, Arial, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body { font-family: var(--font); color: var(--ink); background: var(--bg); font-size: 14.5px; line-height: 1.5; }
+button { font-family: inherit; cursor: pointer; }
+.app { display: grid; grid-template-columns: 248px 1fr; min-height: 100vh; }
+
+/* Sidebar */
+.side {
+background: linear-gradient(180deg, #0f7a52, #0c6647);
+color: #eafaf3;
+padding: 18px 14px;
+position: sticky;
+top: 0;
+height: 100vh;
+overflow: auto;
+z-index: 10;
+}
+.brand { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.brand .logo {
+width: 38px; height: 38px; border-radius: 10px; background: #fff;
+display: grid; place-items: center; color: var(--green-dark);
+font-weight: 800; font-size: 20px;
+}
+.brand h1 { font-size: 15px; margin: 0; line-height: 1.15; font-weight: 700; }
+.brand small { color: #bfe6d6; font-size: 11px; font-weight: 500; }
+.nav { margin-top: 16px; display: flex; flex-direction: column; gap: 2px; }
+.nav button {
+display: flex; align-items: center; gap: 11px; width: 100%; text-align: left;
+background: transparent; border: 0; color: #dff5ea; padding: 10px 12px;
+border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 500;
+}
+.nav button .ic { width: 20px; text-align: center; }
+.nav button:hover { background: rgba(255,255,255,.09); }
+.nav button.active { background: #fff; color: var(--green-dark); font-weight: 700; }
+.side .foot { margin-top: 18px; font-size: 11px; color: #bfe6d6; border-top: 1px solid rgba(255,255,255,.15); padding-top: 12px; }
+
+/* Main */
+.main { padding: 22px 26px 60px; overflow: auto; }
+.page-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+.page-head h2 { margin: 0; font-size: 20px; }
+.page-head .sub { color: var(--muted); font-size: 13px; }
+.searchbox { display: flex; align-items: center; gap: 8px; background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px; min-width: 200px; }
+.searchbox input { border: 0; outline: 0; flex: 1; font-size: 14px; background: transparent; }
+
+.grid { display: grid; gap: 16px; }
+.cards { grid-template-columns: repeat(4,1fr); }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; }
+.stat { display: flex; flex-direction: column; gap: 6px; }
+.stat .lbl { color: var(--muted); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .03em; }
+.stat .val { font-size: 26px; font-weight: 800; line-height: 1; }
+.stat .hint { font-size: 12px; color: var(--muted); }
+.pill { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: var(--green-soft); color: var(--green-dark); }
+.pill.blue { background: var(--blue-soft); color: var(--blue); }
+.pill.warn { background: #fdf1e0; color: var(--warn); }
+.pill.gray { background: #eef2f5; color: var(--muted); }
+.pill.danger { background: #fbe9e5; color: var(--danger); }
+.row { display: flex; gap: 16px; flex-wrap: wrap; }
+.col { flex: 1; min-width: 280px; }
+h3.sec { font-size: 15px; margin: 0 0 12px; }
+.btn {
+display: inline-flex; align-items: center; gap: 7px; border: 1px solid var(--line);
+background: #fff; color: var(--ink); padding: 9px 14px; border-radius: 10px;
+font-size: 13.5px; font-weight: 600; cursor: pointer; transition: .12s;
+}
+.btn:hover { border-color: #cdd6dd; background: #fbfdfe; }
+.btn.primary { background: var(--green); border-color: var(--green); color: #fff; }
+.btn.primary:hover { background: var(--green-dark); border-color: var(--green-dark); }
+.btn.blue { background: var(--blue); border-color: var(--blue); color: #fff; }
+.btn.blue:hover { background: #12569f; }
+.btn.danger { background: var(--danger); border-color: var(--danger); color: #fff; }
+.btn.danger:hover { background: #c0392b; }
+.btn.sm { padding: 6px 10px; font-size: 12.5px; }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.btnrow { display: flex; gap: 10px; flex-wrap: wrap; }
+label.fld { display: block; font-size: 12.5px; font-weight: 600; color: var(--muted); margin: 0 0 5px; }
+input.inp, select.inp, textarea.inp { width: 100%; border: 1px solid var(--line); border-radius: 10px; padding: 9px 11px; font-size: 14px; font-family: inherit; outline: 0; background: #fff; }
+input.inp:focus, select.inp:focus, textarea.inp:focus { border-color: var(--green); }
+.field { margin-bottom: 14px; }
+.muted { color: var(--muted); }
+.kv { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px dashed var(--line); font-size: 13.5px; }
+.kv:last-child { border-bottom: 0; }
+.kv b { font-weight: 700; }
+.tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+.tabs button { border: 1px solid var(--line); background: #fff; padding: 7px 13px; border-radius: 999px; font-size: 12.5px; font-weight: 600; cursor: pointer; color: var(--muted); }
+.tabs button.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+.posterwrap { background: #f0f4f6; border: 1px solid var(--line); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.posterwrap canvas, .posterwrap img { max-width: 100%; height: auto; border-radius: 8px; box-shadow: var(--shadow); background: #fff; }
+.thumbgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px,1fr)); gap: 14px; }
+.thumb { background: #fff; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); }
+.thumb .imgbox { background: #eef3f5; display: grid; place-items: center; aspect-ratio: 1/1; overflow: hidden; }
+.thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.thumb .meta { padding: 9px 10px; font-size: 11.5px; }
+.thumb .meta b { display: block; font-size: 12px; margin-bottom: 3px; }
+.thumb .actions { display: flex; gap: 6px; padding: 0 10px 10px; }
+.thumb .actions .btn { padding: 5px 8px; font-size: 11px; flex: 1; justify-content: center; }
+table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+table.tbl th, table.tbl td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--line); }
+table.tbl th { color: var(--muted); font-size: 11.5px; text-transform: uppercase; letter-spacing: .03em; font-weight: 700; }
+.calgrid { display: grid; grid-template-columns: repeat(7,1fr); gap: 6px; }
+.calcell { background: #fff; border: 1px solid var(--line); border-radius: 9px; min-height: 78px; padding: 7px; font-size: 11.5px; cursor: pointer; position: relative; }
+.calcell:hover { border-color: var(--green); }
+.calcell.empty { background: transparent; border: 0; cursor: default; }
+.calcell .d { font-weight: 700; color: var(--muted); }
+.calcell.today { outline: 2px solid var(--green); }
+.calcell .ev { margin-top: 4px; font-weight: 600; line-height: 1.25; color: var(--ink); font-size: 10.5px; }
+.calcell .cat { position: absolute; bottom: 6px; left: 7px; width: 8px; height: 8px; border-radius: 50%; }
+.dow { display: grid; grid-template-columns: repeat(7,1fr); gap: 6px; margin-bottom: 6px; }
+.dow div { text-align: center; font-size: 11px; font-weight: 700; color: var(--muted); }
+.legend { display: flex; gap: 12px; flex-wrap: wrap; font-size: 11.5px; color: var(--muted); margin-top: 10px; }
+.legend span { display: inline-flex; align-items: center; gap: 5px; }
+.legend i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.captionbox { border: 1px solid var(--line); border-radius: 12px; padding: 12px; background: #fff; margin-bottom: 12px; }
+.captionbox .hd { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.captionbox pre { white-space: pre-wrap; font-family: inherit; font-size: 13px; margin: 0; color: #2b3843; }
+.bar { height: 8px; background: #eef2f5; border-radius: 999px; overflow: hidden; }
+.bar > i { display: block; height: 100%; background: var(--green); border-radius: 999px; }
+.chart-legend { display: flex; flex-wrap: wrap; gap: 8px 14px; margin-top: 8px; font-size: 12px; }
+.chart-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.chart-legend i { width: 10px; height: 10px; border-radius: 3px; }
+.toast { position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 11px 18px; border-radius: 10px; font-size: 13.5px; box-shadow: 0 8px 24px rgba(0,0,0,.25); opacity: 0; pointer-events: none; transition: .25s; z-index: 9999; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(-4px); }
+.empty-state { text-align: center; padding: 40px 20px; color: var(--muted); }
+.empty-state .big { font-size: 40px; margin-bottom: 8px; }
+.countdown { font-variant-numeric: tabular-nums; font-weight: 800; font-size: 22px; color: var(--blue); }
+.badge-lang { font-size: 10.5px; font-weight: 800; padding: 2px 6px; border-radius: 5px; }
+.badge-lang.en { background: var(--blue-soft); color: var(--blue); }
+.badge-lang.gu { background: var(--green-soft); color: var(--green-dark); }
+.workflow { display: grid; grid-template-columns: repeat(5,1fr); gap: 8px; }
+.workflow-step { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 10px; text-align: center; font-size: 12px; }
+.workflow-step.done { border-color: var(--green); background: var(--green-soft); }
+.workflow-step.active { outline: 2px solid var(--blue); }
+.statusline { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.poster-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px,1fr)); gap: 14px; }
+.poster-card { background: #fff; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.poster-card img { width: 100%; display: block; background: #eef3f5; }
+.poster-card .meta { padding: 10px; }
+.notice { padding: 10px 12px; border-radius: 10px; background: #fff7e6; border: 1px solid #f2d391; font-size: 12.5px; }
+.progress { height: 8px; background: #e8edf1; border-radius: 999px; overflow: hidden; }
+.progress > i { display: block; height: 100%; background: var(--green); width: 0; }
+.flex { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.gap-4 { gap: 4px; }
+.editor-tools { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.editor-tools .btn { font-size: 12px; padding: 6px 10px; }
+.layer-list { max-height: 200px; overflow-y: auto; border: 1px solid var(--line); border-radius: 8px; padding: 6px; background: #fafcfc; }
+.layer-item { display: flex; justify-content: space-between; padding: 4px 8px; border-bottom: 1px solid var(--line); cursor: pointer; }
+.layer-item:hover { background: var(--bg); }
+.layer-item.active { background: var(--blue-soft); font-weight: 600; }
+.diag-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 12px; }
+.diag-card { padding: 14px; background: #fff; border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); }
+.diag-card .val { font-size: 28px; font-weight: 800; }
+.diag-card .label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .03em; }
+.diag-card.ok { border-left: 4px solid var(--green); }
+.diag-card.warn { border-left: 4px solid var(--warn); }
+.diag-card.err { border-left: 4px solid var(--danger); }
+.modal-backdrop { position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,.4); display:flex; align-items:center; justify-content:center; z-index:999; }
+.modal { background:#fff; border-radius:16px; padding:24px; max-width:520px; width:90%; max-height:90vh; overflow:auto; box-shadow:0 12px 40px rgba(0,0,0,.2); }
+.modal h3 { margin:0 0 12px; }
+.modal .btnrow { margin-top:16px; }
+@media (max-width:1080px) { .cards { grid-template-columns: repeat(2,1fr); } }
+@media (max-width:860px) { .app { grid-template-columns: 1fr; } .side { position: static; height: auto; } .nav { flex-direction: row; flex-wrap: wrap; } }
+@media (max-width:600px) { .cards { grid-template-columns: 1fr; } .workflow { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<noscript><div style="padding:16px;background:#fee;color:#700;font-family:sans-serif">JavaScript is required.</div></noscript>
+<div class="app">
+<aside class="side">
+<div class="brand">
+<div class="logo">✚</div>
+<div><h1>Health Awareness<br>Studio</h1><small>Daily poster automation</small></div>
+</div>
+<nav class="nav" id="nav">
+<button data-page="home" class="active"><span class="ic">🏠</span>Dashboard</button>
+<button data-page="calendar"><span class="ic">🗓️</span>Calendar</button>
+<button data-page="generator"><span class="ic">🎨</span>Generator</button>
+<button data-page="editor"><span class="ic">✏️</span>Editor</button>
+<button data-page="templates"><span class="ic">📐</span>Templates</button>
+<button data-page="library"><span class="ic">🖼️</span>Library</button>
+<button data-page="publishing"><span class="ic">📣</span>Publishing</button>
+<button data-page="scheduler"><span class="ic">⏰</span>Scheduler</button>
+<button data-page="integrations"><span class="ic">🔗</span>n8n</button>
+<button data-page="diagnostics"><span class="ic">🩺</span>Diagnostics</button>
+<button data-page="settings"><span class="ic">⚙️</span>Settings</button>
+</nav>
+<div class="foot">
+<div id="schedulerLabel">Scheduler: 08:00 IST</div>
+<div style="margin-top:6px">Offline · v5.1</div>
+</div>
+</aside>
+<main class="main" id="main"></main>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// =====================================================================
+// 1. CALENDAR DATA (fixed 365-day, non-rotating)
+// =====================================================================
+const OFFICIAL_DAYS = {
+'2026-01-04':{category:'Health & Inclusion',titleEn:'World Braille Day',importanceEn:'UN observance',authorities:['UN']},
+'2026-01-09':{category:'National',titleEn:'Pravasi Bharatiya Divas',importanceEn:'Government of India observance',authorities:['Government of India']},
+'2026-01-10':{category:'Language & Culture',titleEn:'World Hindi Day',importanceEn:'International observance',authorities:['UN']},
+'2026-01-12':{category:'National',titleEn:'National Youth Day',importanceEn:'India; Swami Vivekananda Jayanti',authorities:['Government of India']},
+'2026-01-15':{category:'National',titleEn:'Indian Army Day',importanceEn:'India',authorities:['Government of India']},
+'2026-01-23':{category:'National',titleEn:'Parakram Diwas',importanceEn:'India; Netaji Subhas Chandra Bose Jayanti',authorities:['Government of India']},
+'2026-01-24':{category:'Health & Social',titleEn:'National Girl Child Day',importanceEn:'India',authorities:['Government of India']},
+'2026-01-25':{category:'National',titleEn:'National Voters\' Day',importanceEn:'India',authorities:['Government of India']},
+'2026-01-26':{category:'National',titleEn:'Republic Day',importanceEn:'India',authorities:['Government of India']},
+'2026-01-30':{category:'National & Health',titleEn:'Martyrs\' Day / Anti-Leprosy Day',importanceEn:'Observed in India',authorities:['Government of India']},
+'2026-02-02':{category:'Environment',titleEn:'World Wetlands Day',importanceEn:'UN-recognized observance',authorities:['UN']},
+'2026-02-04':{category:'Health',titleEn:'World Cancer Day',importanceEn:'Global health observance',authorities:['WHO']},
+'2026-02-06':{category:'Health & Rights',titleEn:'International Day of Zero Tolerance for FGM',importanceEn:'UN observance',authorities:['UN']},
+'2026-02-10':{category:'Health',titleEn:'National Deworming Day',importanceEn:'India; public-health campaign',authorities:['Government of India']},
+'2026-02-11':{category:'Science & Inclusion',titleEn:'International Day of Women and Girls in Science',importanceEn:'UN observance',authorities:['UN']},
+'2026-02-13':{category:'Communication',titleEn:'World Radio Day',importanceEn:'UNESCO observance',authorities:['UNESCO']},
+'2026-02-15':{category:'Health',titleEn:'International Childhood Cancer Day',importanceEn:'Global health observance',authorities:['WHO']},
+'2026-02-20':{category:'Social',titleEn:'World Day of Social Justice',importanceEn:'UN observance',authorities:['UN']},
+'2026-02-21':{category:'Language & Culture',titleEn:'International Mother Language Day',importanceEn:'UNESCO observance',authorities:['UNESCO']},
+'2026-02-27':{category:'Social',titleEn:'World NGO Day',importanceEn:'International observance',authorities:['UN']},
+'2026-02-28':{category:'National & Science',titleEn:'National Science Day',importanceEn:'India',authorities:['Government of India']},
+'2026-03-01':{category:'Health & Rights',titleEn:'Zero Discrimination Day',importanceEn:'UN observance',authorities:['UN']},
+'2026-03-03':{category:'Health & Environment',titleEn:'World Hearing Day / World Wildlife Day',importanceEn:'WHO and UN observances',authorities:['WHO','UN']},
+'2026-03-04':{category:'Health',titleEn:'World Obesity Day',importanceEn:'Global health observance',authorities:['WHO']},
+'2026-03-08':{category:'Health & Social',titleEn:'International Women\'s Day',importanceEn:'Global observance',authorities:['UN']},
+'2026-03-10':{category:'National',titleEn:'CISF Raising Day',importanceEn:'India',authorities:['Government of India']},
+'2026-03-12':{category:'Health',titleEn:'World Kidney Day',importanceEn:'Recognised observance (second Thursday of March)',authorities:['WHO']},
+'2026-03-15':{category:'Consumer Affairs',titleEn:'World Consumer Rights Day',importanceEn:'Global observance',authorities:['UN']},
+'2026-03-16':{category:'Health',titleEn:'National Vaccination Day',importanceEn:'India',authorities:['Government of India']},
+'2026-03-20':{category:'Health',titleEn:'World Oral Health Day',importanceEn:'Global health observance',authorities:['WHO']},
+'2026-03-21':{category:'Health & Environment',titleEn:'World Down Syndrome Day / International Day of Forests',importanceEn:'UN observances',authorities:['UN']},
+'2026-03-22':{category:'Health & Environment',titleEn:'World Water Day',importanceEn:'UN observance',authorities:['UN']},
+'2026-03-23':{category:'National',titleEn:'Shaheed Diwas',importanceEn:'India',authorities:['Government of India']},
+'2026-03-24':{category:'Health',titleEn:'World Tuberculosis Day',importanceEn:'WHO observance',authorities:['WHO']},
+'2026-04-02':{category:'Health & Inclusion',titleEn:'World Autism Awareness Day',importanceEn:'UN observance',authorities:['UN']},
+'2026-04-05':{category:'National',titleEn:'National Maritime Day',importanceEn:'India',authorities:['Government of India']},
+'2026-04-07':{category:'Health',titleEn:'World Health Day',importanceEn:'WHO observance',authorities:['WHO']},
+'2026-04-10':{category:'Health',titleEn:'World Homeopathy Day',importanceEn:'Observed in India',authorities:['Government of India']},
+'2026-04-11':{category:'Health',titleEn:'National Safe Motherhood Day / World Parkinson\'s Day',importanceEn:'India and global observances',authorities:['Government of India','WHO']},
+'2026-04-14':{category:'National',titleEn:'Dr. B. R. Ambedkar Jayanti',importanceEn:'India',authorities:['Government of India']},
+'2026-04-17':{category:'Health',titleEn:'World Haemophilia Day',importanceEn:'Global health observance',authorities:['WHO']},
+'2026-04-18':{category:'Culture',titleEn:'World Heritage Day',importanceEn:'International observance',authorities:['UNESCO']},
+'2026-04-22':{category:'Environment',titleEn:'Earth Day',importanceEn:'Global observance',authorities:['UN']},
+'2026-04-24':{category:'National',titleEn:'National Panchayati Raj Day',importanceEn:'India',authorities:['Government of India']},
+'2026-04-25':{category:'Health',titleEn:'World Malaria Day',importanceEn:'WHO observance',authorities:['WHO']},
+'2026-04-28':{category:'Occupational Health',titleEn:'World Day for Safety and Health at Work',importanceEn:'ILO observance',authorities:['ILO']},
+'2026-05-01':{category:'National & Labour',titleEn:'International Labour Day',importanceEn:'Observed in India',authorities:['Government of India']},
+'2026-05-03':{category:'Media',titleEn:'World Press Freedom Day',importanceEn:'UN observance',authorities:['UN']},
+'2026-05-05':{category:'Health',titleEn:'World Hand Hygiene Day',importanceEn:'WHO campaign',authorities:['WHO']},
+'2026-05-08':{category:'Health & Humanitarian',titleEn:'World Red Cross and Red Crescent Day',importanceEn:'Global observance',authorities:['ICRC']},
+'2026-05-10':{category:'Family & Social',titleEn:'Mother\'s Day',importanceEn:'Recognised observance (second Sunday of May)',authorities:[]},
+'2026-05-11':{category:'National & Science',titleEn:'National Technology Day',importanceEn:'India',authorities:['Government of India']},
+'2026-05-12':{category:'Health',titleEn:'International Nurses Day',importanceEn:'Global health observance',authorities:['WHO']},
+'2026-05-15':{category:'Social',titleEn:'International Day of Families',importanceEn:'UN observance',authorities:['UN']},
+'2026-05-17':{category:'Health',titleEn:'World Hypertension Day',importanceEn:'Global health observance',authorities:['WHO']},
+'2026-05-18':{category:'Health',titleEn:'World AIDS Vaccine Day',importanceEn:'Global health observance',authorities:['WHO']},
+'2026-05-20':{category:'Environment',titleEn:'World Bee Day',importanceEn:'UN observance',authorities:['UN']},
+'2026-05-21':{category:'Agriculture',titleEn:'International Tea Day',importanceEn:'UN observance',authorities:['UN']},
+'2026-05-22':{category:'Environment',titleEn:'International Day for Biological Diversity',importanceEn:'UN observance',authorities:['UN']},
+'2026-05-28':{category:'Health',titleEn:'Menstrual Hygiene Day',importanceEn:'Global health observance',authorities:['WHO']},
+'2026-05-31':{category:'Health',titleEn:'World No Tobacco Day',importanceEn:'WHO observance',authorities:['WHO']},
+'2026-06-01':{category:'Social',titleEn:'Global Day of Parents',importanceEn:'UN observance',authorities:['UN']},
+'2026-06-03':{category:'Health & Environment',titleEn:'World Bicycle Day',importanceEn:'UN observance',authorities:['UN']},
+'2026-06-05':{category:'Environment',titleEn:'World Environment Day',importanceEn:'UN observance',authorities:['UN']},
+'2026-06-07':{category:'Health & Nutrition',titleEn:'World Food Safety Day',importanceEn:'UN/WHO observance',authorities:['UN','WHO']},
+'2026-06-08':{category:'Environment',titleEn:'World Oceans Day',importanceEn:'UN observance',authorities:['UN']},
+'2026-06-12':{category:'Social',titleEn:'World Day Against Child Labour',importanceEn:'ILO observance',authorities:['ILO']},
+'2026-06-14':{category:'Health',titleEn:'World Blood Donor Day',importanceEn:'WHO observance',authorities:['WHO']},
+'2026-06-19':{category:'Health',titleEn:'World Sickle Cell Day',importanceEn:'UN-recognized observance',authorities:['UN']},
+'2026-06-20':{category:'Humanitarian',titleEn:'World Refugee Day',importanceEn:'UN observance',authorities:['UN']},
+'2026-06-21':{category:'Health & Family',titleEn:'Father\'s Day / International Day of Yoga',importanceEn:'Recognised observance (third Sunday) and fixed Yoga Day',authorities:['UN']},
+'2026-06-26':{category:'Health & Social',titleEn:'International Day Against Drug Abuse and Illicit Trafficking',importanceEn:'UN observance',authorities:['UN']},
+'2026-07-01':{category:'Health',titleEn:'National Doctors\' Day',importanceEn:'India',authorities:['Government of India']},
+'2026-07-06':{category:'Health',titleEn:'World Zoonoses Day',importanceEn:'Global health observance',authorities:['WHO']},
+'2026-07-11':{category:'Health & Social',titleEn:'World Population Day',importanceEn:'UN observance',authorities:['UN']},
+'2026-07-15':{category:'Education & Skills',titleEn:'World Youth Skills Day',importanceEn:'UN observance',authorities:['UN']},
+'2026-07-18':{category:'Social',titleEn:'Nelson Mandela International Day',importanceEn:'UN observance',authorities:['UN']},
+'2026-07-25':{category:'Water Safety',titleEn:'World Drowning Prevention Day',importanceEn:'Drowning is preventable. Water safety, supervision, barriers and early rescue skills can save lives.',authorities:['WHO']},
+'2026-07-26':{category:'National',titleEn:'Kargil Vijay Diwas',importanceEn:'India',authorities:['Government of India']},
+'2026-07-28':{category:'Health',titleEn:'World Hepatitis Day',importanceEn:'WHO observance',authorities:['WHO']},
+'2026-07-29':{category:'Environment',titleEn:'International Tiger Day',importanceEn:'Global observance',authorities:['UN']},
+'2026-07-30':{category:'Social',titleEn:'World Day Against Trafficking in Persons',importanceEn:'UN observance',authorities:['UN']},
+'2026-08-01':{category:'Health',titleEn:'World Lung Cancer Day',importanceEn:'Global awareness day',authorities:['WHO']},
+'2026-08-02':{category:'Social',titleEn:'Friendship Day',importanceEn:'Recognised observance (first Sunday of August)',authorities:[]},
+'2026-08-06':{category:'Peace',titleEn:'Hiroshima Day',importanceEn:'International remembrance',authorities:['UN']},
+'2026-08-07':{category:'National',titleEn:'National Handloom Day',importanceEn:'India',authorities:['Government of India']},
+'2026-08-09':{category:'National',titleEn:'Quit India Movement Day',importanceEn:'India',authorities:['Government of India']},
+'2026-08-10':{category:'Environment & Energy',titleEn:'World Biofuel Day',importanceEn:'Observed in India',authorities:['Government of India']},
+'2026-08-12':{category:'Social',titleEn:'International Youth Day',importanceEn:'UN observance',authorities:['UN']},
+'2026-08-15':{category:'National',titleEn:'Independence Day',importanceEn:'India',authorities:['Government of India']},
+'2026-08-19':{category:'Humanitarian',titleEn:'World Humanitarian Day',importanceEn:'UN observance',authorities:['UN']},
+'2026-08-20':{category:'National & Social',titleEn:'Sadbhavana Diwas',importanceEn:'India',authorities:['Government of India']},
+'2026-08-23':{category:'Social',titleEn:'International Day for the Remembrance of the Slave Trade',importanceEn:'UNESCO observance',authorities:['UNESCO']},
+'2026-08-29':{category:'Health & Sports',titleEn:'National Sports Day',importanceEn:'India',authorities:['Government of India']},
+'2026-08-30':{category:'National & Economy',titleEn:'National Small Industry Day',importanceEn:'India',authorities:['Government of India']},
+'2026-09-05':{category:'National & Education',titleEn:'Teachers\' Day',importanceEn:'India',authorities:['Government of India']},
+'2026-09-08':{category:'Education',titleEn:'International Literacy Day',importanceEn:'UNESCO observance',authorities:['UNESCO']},
+'2026-09-10':{category:'Health',titleEn:'World Suicide Prevention Day',importanceEn:'Global health observance',authorities:['WHO']},
+'2026-09-14':{category:'National & Language',titleEn:'Hindi Diwas',importanceEn:'India',authorities:['Government of India']},
+'2026-09-15':{category:'National & Science',titleEn:'Engineers\' Day',importanceEn:'India',authorities:['Government of India']},
+'2026-09-16':{category:'Environment',titleEn:'World Ozone Day',importanceEn:'UN observance',authorities:['UN']},
+'2026-09-17':{category:'Health',titleEn:'World Patient Safety Day',importanceEn:'WHO observance',authorities:['WHO']},
+'2026-09-21':{category:'Health & Peace',titleEn:'World Alzheimer\'s Day / International Day of Peace',importanceEn:'Global and UN observances',authorities:['WHO','UN']},
+'2026-09-25':{category:'Health',titleEn:'World Pharmacists Day',importanceEn:'Global health observance',authorities:['WHO']},
+'2026-09-26':{category:'Health & Environment',titleEn:'World Environmental Health Day',importanceEn:'Global observance',authorities:['WHO']},
+'2026-09-27':{category:'Environment & Tourism',titleEn:'World Rivers Day / World Tourism Day',importanceEn:'Recognised observance (fourth Sunday of September)',authorities:['UN']},
+'2026-09-28':{category:'Health',titleEn:'World Rabies Day',importanceEn:'Global health observance',authorities:['WHO']},
+'2026-09-29':{category:'Health',titleEn:'World Heart Day',importanceEn:'Global health observance',authorities:['WHO']},
+'2026-10-01':{category:'Health & Social',titleEn:'National Voluntary Blood Donation Day / International Day of Older Persons',importanceEn:'India and UN observances',authorities:['Government of India','UN']},
+'2026-10-02':{category:'National & Peace',titleEn:'Gandhi Jayanti / International Day of Non-Violence',importanceEn:'India and UN observance',authorities:['Government of India','UN']},
+'2026-10-04':{category:'Environment',titleEn:'World Animal Day',importanceEn:'Global observance',authorities:['UN']},
+'2026-10-05':{category:'Education',titleEn:'World Teachers\' Day',importanceEn:'UNESCO observance',authorities:['UNESCO']},
+'2026-10-08':{category:'National',titleEn:'Indian Air Force Day',importanceEn:'India',authorities:['Government of India']},
+'2026-10-09':{category:'Communication',titleEn:'World Post Day',importanceEn:'UN observance',authorities:['UN']},
+'2026-10-10':{category:'Health',titleEn:'World Mental Health Day',importanceEn:'WHO-supported observance',authorities:['WHO']},
+'2026-10-11':{category:'Health & Social',titleEn:'International Day of the Girl Child',importanceEn:'UN observance',authorities:['UN']},
+'2026-10-12':{category:'Health',titleEn:'World Arthritis Day',importanceEn:'Global health observance',authorities:['WHO']},
+'2026-10-13':{category:'Safety',titleEn:'International Day for Disaster Risk Reduction',importanceEn:'UN observance',authorities:['UN']},
+'2026-10-15':{category:'Health',titleEn:'Global Handwashing Day',importanceEn:'Global health campaign',authorities:['WHO']},
+'2026-10-16':{category:'Health & Nutrition',titleEn:'World Food Day',importanceEn:'UN observance',authorities:['UN']},
+'2026-10-20':{category:'Health',titleEn:'World Osteoporosis Day',importanceEn:'Global health observance',authorities:['WHO']},
+'2026-10-24':{category:'Health & International',titleEn:'United Nations Day / World Polio Day',importanceEn:'UN and global observances',authorities:['UN','WHO']},
+'2026-10-29':{category:'Health',titleEn:'World Stroke Day',importanceEn:'Global health observance',authorities:['WHO']},
+'2026-10-31':{category:'National',titleEn:'National Unity Day',importanceEn:'India',authorities:['Government of India']},
+'2026-11-05':{category:'Safety',titleEn:'World Tsunami Awareness Day',importanceEn:'UN observance',authorities:['UN']},
+'2026-11-07':{category:'Health',titleEn:'National Cancer Awareness Day',importanceEn:'India',authorities:['Government of India']},
+'2026-11-09':{category:'National & Legal',titleEn:'National Legal Services Day',importanceEn:'India',authorities:['Government of India']},
+'2026-11-10':{category:'Science',titleEn:'World Science Day for Peace and Development',importanceEn:'UNESCO observance',authorities:['UNESCO']},
+'2026-11-11':{category:'National & Education',titleEn:'National Education Day',importanceEn:'India',authorities:['Government of India']},
+'2026-11-12':{category:'Health',titleEn:'World Pneumonia Day',importanceEn:'Global health observance',authorities:['WHO']},
+'2026-11-14':{category:'Health & National',titleEn:'Children\'s Day / World Diabetes Day',importanceEn:'India and global observance',authorities:['Government of India','WHO']},
+'2026-11-16':{category:'National & Media',titleEn:'National Press Day',importanceEn:'India',authorities:['Government of India']},
+'2026-11-17':{category:'Health',titleEn:'World Prematurity Day',importanceEn:'Global health observance',authorities:['WHO']},
+'2026-11-19':{category:'Health & Social',titleEn:'World Toilet Day / International Men\'s Day',importanceEn:'UN and global observances',authorities:['UN']},
+'2026-11-20':{category:'Social',titleEn:'Universal Children\'s Day',importanceEn:'UN observance',authorities:['UN']},
+'2026-11-21':{category:'Environment & Livelihood',titleEn:'World Fisheries Day',importanceEn:'Global observance',authorities:['UN']},
+'2026-11-26':{category:'National',titleEn:'Constitution Day',importanceEn:'India',authorities:['Government of India']},
+'2026-12-01':{category:'Health',titleEn:'World AIDS Day',importanceEn:'WHO/UN observance',authorities:['WHO','UN']},
+'2026-12-02':{category:'Health & Environment',titleEn:'National Pollution Control Day',importanceEn:'India',authorities:['Government of India']},
+'2026-12-03':{category:'Health & Inclusion',titleEn:'International Day of Persons with Disabilities',importanceEn:'UN observance',authorities:['UN']},
+'2026-12-04':{category:'National',titleEn:'Indian Navy Day',importanceEn:'India',authorities:['Government of India']},
+'2026-12-05':{category:'Environment & Agriculture',titleEn:'World Soil Day',importanceEn:'UN observance',authorities:['UN']},
+'2026-12-07':{category:'National',titleEn:'Armed Forces Flag Day',importanceEn:'India',authorities:['Government of India']},
+'2026-12-09':{category:'Governance',titleEn:'International Anti-Corruption Day',importanceEn:'UN observance',authorities:['UN']},
+'2026-12-10':{category:'Rights',titleEn:'Human Rights Day',importanceEn:'UN observance',authorities:['UN']},
+'2026-12-11':{category:'Environment',titleEn:'International Mountain Day',importanceEn:'UN observance',authorities:['UN']},
+'2026-12-14':{category:'Environment & Energy',titleEn:'National Energy Conservation Day',importanceEn:'India',authorities:['Government of India']},
+'2026-12-18':{category:'Social',titleEn:'International Migrants Day',importanceEn:'UN observance',authorities:['UN']},
+'2026-12-22':{category:'National & Education',titleEn:'National Mathematics Day',importanceEn:'India',authorities:['Government of India']},
+'2026-12-23':{category:'National & Agriculture',titleEn:'Kisan Diwas / National Farmers\' Day',importanceEn:'India',authorities:['Government of India']},
+'2026-12-24':{category:'National & Consumer Affairs',titleEn:'National Consumer Day',importanceEn:'India',authorities:['Government of India']},
+'2026-12-25':{category:'National & Governance',titleEn:'Good Governance Day',importanceEn:'India',authorities:['Government of India']}
+};
+
+const CURATED_THEMES = [
+{category:'Health & Nutrition',titleEn:'Balanced Diet Awareness Day',importanceEn:'Curated health-awareness theme; not a formally declared national day.'},
+{category:'Physical Activity',titleEn:'Daily Walking Awareness Day',importanceEn:'Curated health-awareness theme; not a formally declared national day.'},
+{category:'Public Health',titleEn:'Safe Drinking Water Awareness Day',importanceEn:'Curated health-awareness theme; not a formally declared national day.'},
+{category:'Mental & Physical Health',titleEn:'Sleep Health Awareness Day',importanceEn:'Curated health-awareness theme; not a formally declared national day.'},
+{category:'Health',titleEn:'Oral Hygiene Awareness Day',importanceEn:'Curated health-awareness theme; not a formally declared national day.'},
+{category:'Public Health',titleEn:'Handwashing Practice Day',importanceEn:'Curated health-awareness theme; not a formally declared national day.'},
+{category:'Health',titleEn:'Healthy Heart Habits Day',importanceEn:'Curated health-awareness theme; not a formally declared national day.'},
+{category:'Health',titleEn:'Diabetes Prevention Awareness Day',importanceEn:'Curated health-awareness theme; not a formally declared national day.'},
+{category:'Health',titleEn:'Blood Pressure Check Awareness Day',importanceEn:'Curated health-awareness theme; not a formally declared national day.'},
+{category:'Health',titleEn:'Cancer Prevention Awareness Day',importanceEn:'Curated health-awareness theme; not a formally declared national day.'},
+{category:'Health',titleEn:'Tobacco-Free Living Day',importanceEn:'Curated health-awareness theme; not a formally declared national day.'},
+{category:'Mental Health',titleEn:'Mental Well-being Awareness Day',importanceEn:'Curated health-awareness theme; not a formally declared national day.'},
+{category:'Reproductive & Maternal Health',titleEn:'Maternal Health Awareness Day',importanceEn:'Curated health-awareness theme; not a formally declared national day.'},
+{category:'Child Health',titleEn:'Child Nutrition Awareness Day',importanceEn:'Curated health-awareness theme; not a formally declared national day.'},
+{category:'Adolescent Health',titleEn:'Adolescent Health Awareness Day',importanceEn:'Curated health-awareness theme; not a formally declared national day.'},
+{category:'Healthy Ageing',titleEn:'Senior Citizen Wellness Day',importanceEn:'Curated health-awareness theme; not a formally declared national day.'},
+{category:'Safety & Injury Prevention',titleEn:'Road Safety Awareness Day',importanceEn:'Curated health-awareness theme; not a formally declared national day.'},
+{category:'Vector-Borne Disease',titleEn:'Mosquito-Borne Disease Prevention Day',importanceEn:'Curated health-awareness theme; not a formally declared national day.'},
+{category:'Vector-Borne Disease',titleEn:'Dengue Prevention Awareness Day',importanceEn:'Curated health-awareness theme; not a formally declared national day.'},
+{category:'Vector-Borne Disease',titleEn:'Malaria Prevention Awareness Day',importanceEn:'Curated health-awareness theme; not a formally declared national day.'},
+{category:'Communicable Disease',titleEn:'Tuberculosis Prevention Awareness Day',importanceEn:'Curated health-awareness theme; not a formally declared national day.'},
+{category:'Immunization',titleEn:'Vaccination Awareness Day',importanceEn:'Curated health-awareness theme; not a formally declared national day.'},
+{category:'Nutrition',titleEn:'Anaemia Prevention Awareness Day',importanceEn:'Curated health-awareness theme; not a formally declared national day.'},
+{category:"Women's Health",titleEn:"Women's Health Awareness Day",importanceEn:'Curated health-awareness theme; not a formally declared national day.'},
+{category:"Men's Health",titleEn:"Men's Health Awareness Day",importanceEn:'Curated health-awareness theme; not a formally declared national day.'},
+{category:'Health',titleEn:'Eye Health Awareness Day',importanceEn:'Curated health-awareness theme; not a formally declared national day.'},
+{category:'Health',titleEn:'Hearing Health Awareness Day',importanceEn:'Curated health-awareness theme; not a formally declared national day.'},
+{category:'Health',titleEn:'Kidney Health Awareness Day',importanceEn:'Curated health-awareness theme; not a formally declared national day.'},
+{category:'Health',titleEn:'Liver Health Awareness Day',importanceEn:'Curated health-awareness theme; not a formally declared national day.'},
+{category:'Health',titleEn:'Respiratory Health Awareness Day',importanceEn:'Curated health-awareness theme; not a formally declared national day.'},
+{category:'Public Health',titleEn:'Food Safety Awareness Day',importanceEn:'Curated health-awareness theme; not a formally declared national day.'},
+{category:'Public Health',titleEn:'Sanitation Awareness Day',importanceEn:'Curated health-awareness theme; not a formally declared national day.'},
+{category:'Occupational Health',titleEn:'Occupational Health Awareness Day',importanceEn:'Curated health-awareness theme; not a formally declared national day.'},
+{category:'Emergency Preparedness',titleEn:'First Aid Awareness Day',importanceEn:'Curated health-awareness theme; not a formally declared national day.'},
+{category:'Health',titleEn:'Organ Donation Awareness Day',importanceEn:'Curated health-awareness theme; not a formally declared national day.'},
+{category:'Health',titleEn:'Blood Donation Awareness Day',importanceEn:'Curated health-awareness theme; not a formally declared national day.'},
+{category:'Public Health',titleEn:'Antimicrobial Resistance Awareness Day',importanceEn:'Curated health-awareness theme; not a formally declared national day.'},
+{category:'Public Health',titleEn:'Zoonotic Disease Prevention Day',importanceEn:'Curated health-awareness theme; not a formally declared national day.'},
+{category:'Public Health',titleEn:'One Health Awareness Day',importanceEn:'Curated health-awareness theme; not a formally declared national day.'},
+{category:'Health & Environment',titleEn:'Climate and Health Awareness Day',importanceEn:'Curated health-awareness theme; not a formally declared national day.'}
+];
+
+const CATEGORY_ACTIONS = {
+'Health':['Eat balanced meals daily','Stay physically active','Get regular check-ups','Spread awareness'],
+'Health & Nutrition':['Eat a variety of foods','Limit processed food','Stay hydrated','Plan meals'],
+'Physical Activity':['Walk 30 minutes daily','Take stairs instead of lift','Track your steps','Join a walking group'],
+'Public Health':['Wash hands frequently','Keep surroundings clean','Get vaccinated','Follow hygiene protocols'],
+'Health & Inclusion':['Promote accessibility','Support inclusive policies','Raise awareness','Advocate for rights'],
+'Mental & Physical Health':['Practice mindfulness','Exercise regularly','Take breaks','Stay connected'],
+'National':['Honour our nation\'s heroes','Celebrate our heritage','Spread patriotism','Contribute to society'],
+'Language & Culture':['Preserve languages','Celebrate diversity','Learn new languages','Share cultural stories'],
+'Mental Health':['Practice self-care','Seek help when needed','Talk to someone','Reduce stigma'],
+'Reproductive & Maternal Health':['Attend prenatal check-ups','Eat iron-rich foods','Get enough rest','Seek support'],
+'Child Health':['Ensure immunizations','Provide nutritious meals','Encourage play','Monitor growth'],
+'Adolescent Health':['Stay active','Eat healthy','Avoid substance abuse','Seek guidance'],
+'Healthy Ageing':['Stay socially active','Eat a balanced diet','Exercise gently','Get regular health checks'],
+'Safety & Injury Prevention':['Wear seat belts','Follow traffic rules','Install safety barriers','Learn first aid'],
+'Vector-Borne Disease':['Use mosquito nets','Wear long sleeves','Remove standing water','Apply repellent'],
+'Communicable Disease':['Cover your cough','Wash hands often','Stay home when sick','Get tested'],
+'Immunization':['Keep vaccine records','Stay up-to-date','Consult your doctor','Protect the community'],
+'Nutrition':['Eat a variety of foods','Limit processed food','Stay hydrated','Plan meals'],
+"Women's Health":['Schedule regular screenings','Know your body','Eat calcium-rich foods','Stay active'],
+"Men's Health":['Get regular check-ups','Manage stress','Eat heart-healthy','Exercise regularly'],
+'Environment':['Reduce plastic use','Plant trees','Conserve water','Recycle waste'],
+'Water Safety':['Supervise children near water','Use life jackets','Learn swimming','Install barriers'],
+'Science & Inclusion':['Support women in science','Encourage curiosity','Promote education','Foster innovation'],
+'Communication':['Share reliable information','Verify sources','Listen actively','Promote dialogue'],
+'Social':['Be kind','Help others','Volunteer','Stand against injustice'],
+'Emergency Preparedness':['Prepare emergency kits','Learn first aid','Know evacuation routes','Stay informed'],
+'National & Labour':['Respect labour rights','Promote fair work','Support workers','Celebrate contributions'],
+'Media':['Support press freedom','Check facts','Diversify sources','Protect journalists'],
+'Health & Humanitarian':['Support health campaigns','Donate when possible','Volunteer','Raise awareness'],
+'Family & Social':['Spend time with family','Communicate openly','Create traditions','Show love'],
+'National & Science':['Promote scientific thinking','Support research','Invest in education','Innovate'],
+'Consumer Affairs':['Know your rights','Read labels','Report issues','Choose sustainable options'],
+'Agriculture':['Support farmers','Reduce food waste','Eat seasonal','Know your food'],
+'Health & Environment':['Protect nature','Reduce pollution','Adopt green habits','Promote sustainability'],
+'National & Education':['Value education','Support teachers','Invest in learning','Promote literacy'],
+'National & Legal':['Know the law','Respect justice','Fight corruption','Uphold rights'],
+'Science':['Question assumptions','Seek evidence','Encourage discovery','Share knowledge'],
+'National & Media':['Promote media literacy','Support ethical journalism','Engage critically','Spread truth'],
+'Environment & Livelihood':['Protect ecosystems','Support sustainable livelihoods','Conserve resources','Build resilience'],
+'Environment & Agriculture':['Sustainable farming','Protect biodiversity','Reduce pesticides','Support local'],
+'Governance':['Participate in democracy','Hold leaders accountable','Promote transparency','Serve community'],
+'Rights':['Know your rights','Stand up for justice','Protect privacy','Defend dignity'],
+'Environment & Energy':['Save energy','Use renewables','Reduce carbon footprint','Advocate for clean energy'],
+'National & Economy':['Support local businesses','Be financially literate','Promote growth','Reduce inequality'],
+'Health & Sports':['Stay active','Play sports','Promote fitness','Enjoy recreation'],
+'National & Social':['Build community','Celebrate diversity','Stand against discrimination','Promote unity'],
+'Peace':['Embrace non-violence','Resolve conflicts peacefully','Be kind','Spread love'],
+'Education & Skills':['Keep learning','Teach others','Develop skills','Adapt to change'],
+'Health & Family':['Care for loved ones','Share meals','Stay active together','Support each other'],
+'Health & International':['Think globally','Support global health','Act locally','Unite for health'],
+'Humanitarian':['Help those in need','Support refugees','Promote dignity','Be compassionate'],
+'National & Agriculture':['Honour farmers','Support agri-policies','Reduce food waste','Eat local'],
+'National & Consumer Affairs':['Be informed','Claim your rights','Report unfair practices','Choose responsibly'],
+'National & Governance':['Demand good governance','Participate','Vote','Be accountable'],
+'National & Language':['Promote mother tongues','Preserve linguistic heritage','Learn new languages','Foster unity'],
+'National & Peace':['Celebrate peace','Promote harmony','Remember sacrifices','Build bridges'],
+'Occupational Health':['Ensure workplace safety','Use protective equipment','Take breaks','Report hazards'],
+'Health & Rights':['Defend health rights','Promote equity','Ensure access','Advocate for all'],
+'National & Health':['Promote health awareness','Support health policies','Participate in campaigns','Stay informed'],
+'Culture':['Preserve heritage','Celebrate traditions','Promote arts','Share stories'],
+'Education':['Value learning','Support teachers','Read daily','Share knowledge'],
+'Safety':['Follow safety rules','Be aware of surroundings','Report hazards','Stay prepared'],
+'Health & Peace':['Promote health and harmony','Support peaceful communities','Share health messages','Foster well-being'],
+'Environment & Tourism':['Protect natural sites','Travel responsibly','Support local communities','Conserve resources'],
+'Health & National':['Celebrate health achievements','Promote national health programmes','Stay active','Spread awareness'],
+'Health & Social':['Promote inclusion','Ensure accessibility','Respect dignity','Support rights']
+};
+
+const GUJ_TITLE = {
+'Balanced Diet Awareness Day':'સંતુલિત આહાર જાગૃતિ દિવસ',
+'Daily Walking Awareness Day':'દૈનિક વૉકિંગ જાગૃતિ દિવસ',
+'Safe Drinking Water Awareness Day':'સુરક્ષિત પીવાના પાણી જાગૃતિ દિવસ',
+'World Braille Day':'વિશ્વ બ્રેલ દિવસ',
+'Sleep Health Awareness Day':'ઊંઘ આરોગ્ય જાગૃતિ દિવસ',
+'Oral Hygiene Awareness Day':'મૌખિક સ્વચ્છતા જાગૃતિ દિવસ',
+'Handwashing Practice Day':'હાથ ધોવાની પ્રેક્ટિસ દિવસ',
+'Healthy Heart Habits Day':'સ્વસ્થ હૃદય આદત દિવસ',
+'Pravasi Bharatiya Divas':'પ્રવાસી ભારતીય દિવસ',
+'World Hindi Day':'વિશ્વ હિન્દી દિવસ',
+'Diabetes Prevention Awareness Day':'ડાયાબિટીસ નિવારણ જાગૃતિ દિવસ',
+'National Youth Day':'રાષ્ટ્રીય યુવા દિવસ',
+'Blood Pressure Check Awareness Day':'રક્તદબાણ તપાસ જાગૃતિ દિવસ',
+'Cancer Prevention Awareness Day':'કેન્સર નિવારણ જાગૃતિ દિવસ',
+'Indian Army Day':'ભારતીય સેના દિવસ',
+'Tobacco-Free Living Day':'તમાકુમુક્ત જીવન દિવસ',
+'Mental Well-being Awareness Day':'માનસિક સુખાકારી જાગૃતિ દિવસ',
+'Maternal Health Awareness Day':'માતૃ આરોગ્ય જાગૃતિ દિવસ',
+'Child Nutrition Awareness Day':'બાળ પોષણ જાગૃતિ દિવસ',
+'Adolescent Health Awareness Day':'કિશોર આરોગ્ય જાગૃતિ દિવસ',
+'Senior Citizen Wellness Day':'વરિષ્ઠ નાગરિક સુખાકારી દિવસ',
+'Road Safety Awareness Day':'રસ્તા સલામતી જાગૃતિ દિવસ',
+'Parakram Diwas':'પરાક્રમ દિવસ',
+'National Girl Child Day':'રાષ્ટ્રીય બાળિકા દિવસ',
+'National Voters\' Day':'રાષ્ટ્રીય મતદાર દિવસ',
+'Republic Day':'પ્રજાસત્તાક દિવસ',
+'Mosquito-Borne Disease Prevention Day':'મચ્છરજન્ય રોગ નિવારણ દિવસ',
+'Dengue Prevention Awareness Day':'ડેંગ્યુ નિવારણ જાગૃતિ દિવસ',
+'Malaria Prevention Awareness Day':'મેલેરિયા નિવારણ જાગૃતિ દિવસ',
+'Martyrs\' Day / Anti-Leprosy Day':'શહીદ દિવસ / કુષ્ઠ રોગ વિરોધી દિવસ',
+'Tuberculosis Prevention Awareness Day':'ક્ષય રોગ નિવારણ જાગૃતિ દિવસ',
+'Vaccination Awareness Day':'રસીકરણ જાગૃતિ દિવસ',
+'World Wetlands Day':'વિશ્વ ભીની જમીન દિવસ',
+'Anaemia Prevention Awareness Day':'એનિમિયા નિવારણ જાગૃતિ દિવસ',
+'World Cancer Day':'વિશ્વ કેન્સર દિવસ',
+"Women's Health Awareness Day":'મહિલા આરોગ્ય જાગૃતિ દિવસ',
+'International Day of Zero Tolerance for FGM':'FGM માટે શૂન્ય સહિષ્ણુતાનો આંતરરાષ્ટ્રીય દિવસ',
+"Men's Health Awareness Day":'પુરુષ આરોગ્ય જાગૃતિ દિવસ',
+'Eye Health Awareness Day':'આંખ આરોગ્ય જાગૃતિ દિવસ',
+'Hearing Health Awareness Day':'સુનાવટ આરોગ્ય જાગૃતિ દિવસ',
+'National Deworming Day':'રાષ્ટ્રીય કૃમિ નાબૂદી દિવસ',
+'International Day of Women and Girls in Science':'વિજ્ઞાનમાં મહિલા અને બાળિકાઓનો આંતરરાષ્ટ્રીય દિવસ',
+'Kidney Health Awareness Day':'કિડની આરોગ્ય જાગૃતિ દિવસ',
+'World Radio Day':'વિશ્વ રેડિયો દિવસ',
+'Liver Health Awareness Day':'લીવર આરોગ્ય જાગૃતિ દિવસ',
+'International Childhood Cancer Day':'આંતરરાષ્ટ્રીય બાળ કેન્સર દિવસ',
+'Respiratory Health Awareness Day':'શ્વસન આરોગ્ય જાગૃતિ દિવસ',
+'Food Safety Awareness Day':'ખાદ્ય સુરક્ષા જાગૃતિ દિવસ',
+'Sanitation Awareness Day':'સ્વચ્છતા જાગૃતિ દિવસ',
+'Occupational Health Awareness Day':'વ્યાવસાયિક આરોગ્ય જાગૃતિ દિવસ',
+'World Day of Social Justice':'વિશ્વ સામાજિક ન્યાય દિવસ',
+'International Mother Language Day':'આંતરરાષ્ટ્રીય માતૃભાષા દિવસ',
+'First Aid Awareness Day':'પ્રાથમિક સારવાર જાગૃતિ દિવસ',
+'Organ Donation Awareness Day':'અંગદાન જાગૃતિ દિવસ',
+'Blood Donation Awareness Day':'રક્તદાન જાગૃતિ દિવસ',
+'Antimicrobial Resistance Awareness Day':'એન્ટિમાઇક્રોબાયલ પ્રતિરોધકતા જાગૃતિ દિવસ',
+'Zoonotic Disease Prevention Day':'ઝૂનોટિક રોગ નિવારણ દિવસ',
+'World NGO Day':'વિશ્વ NGO દિવસ',
+'National Science Day':'રાષ્ટ્રીય વિજ્ઞાન દિવસ',
+'Zero Discrimination Day':'શૂન્ય ભેદભાવ દિવસ',
+'One Health Awareness Day':'વન હેલ્થ જાગૃતિ દિવસ',
+'World Hearing Day / World Wildlife Day':'વિશ્વ શ્રવણ દિવસ / વિશ્વ વન્યજીવ દિવસ',
+'World Obesity Day':'વિશ્વ મેદસ્વીપણા દિવસ',
+'Climate and Health Awareness Day':'આબોહવા અને આરોગ્ય જાગૃતિ દિવસ',
+'International Women\'s Day':'આંતરરાષ્ટ્રીય મહિલા દિવસ',
+'CISF Raising Day':'CISF સ્થાપના દિવસ',
+'World Kidney Day':'વિશ્વ કિડની દિવસ',
+'World Consumer Rights Day':'વિશ્વ ઉપભોક્તા અધિકાર દિવસ',
+'National Vaccination Day':'રાષ્ટ્રીય રસીકરણ દિવસ',
+'World Oral Health Day':'વિશ્વ મૌખિક આરોગ્ય દિવસ',
+'World Down Syndrome Day / International Day of Forests':'વિશ્વ ડાઉન સિન્ડ્રોમ દિવસ / આંતરરાષ્ટ્રીય જંગલ દિવસ',
+'World Water Day':'વિશ્વ પાણી દિવસ',
+'Shaheed Diwas':'શહીદ દિવસ',
+'World Tuberculosis Day':'વિશ્વ ક્ષય રોગ દિવસ',
+'National Panchayati Raj Day':'રાષ્ટ્રીય પંચાયતી રાજ દિવસ',
+'World Malaria Day':'વિશ્વ મેલેરિયા દિવસ',
+'World Day for Safety and Health at Work':'કામ પર સલામતી અને આરોગ્ય માટે વિશ્વ દિવસ',
+'International Labour Day':'આંતરરાષ્ટ્રીય મજૂર દિવસ',
+'World Press Freedom Day':'વિશ્વ પ્રેસ સ્વતંત્રતા દિવસ',
+'World Hand Hygiene Day':'વિશ્વ હાથ સ્વચ્છતા દિવસ',
+'World Red Cross and Red Crescent Day':'વિશ્વ રેડ ક્રોસ અને રેડ ક્રેસન્ટ દિવસ',
+'Mother\'s Day':'માતા દિવસ',
+'National Technology Day':'રાષ્ટ્રીય ટેકનોલોજી દિવસ',
+'International Nurses Day':'આંતરરાષ્ટ્રીય નર્સ દિવસ',
+'International Day of Families':'પરિવારોનો આંતરરાષ્ટ્રીય દિવસ',
+'World Hypertension Day':'વિશ્વ હાઈપરટેન્શન દિવસ',
+'World AIDS Vaccine Day':'વિશ્વ એડ્સ રસી દિવસ',
+'World Bee Day':'વિશ્વ મધમાખી દિવસ',
+'International Tea Day':'આંતરરાષ્ટ્રીય ચા દિવસ',
+'International Day for Biological Diversity':'જૈવિક વિવિધતા માટે આંતરરાષ્ટ્રીય દિવસ',
+'Menstrual Hygiene Day':'માસિક સ્વચ્છતા દિવસ',
+'World No Tobacco Day':'વિશ્વ તમાકુ વિરોધી દિવસ',
+'Global Day of Parents':'માતાપિતાનો વૈશ્વિક દિવસ',
+'World Bicycle Day':'વિશ્વ સાયકલ દિવસ',
+'World Environment Day':'વિશ્વ પર્યાવરણ દિવસ',
+'World Food Safety Day':'વિશ્વ ખાદ્ય સુરક્ષા દિવસ',
+'World Oceans Day':'વિશ્વ મહાસાગર દિવસ',
+'World Day Against Child Labour':'બાળ મજૂરી સામે વિશ્વ દિવસ',
+'World Blood Donor Day':'વિશ્વ રક્તદાતા દિવસ',
+'World Sickle Cell Day':'વિશ્વ સિકલ સેલ દિવસ',
+'World Refugee Day':'વિશ્વ શરણાર્થી દિવસ',
+'Father\'s Day / International Day of Yoga':'પિતા દિવસ / આંતરરાષ્ટ્રીય યોગ દિવસ',
+'International Day Against Drug Abuse and Illicit Trafficking':'ડ્રગ દુરૂપયોગ અને ગેરકાયદેસર દવાઓના વ્યાપાર સામે આંતરરાષ્ટ્રીય દિવસ',
+'National Doctors\' Day':'રાષ્ટ્રીય ડૉક્ટર દિવસ',
+'World Zoonoses Day':'વિશ્વ ઝૂનોસિસ દિવસ',
+'World Population Day':'વિશ્વ વસ્તી દિવસ',
+'World Youth Skills Day':'વિશ્વ યુવા કૌશલ્ય દિવસ',
+'Nelson Mandela International Day':'નેલ્સન મંડેલા આંતરરાષ્ટ્રીય દિવસ',
+'Kargil Vijay Diwas':'કારગિલ વિજય દિવસ',
+'World Hepatitis Day':'વિશ્વ હિપેટાઇટિસ દિવસ',
+'International Tiger Day':'આંતરરાષ્ટ્રીય વાઘ દિવસ',
+'World Day Against Trafficking in Persons':'વ્યક્તિઓની તસ્કરી સામે વિશ્વ દિવસ',
+'World Lung Cancer Day':'વિશ્વ ફેફસાના કેન્સર દિવસ',
+'Friendship Day':'મિત્રતા દિવસ',
+'Hiroshima Day':'હિરોશિમા દિવસ',
+'National Handloom Day':'રાષ્ટ્રીય હસ્તવણાટ દિવસ',
+'Quit India Movement Day':'ભારત છોડો આંદોલન દિવસ',
+'World Biofuel Day':'વિશ્વ બાયોઇંધણ દિવસ',
+'International Youth Day':'આંતરરાષ્ટ્રીય યુવા દિવસ',
+'Independence Day':'સ્વતંત્રતા દિવસ',
+'World Humanitarian Day':'વિશ્વ માનવતાવાદી દિવસ',
+'Sadbhavana Diwas':'સદ્ભાવના દિવસ',
+'International Day for the Remembrance of the Slave Trade':'ગુલામ વેપાર સ્મરણ માટે આંતરરાષ્ટ્રીય દિવસ',
+'National Sports Day':'રાષ્ટ્રીય રમત દિવસ',
+'National Small Industry Day':'રાષ્ટ્રીય લઘુ ઉદ્યોગ દિવસ',
+'Teachers\' Day':'શિક્ષક દિવસ',
+'International Literacy Day':'આંતરરાષ્ટ્રીય સાક્ષરતા દિવસ',
+'World Suicide Prevention Day':'વિશ્વ આત્મહત્યા નિવારણ દિવસ',
+'Hindi Diwas':'હિન્દી દિવસ',
+'Engineers\' Day':'એન્જિનિયર દિવસ',
+'World Ozone Day':'વિશ્વ ઓઝોન દિવસ',
+'World Patient Safety Day':'વિશ્વ દર્દી સુરક્ષા દિવસ',
+'World Alzheimer\'s Day / International Day of Peace':'વિશ્વ અલ્ઝાઈમર દિવસ / શાંતિનો આંતરરાષ્ટ્રીય દિવસ',
+'World Pharmacists Day':'વિશ્વ ફાર્માસિસ્ટ દિવસ',
+'World Environmental Health Day':'વિશ્વ પર્યાવરણીય આરોગ્ય દિવસ',
+'World Rivers Day / World Tourism Day':'વિશ્વ નદી દિવસ / વિશ્વ પર્યટન દિવસ',
+'World Rabies Day':'વિશ્વ રેબીઝ દિવસ',
+'World Heart Day':'વિશ્વ હૃદય દિવસ',
+'National Voluntary Blood Donation Day / International Day of Older Persons':'રાષ્ટ્રીય સ્વૈચ્છિક રક્તદાન દિવસ / વૃદ્ધ વ્યક્તિઓનો આંતરરાષ્ટ્રીય દિવસ',
+'Gandhi Jayanti / International Day of Non-Violence':'ગાંધી જયંતિ / અહિંસાનો આંતરરાષ્ટ્રીય દિવસ',
+'World Animal Day':'વિશ્વ પ્રાણી દિવસ',
+'World Teachers\' Day':'વિશ્વ શિક્ષક દિવસ',
+'Indian Air Force Day':'ભારતીય વાયુ સેના દિવસ',
+'World Post Day':'વિશ્વ પોસ્ટ દિવસ',
+'World Mental Health Day':'વિશ્વ માનસિક આરોગ્ય દિવસ',
+'International Day of the Girl Child':'બાળિકાનો આંતરરાષ્ટ્રીય દિવસ',
+'World Arthritis Day':'વિશ્વ સંધિવા દિવસ',
+'International Day for Disaster Risk Reduction':'આપત્તિ જોખમ ઘટાડા માટે આંતરરાષ્ટ્રીય દિવસ',
+'Global Handwashing Day':'વૈશ્વિક હાથ ધોવાનો દિવસ',
+'World Food Day':'વિશ્વ ખાદ્ય દિવસ',
+'World Osteoporosis Day':'વિશ્વ ઓસ્ટિઓપોરોસિસ દિવસ',
+'United Nations Day / World Polio Day':'સંયુક્ત રાષ્ટ્ર દિવસ / વિશ્વ પોલિયો દિવસ',
+'World Stroke Day':'વિશ્વ સ્ટ્રોક દિવસ',
+'National Unity Day':'રાષ્ટ્રીય એકતા દિવસ',
+'World Tsunami Awareness Day':'વિશ્વ સુનામી જાગૃતિ દિવસ',
+'National Cancer Awareness Day':'રાષ્ટ્રીય કેન્સર જાગૃતિ દિવસ',
+'National Legal Services Day':'રાષ્ટ્રીય કાયદાકીય સેવા દિવસ',
+'World Science Day for Peace and Development':'શાંતિ અને વિકાસ માટે વિશ્વ વિજ્ઞાન દિવસ',
+'National Education Day':'રાષ્ટ્રીય શિક્ષણ દિવસ',
+'World Pneumonia Day':'વિશ્વ ન્યુમોનિયા દિવસ',
+'Children\'s Day / World Diabetes Day':'બાળ દિવસ / વિશ્વ ડાયાબિટીસ દિવસ',
+'National Press Day':'રાષ્ટ્રીય પ્રેસ દિવસ',
+'World Prematurity Day':'વિશ્વ અકાળ જન્મ દિવસ',
+'World Toilet Day / International Men\'s Day':'વિશ્વ શૌચાલય દિવસ / આંતરરાષ્ટ્રીય પુરુષ દિવસ',
+'Universal Children\'s Day':'વિશ્વવ્યાપી બાળ દિવસ',
+'World Fisheries Day':'વિશ્વ મત્સ્ય દિવસ',
+'Constitution Day':'બંધારણ દિવસ',
+'World AIDS Day':'વિશ્વ એડ્સ દિવસ',
+'National Pollution Control Day':'રાષ્ટ્રીય પ્રદૂષણ નિયંત્રણ દિવસ',
+'International Day of Persons with Disabilities':'વિકલાંગ વ્યક્તિઓનો આંતરરાષ્ટ્રીય દિવસ',
+'Indian Navy Day':'ભારતીય નૌકા સેના દિવસ',
+'World Soil Day':'વિશ્વ જમીન દિવસ',
+'Armed Forces Flag Day':'સશસ્ત્ર સેના ધ્વજ દિવસ',
+'International Anti-Corruption Day':'ભ્રષ્ટાચાર વિરોધી આંતરરાષ્ટ્રીય દિવસ',
+'Human Rights Day':'માનવ અધિકાર દિવસ',
+'International Mountain Day':'આંતરરાષ્ટ્રીય પર્વત દિવસ',
+'National Energy Conservation Day':'રાષ્ટ્રીય ઊર્જા સંરક્ષણ દિવસ',
+'International Migrants Day':'આંતરરાષ્ટ્રીય સ્થળાંતરિતો દિવસ',
+'National Mathematics Day':'રાષ્ટ્રીય ગણિત દિવસ',
+'Kisan Diwas / National Farmers\' Day':'કિસાન દિવસ / રાષ્ટ્રીય ખેડૂત દિવસ',
+'National Consumer Day':'રાષ્ટ્રીય ઉપભોક્તા દિવસ',
+'Good Governance Day':'સુશાસન દિવસ',
+'World Drowning Prevention Day':'વિશ્વ ડૂબી જવાથી બચાવ દિવસ',
+'World Autism Awareness Day':'વિશ્વ ઓટિઝમ જાગૃતિ દિવસ',
+'National Maritime Day':'રાષ્ટ્રીય દરિયાઈ દિવસ',
+'World Health Day':'વિશ્વ આરોગ્ય દિવસ',
+'World Homeopathy Day':'વિશ્વ હોમિયોપથી દિવસ',
+'National Safe Motherhood Day / World Parkinson\'s Day':'રાષ્ટ્રીય સુરક્ષિત માતૃત્વ દિવસ / વિશ્વ પાર્કિન્સન દિવસ',
+'Dr. B. R. Ambedkar Jayanti':'ડૉ. બી. આર. આંબેડકર જયંતિ',
+'World Haemophilia Day':'વિશ્વ હિમોફિલિયા દિવસ',
+'World Heritage Day':'વિશ્વ વારસા દિવસ',
+'Earth Day':'પૃથ્વી દિવસ'
+};
+const GUJ_IMP = {
+'UN observance':'UN ઉજવણી',
+'Government of India observance':'ભારત સરકારની ઉજવણી',
+'International observance':'આંતરરાષ્ટ્રીય ઉજવણી',
+'India; Swami Vivekananda Jayanti':'ભારત; સ્વામી વિવેકાનંદ જયંતિ',
+'India':'ભારત',
+'India; Netaji Subhas Chandra Bose Jayanti':'ભારત; નેતાજી સુભાષ ચંદ્ર બોઝ જયંતિ',
+'Observed in India':'ભારતમાં ઉજવાય છે',
+'UN-recognized observance':'UN-માન્યતા પ્રાપ્ત ઉજવણી',
+'Global health observance':'વૈશ્વિક આરોગ્ય ઉજવણી',
+'Global awareness day':'વૈશ્વિક જાગૃતિ દિવસ',
+'India; public-health campaign':'ભારત; જાહેર આરોગ્ય ઝુંબેશ',
+'UNESCO observance':'UNESCO ઉજવણી',
+'WHO and UN observances':'WHO અને UN ઉજવણીઓ',
+'Global observance':'વૈશ્વિક ઉજવણી',
+'Recognised observance (second Thursday of March)':'માન્ય ઉજવણી (માર્ચનો બીજો ગુરુવાર)',
+'ILO observance':'ILO ઉજવણી',
+'WHO campaign':'WHO ઝુંબેશ',
+'Recognised observance (second Sunday of May)':'માન્ય ઉજવણી (મેનો બીજો રવિવાર)',
+'Global health awareness':'વૈશ્વિક આરોગ્ય જાગૃતિ',
+'UN/WHO observance':'UN/WHO ઉજવણી',
+'Global health campaign':'વૈશ્વિક આરોગ્ય ઝુંબેશ',
+'Recognised observance (third Sunday) and fixed Yoga Day':'માન્ય ઉજવણી (ત્રીજો રવિવાર) અને નિશ્ચિત યોગ દિવસ',
+'International remembrance':'આંતરરાષ્ટ્રીય સ્મારક',
+'India and global observances':'ભારત અને વૈશ્વિક ઉજવણીઓ',
+'India and UN observances':'ભારત અને UN ઉજવણીઓ',
+'WHO-supported observance':'WHO-સમર્થિત ઉજવણી',
+'India and global observance':'ભારત અને વૈશ્વિક ઉજવણી',
+'UN and global observances':'UN અને વૈશ્વિક ઉજવણીઓ',
+'WHO/UN observance':'WHO/UN ઉજવણી',
+'India and UN observance':'ભારત અને UN ઉજવણી',
+'Drowning is preventable. Water safety, supervision, barriers and early rescue skills can save lives.':'ડૂબી જવાની ઘટનાઓ અટકાવી શકાય છે. પાણીની સલામતી, દેખરેખ, અવરોધો અને સમયસર બચાવ જીવન બચાવી શકે છે.',
+'Curated health-awareness theme; not a formally declared national day.':'આરોગ્ય જાગૃતિ થીમ; સત્તાવાર રાષ્ટ્રીય દિવસ નથી.',
+'UN observances':'UN ઉજવણીઓ',
+'WHO observance':'WHO ઉજવણી',
+'Recognised observance (first Sunday of August)':'માન્ય ઉજવણી (ઓગસ્ટનો પ્રથમ રવિવાર)',
+'Global and UN observances':'વૈશ્વિક અને UN ઉજવણીઓ',
+'Recognised observance (fourth Sunday of September)':'માન્ય ઉજવણી (સપ્ટેમ્બરનો ચોથો રવિવાર)'
+};
+const GUJ_CAT = {
+'Health':'આરોગ્ય','Health & Nutrition':'આરોગ્ય અને પોષણ','Physical Activity':'શારીરિક પ્રવૃત્તિ','Public Health':'જાહેર આરોગ્ય',
+'Health & Inclusion':'આરોગ્ય અને સમાવેશ','Mental & Physical Health':'માનસિક અને શારીરિક આરોગ્ય','National':'રાષ્ટ્રીય',
+'Language & Culture':'ભાષા અને સંસ્કૃતિ','Mental Health':'માનસિક આરોગ્ય','Reproductive & Maternal Health':'પ્રજનન અને માતૃ આરોગ્ય',
+'Child Health':'બાળ આરોગ્ય','Adolescent Health':'કિશોર આરોગ્ય','Healthy Ageing':'સ્વસ્થ વૃદ્ધત્વ','Safety & Injury Prevention':'સલામતી અને ઇજા નિવારણ',
+'Vector-Borne Disease':'વેક્ટરજન્ય રોગ','Communicable Disease':'ચેપી રોગ','Immunization':'રસીકરણ','Nutrition':'પોષણ',
+"Women's Health":'મહિલા આરોગ્ય',"Men's Health":'પુરુષ આરોગ્ય','Environment':'પર્યાવરણ','Science & Inclusion':'વિજ્ઞાન અને સમાવેશ',
+'Communication':'સંચાર','Social':'સામાજિક','Emergency Preparedness':'આપત્તિ તૈયારી','National & Labour':'રાષ્ટ્રીય અને મજૂર',
+'Media':'મીડિયા','Health & Humanitarian':'આરોગ્ય અને માનવતાવાદ','Family & Social':'કુટુંબ અને સામાજિક','National & Science':'રાષ્ટ્રીય અને વિજ્ઞાન',
+'Consumer Affairs':'ઉપભોક્તા બાબતો','Agriculture':'કૃષિ','Health & Environment':'આરોગ્ય અને પર્યાવરણ','National & Education':'રાષ્ટ્રીય અને શિક્ષણ',
+'National & Legal':'રાષ્ટ્રીય અને કાનૂન','Science':'વિજ્ઞાન','National & Media':'રાષ્ટ્રીય અને મીડિયા','Environment & Livelihood':'પર્યાવરણ અને આજીવિકા',
+'Environment & Agriculture':'પર્યાવરણ અને કૃષિ','Governance':'શાસન','Rights':'અધિકાર','Environment & Energy':'પર્યાવરણ અને ઊર્જા',
+'National & Economy':'રાષ્ટ્રીય અને અર્થતંત્ર','Health & Sports':'આરોગ્ય અને રમત','National & Social':'રાષ્ટ્રીય અને સામાજિક','Peace':'શાંતિ',
+'Water Safety':'જળ સલામતી','Education & Skills':'શિક્ષણ અને કૌશલ્ય','Health & Family':'આરોગ્ય અને કુટુંબ','Health & International':'આરોગ્ય અને આંતરરાષ્ટ્રીય',
+'Humanitarian':'માનવતાવાદી','National & Agriculture':'રાષ્ટ્રીય અને કૃષિ','National & Consumer Affairs':'રાષ્ટ્રીય અને ઉપભોક્તા બાબતો',
+'National & Governance':'રાષ્ટ્રીય અને શાસન','National & Language':'રાષ્ટ્રીય અને ભાષા','National & Peace':'રાષ્ટ્રીય અને શાંતિ','Occupational Health':'વ્યાવસાયિક આરોગ્ય',
+'Health & Rights':'આરોગ્ય અને અધિકાર','National & Health':'રાષ્ટ્રીય અને આરોગ્ય','Culture':'સંસ્કૃતિ','Education':'શિક્ષણ',
+'Safety':'સલામતી','Health & Peace':'આરોગ્ય અને શાંતિ','Environment & Tourism':'પર્યાવરણ અને પ્રવાસન','Health & National':'આરોગ્ય અને રાષ્ટ્રીય',
+'Health & Social':'આરોગ્ય અને સામાજિક'
+};
+const GUJ_ACTION = {
+'Eat balanced meals daily':'રોજ સંતુલિત ભોજન લો','Stay physically active':'શારીરિક રીતે સક્રિય રહો',
+'Get regular check-ups':'નિયમિત તપાસ કરાવો','Spread awareness':'જાગૃતિ ફેલાવો',
+'Eat a variety of foods':'વિવિધ પ્રકારના ખોરાક લો','Limit processed food':'પ્રોસેસ્ડ ખોરાક મર્યાદિત કરો',
+'Stay hydrated':'પૂરતું પાણી પીઓ','Plan meals':'ભોજનની યોજના બનાવો',
+'Walk 30 minutes daily':'રોજ ૩૦ મિનિટ ચાલો','Take stairs instead of lift':'લિફ્ટને બદલે સીડી લો',
+'Track your steps':'તમારા પગલાં ટ્રૅક કરો','Join a walking group':'વૉકિંગ ગ્રૂપમાં જોડાઓ',
+'Wash hands frequently':'વારંવાર હાથ ધોવો','Keep surroundings clean':'આસપાસ સ્વચ્છ રાખો',
+'Get vaccinated':'રસી લો','Follow hygiene protocols':'સ્વચ્છતા નિયમો અનુસરો',
+'Practice mindfulness':'માઇન્ડફુલનેસ અભ્યાસ કરો','Exercise regularly':'નિયમિત કસરત કરો',
+'Take breaks':'વિરામ લો','Stay connected':'જોડાયેલા રહો',
+'Honour our nation\'s heroes':'રાષ્ટ્રના વીરોને સન્માન','Celebrate our heritage':'અમારા વારસાની ઉજવણી કરો',
+'Spread patriotism':'દેશભક્તિ ફેલાવો','Contribute to society':'સમાજમાં યોગદાન આપો',
+'Preserve languages':'ભાષાઓનું સંરક્ષણ કરો','Celebrate diversity':'વિવિધતાની ઉજવણી કરો',
+'Learn new languages':'નવી ભાષાઓ શીખો','Share cultural stories':'સાંસ્કૃતિક વાર્તાઓ શેર કરો',
+'Practice self-care':'સ્વ-સંભાળ અભ્યાસ કરો','Seek help when needed':'જરૂર પડે ત્યારે મદદ માગો',
+'Talk to someone':'કોઈની સાથે વાત કરો','Reduce stigma':'કલંક ઘટાડો',
+'Attend prenatal check-ups':'પ્રિનેટલ તપાસમાં હાજરી આપો','Eat iron-rich foods':'આયર્નયુક્ત ખોરાક લો',
+'Get enough rest':'પૂરતો આરામ લો','Seek support':'સમર્થન મેળવો',
+'Ensure immunizations':'રસીકરણ સુનિશ્ચિત કરો','Provide nutritious meals':'પૌષ્ટિક ભોજન આપો',
+'Encourage play':'રમતને પ્રોત્સાહન આપો','Monitor growth':'વૃદ્ધિ પર નજર રાખો',
+'Stay active':'સક્રિય રહો','Eat healthy':'સ્વસ્થ ખાઓ',
+'Avoid substance abuse':'નશાથી દૂર રહો','Seek guidance':'માર્ગદર્શન લો',
+'Stay socially active':'સામાજિક રીતે સક્રિય રહો','Eat a balanced diet':'સંતુલિત આહાર લો',
+'Exercise gently':'હળવી કસરત કરો','Wear seat belts':'સીટ બેલ્ટ પહેરો',
+'Follow traffic rules':'ટ્રાફિક નિયમોનું પાલન કરો','Install safety barriers':'સલામતી અવરોધો સ્થાપિત કરો',
+'Learn first aid':'પ્રાથમિક સારવાર શીખો','Use mosquito nets':'મચ્છરદાનીનો ઉપયોગ કરો',
+'Wear long sleeves':'લાંબી બાંયના કપડાં પહેરો','Remove standing water':'ઉભા પાણી દૂર કરો',
+'Apply repellent':'રિપેલન્ટ લગાવો','Cover your cough':'ખાંસી ઢાંકો',
+'Stay home when sick':'બીમાર હો ત્યારે ઘરે રહો','Get tested':'ટેસ્ટ કરાવો',
+'Keep vaccine records':'રસી રેકોર્ડ રાખો','Stay up-to-date':'અદ્યતન રહો',
+'Consult your doctor':'તમારા ડૉક્ટરની સલાહ લો','Protect the community':'સમુદાયનું રક્ષણ કરો',
+'Schedule regular screenings':'નિયમિત સ્ક્રીનિંગ શેડ્યૂલ કરો','Know your body':'તમારા શરીરને ઓળખો',
+'Eat calcium-rich foods':'કેલ્શિયમયુક્ત ખોરાક લો','Manage stress':'તણાવ મેનેજ કરો',
+'Eat heart-healthy':'હૃદય માટે સ્વસ્થ ખાઓ','Reduce plastic use':'પ્લાસ્ટિકનો ઉપયોગ ઘટાડો',
+'Plant trees':'વૃક્ષો રોપો','Conserve water':'પાણી બચાવો',
+'Recycle waste':'કચરો રિસાયકલ કરો','Supervise children near water':'પાણીની નજીક બાળકો પર દેખરેખ રાખો',
+'Use life jackets':'લાઇફ જેકેટ પહેરો','Learn swimming':'તરવું શીખો',
+'Install barriers':'અવરોધ સ્થાપિત કરો','Promote accessibility':'સુલભતાને પ્રોત્સાહન આપો',
+'Support inclusive policies':'સમાવેશક નીતિઓને સમર્થન','Raise awareness':'જાગૃતિ લાવો',
+'Advocate for rights':'અધિકારો માટે હિમાયત','Support women in science':'વિજ્ઞાનમાં મહિલાઓને સમર્થન',
+'Encourage curiosity':'જિજ્ઞાસાને પ્રોત્સાહન','Promote education':'શિક્ષણને પ્રોત્સાહન',
+'Foster innovation':'નવીનતાને ઉત્તેજન','Share reliable information':'વિશ્વસનીય માહિતી શેર કરો',
+'Verify sources':'સ્રોતો ચકાસો','Listen actively':'સક્રિય રીતે સાંભળો',
+'Promote dialogue':'સંવાદને પ્રોત્સાહન','Be kind':'દયાળુ બનો',
+'Help others':'અન્યને મદદ કરો','Volunteer':'સ્વયંસેવક',
+'Stand against injustice':'અન્યાય સામે ઊભા રહો','Prepare emergency kits':'કટોકટી કીટ તૈયાર કરો',
+'Know evacuation routes':'ખાલી કરાવાના માર્ગો જાણો','Stay informed':'માહિતગાર રહો',
+'Respect labour rights':'શ્રમ અધિકારોનું સન્માન કરો','Promote fair work':'ન્યાયી કામને પ્રોત્સાહન',
+'Support workers':'કામદારોને સમર્થન','Celebrate contributions':'યોગદાનની ઉજવણી કરો',
+'Support press freedom':'પ્રેસ સ્વતંત્રતાને સમર્થન','Check facts':'હકીકતો ચકાસો',
+'Diversify sources':'સ્રોતોમાં વિવિધતા લાવો','Protect journalists':'પત્રકારોનું રક્ષણ કરો',
+'Support health campaigns':'આરોગ્ય ઝુંબેશને સમર્થન','Donate when possible':'શક્ય હોય ત્યારે દાન કરો',
+'Spend time with family':'કુટુંબ સાથે સમય વિતાવો','Communicate openly':'ખુલ્લેઆમ વાતચીત કરો',
+'Create traditions':'પરંપરાઓ બનાવો','Show love':'પ્રેમ દર્શાવો',
+'Promote scientific thinking':'વૈજ્ઞાનિક વિચારને પ્રોત્સાહન','Support research':'સંશોધનને સમર્થન',
+'Invest in education':'શિક્ષણમાં રોકાણ','Innovate':'નવીનતા લાવો',
+'Know your rights':'તમારા અધિકારો જાણો','Read labels':'લેબલ વાંચો',
+'Report issues':'સમસ્યાઓની જાણ કરો','Choose sustainable options':'ટકાઉ વિકલ્પો પસંદ કરો',
+'Support farmers':'ખેડૂતોને સમર્થન','Reduce food waste':'ખાદ્ય કચરો ઘટાડો',
+'Eat seasonal':'મોસમી ખાઓ','Know your food':'તમારા ખોરાકને ઓળખો',
+'Protect nature':'પ્રકૃતિનું રક્ષણ કરો','Reduce pollution':'પ્રદૂષણ ઘટાડો',
+'Adopt green habits':'ગ્રીન આદતો અપનાવો','Promote sustainability':'ટકાઉપણાને પ્રોત્સાહન',
+'Value education':'શિક્ષણને મહત્વ આપો','Support teachers':'શિક્ષકોને સમર્થન',
+'Invest in learning':'શિક્ષણમાં રોકાણ','Promote literacy':'સાક્ષરતાને પ્રોત્સાહન',
+'Know the law':'કાયદો જાણો','Respect justice':'ન્યાયનું સન્માન કરો',
+'Fight corruption':'ભ્રષ્ટાચાર સામે લડો','Uphold rights':'અધિકારો જાળવો',
+'Question assumptions':'ધારણાઓ પર સવાલ કરો','Seek evidence':'પુરાવો શોધો',
+'Encourage discovery':'શોધને પ્રોત્સાહન','Share knowledge':'જ્ઞાન શેર કરો',
+'Promote media literacy':'મીડિયા સાક્ષરતાને પ્રોત્સાહન','Support ethical journalism':'નૈતિક પત્રકારત્વને સમર્થન',
+'Engage critically':'ટીકાત્મક રીતે વ્યસ્ત રહો','Spread truth':'સત્ય ફેલાવો',
+'Protect ecosystems':'ઇકોસિસ્ટમનું રક્ષણ કરો','Support sustainable livelihoods':'ટકાઉ આજીવિકાને સમર્થન',
+'Conserve resources':'સંસાધનોનું સંરક્ષણ કરો','Build resilience':'સ્થિતિસ્થાપકતા બનાવો',
+'Sustainable farming':'ટકાઉ ખેતી','Protect biodiversity':'જૈવિક વિવિધતાનું રક્ષણ કરો',
+'Reduce pesticides':'જંતુનાશક ઘટાડો','Support local':'સ્થાનિકને સમર્થન',
+'Participate in democracy':'લોકશાહીમાં ભાગ લો','Hold leaders accountable':'નેતાઓને જવાબદાર ઠેરવો',
+'Promote transparency':'પારદર્શિતાને પ્રોત્સાહન','Serve community':'સમુદાયની સેવા કરો',
+'Stand up for justice':'ન્યાય માટે ઊભા રહો','Protect privacy':'ગોપનીયતાનું રક્ષણ કરો',
+'Defend dignity':'ગૌરવનો બચાવ કરો','Save energy':'ઊર્જા બચાવો',
+'Use renewables':'નવીનીકરણીયનો ઉપયોગ કરો','Reduce carbon footprint':'કાર્બન ફૂટપ્રિન્ટ ઘટાડો',
+'Advocate for clean energy':'સ્વચ્છ ઊર્જા માટે હિમાયત','Support local businesses':'સ્થાનિક વ્યવસાયોને સમર્થન',
+'Be financially literate':'નાણાકીય સાક્ષર બનો','Promote growth':'વૃદ્ધિને પ્રોત્સાહન',
+'Reduce inequality':'અસમાનતા ઘટાડો','Play sports':'રમતો રમો',
+'Promote fitness':'તંદુરસ્તીને પ્રોત્સાહન','Enjoy recreation':'મનોરંજનનો આનંદ માણો',
+'Build community':'સમુદાય બનાવો','Stand against discrimination':'ભેદભાવ સામે ઊભા રહો',
+'Promote unity':'એકતાને પ્રોત્સાહન','Embrace non-violence':'અહિંસા અપનાવો',
+'Resolve conflicts peacefully':'સંઘર્ષ શાંતિપૂર્ણ રીતે ઉકેલો','Spread love':'પ્રેમ ફેલાવો',
+'Keep learning':'શીખતા રહો','Teach others':'અન્યને શીખવો',
+'Develop skills':'કૌશલ્ય વિકસાવો','Adapt to change':'ફેરફાર સાથે અનુકૂલન કરો',
+'Care for loved ones':'પ્રિયજનોની સંભાળ લો','Share meals':'ભોજન શેર કરો',
+'Stay active together':'સાથે સક્રિય રહો','Support each other':'એકબીજાને ટેકો આપો',
+'Think globally':'વૈશ્વિક રીતે વિચારો','Support global health':'વૈશ્વિક આરોગ્યને સમર્થન',
+'Act locally':'સ્થાનિક રીતે કાર્ય કરો','Unite for health':'આરોગ્ય માટે એક થાઓ',
+'Help those in need':'જરૂરિયાતમંદોને મદદ કરો','Support refugees':'શરણાર્થીઓને સમર્થન',
+'Promote dignity':'ગૌરવને પ્રોત્સાહન','Be compassionate':'કરુણાળુ બનો',
+'Honour farmers':'ખેડૂતોને સન્માન','Support agri-policies':'કૃષિ નીતિઓને સમર્થન',
+'Eat local':'સ્થાનિક ખાઓ','Be informed':'માહિતગાર રહો',
+'Claim your rights':'તમારા અધિકારો મેળવો','Report unfair practices':'અન્યાયી પ્રથાઓની જાણ કરો',
+'Choose responsibly':'જવાબદારીપૂર્વક પસંદ કરો','Demand good governance':'સુશાસનની માંગ કરો',
+'Participate':'ભાગ લો','Vote':'મત આપો',
+'Be accountable':'જવાબદાર બનો','Promote mother tongues':'માતૃભાષાઓને પ્રોત્સાહન',
+'Preserve linguistic heritage':'ભાષાકીય વારસાનું સંરક્ષણ','Foster unity':'એકતાને ઉત્તેજન',
+'Celebrate peace':'શાંતિની ઉજવણી','Promote harmony':'સૌહાર્દને પ્રોત્સાહન',
+'Remember sacrifices':'બલિદાન યાદ રાખો','Build bridges':'સેતુ બાંધો',
+'Ensure workplace safety':'કાર્યસ્થળ સલામતી સુનિશ્ચિત કરો','Use protective equipment':'રક્ષણાત્મક સાધનોનો ઉપયોગ કરો',
+'Report hazards':'જોખમોની જાણ કરો','Defend health rights':'આરોગ્ય અધિકારોનો બચાવ કરો',
+'Promote equity':'સમાનતાને પ્રોત્સાહન','Ensure access':'સુલભતા સુનિશ્ચિત કરો',
+'Advocate for all':'દરેક માટે હિમાયત','Get screened':'સ્ક્રીનિંગ કરાવો',
+'Know your risk':'તમારું જોખમ જાણો','Avoid tobacco':'તમાકુ ટાળો',
+'Healthy lifestyle':'સ્વસ્થ જીવનશૈલી','Talk about feelings':'લાગણીઓ વિશે વાત કરો',
+'Self-care':'સ્વ-સંભાળ','Get regular health checks':'નિયમિત આરોગ્ય તપાસ કરાવો',
+'Promote health awareness':'આરોગ્ય જાગૃતિને પ્રોત્સાહન','Support health policies':'આરોગ્ય નીતિઓને સમર્થન',
+'Participate in campaigns':'ઝુંબેશમાં ભાગ લો','Wash hands often':'વારંવાર હાથ ધોવો',
+'Know the symptoms':'લક્ષણો જાણો','Complete treatment':'સારવાર પૂર્ણ કરો',
+'Support awareness':'જાગૃતિને સમર્થન','Preserve heritage':'વારસાનું સંરક્ષણ કરો',
+'Celebrate traditions':'પરંપરાઓની ઉજવણી કરો','Promote arts':'કળાને પ્રોત્સાહન',
+'Share stories':'વાર્તાઓ શેર કરો','Seek prompt treatment':'તાત્કાલિક સારવાર લો',
+'Vaccinate if eligible':'પાત્ર હોય તો રસી લો','Avoid transmission':'સંક્રમણ ટાળો',
+'Seek medical care':'તબીબી સંભાળ લો','Value learning':'શિક્ષણને મહત્વ આપો',
+'Read daily':'રોજ વાંચો','Promote health and harmony':'આરોગ્ય અને સૌહાર્દને પ્રોત્સાહન',
+'Support peaceful communities':'શાંતિપૂર્ણ સમુદાયોને સમર્થન','Share health messages':'આરોગ્ય સંદેશા શેર કરો',
+'Foster well-being':'સુખાકારીને ઉત્તેજન','Protect natural sites':'કુદરતી સ્થળોનું રક્ષણ કરો',
+'Travel responsibly':'જવાબદારીપૂર્વક મુસાફરી કરો','Support local communities':'સ્થાનિક સમુદાયોને સમર્થન',
+'Vaccinate pets':'પાલતુ પ્રાણીઓને રસી આપો','Avoid stray animals':'રખડતા પ્રાણીઓ ટાળો',
+'Seek help after bites':'ડંખ પછી મદદ માગો','Follow safety rules':'સલામતી નિયમોનું પાલન કરો',
+'Be aware of surroundings':'આસપાસના વાતાવરણથી વાકેફ રહો','Stay prepared':'તૈયાર રહો',
+'Know the signs':'ચિહ્નો જાણો','Act FAST':'FAST પગલાં લો',
+'Control blood pressure':'રક્તદબાણ નિયંત્રિત કરો','Wash hands':'હાથ ધોવો',
+'Seek early care':'વહેલી સંભાળ લો','Protect vulnerable groups':'સંવેદનશીલ જૂથોનું રક્ષણ કરો',
+'Celebrate health achievements':'આરોગ્ય સિદ્ધિઓની ઉજવણી કરો','Promote national health programmes':'રાષ્ટ્રીય આરોગ્ય કાર્યક્રમોને પ્રોત્સાહન',
+'Know your status':'તમારી સ્થિતિ જાણો','Take preventive measures':'નિવારક પગલાં લો',
+'Promote inclusion':'સમાવેશને પ્રોત્સાહન','Ensure accessibility':'સુલભતા સુનિશ્ચિત કરો',
+'Respect dignity':'ગૌરવનું સન્માન કરો','Support rights':'અધિકારોને સમર્થન'
+};
+
+function buildFixedCalendar() {
+const calendar = [];
+const start = new Date('2026-01-01T00:00:00Z');
+const end = new Date('2026-12-31T00:00:00Z');
+let curatedIdx = 0;
+for (let d = new Date(start); d <= end; d.setUTCDate(d.getUTCDate() + 1)) {
+const dateStr = d.toISOString().slice(0, 10);
+const off = OFFICIAL_DAYS[dateStr];
+let entry;
+if (off) {
+entry = { date: dateStr, category: off.category, titleEn: off.titleEn, importanceEn: off.importanceEn, authorities: off.authorities || [], status: 'official' };
+} else {
+const theme = CURATED_THEMES[curatedIdx % CURATED_THEMES.length];
+curatedIdx++;
+entry = { date: dateStr, category: theme.category, titleEn: theme.titleEn, importanceEn: theme.importanceEn, authorities: [], status: 'curated' };
+}
+entry.titleGu = GUJ_TITLE[entry.titleEn] || entry.titleEn;
+entry.importanceGu = GUJ_IMP[entry.importanceEn] || entry.importanceEn;
+entry.categoryGu = GUJ_CAT[entry.category] || entry.category;
+const actions = CATEGORY_ACTIONS[entry.category] || CATEGORY_ACTIONS['Health'];
+entry.actionsEn = actions.slice(0, 4);
+entry.actionsGu = entry.actionsEn.map(a => GUJ_ACTION[a] || a);
+entry.hashtags = (entry.titleEn.match(/[A-Za-z]+/g)||[]).slice(0,3).map(w=>w[0].toUpperCase()+w.slice(1));
+if (entry.hashtags.length) entry.hashtags[0] = entry.hashtags[0] + 'Day';
+const catIconMap = {
+'Health':'heart','Health & Nutrition':'apple','Physical Activity':'walk','Public Health':'shield',
+'Health & Inclusion':'heart','Mental & Physical Health':'brain','National':'flag',
+'Language & Culture':'book','Mental Health':'brain','Reproductive & Maternal Health':'mom',
+'Child Health':'child','Adolescent Health':'teen','Healthy Ageing':'elder',
+'Safety & Injury Prevention':'shield','Vector-Borne Disease':'mosquito',
+'Communicable Disease':'virus','Immunization':'syringe','Nutrition':'apple',
+"Women's Health":'woman',"Men's Health":'man','Environment':'leaf',
+'Science & Inclusion':'microscope','Communication':'megaphone','Social':'handshake',
+'Emergency Preparedness':'firstaid','National & Labour':'flag','Media':'news',
+'Health & Humanitarian':'heart','Family & Social':'family','National & Science':'atom',
+'Consumer Affairs':'cart','Agriculture':'plant','Health & Environment':'leaf',
+'National & Education':'cap','National & Legal':'gavel','Science':'microscope',
+'National & Media':'newspaper','Environment & Livelihood':'tree','Environment & Agriculture':'plant',
+'Governance':'building','Rights':'scales','Environment & Energy':'sun',
+'National & Economy':'money','Health & Sports':'sport','National & Social':'community',
+'Peace':'peace','Water Safety':'water','Education & Skills':'graduation',
+'Health & Family':'family','Health & International':'globe','Humanitarian':'help',
+'National & Agriculture':'tractor','National & Consumer Affairs':'shopping',
+'National & Governance':'government','National & Language':'language',
+'National & Peace':'peace','Occupational Health':'helmet','Health & Rights':'justice',
+'National & Health':'cross','Culture':'book','Education':'cap','Safety':'shield',
+'Health & Peace':'peace','Environment & Tourism':'tree','Health & National':'cross',
+'Health & Social':'heart'
+};
+entry.icon = catIconMap[entry.category] || 'heart';
+calendar.push(entry);
+}
+return calendar;
+}
+
+function validateCalendar(cal) {
+if (cal.length !== 365) throw new Error('Calendar must have 365 entries');
+const dateSet = new Set(cal.map(r => r.date));
+if (dateSet.size !== 365) throw new Error('Duplicate dates');
+const expected = [];
+for (let d = new Date('2026-01-01T00:00:00Z'); d <= new Date('2026-12-31T00:00:00Z'); d.setUTCDate(d.getUTCDate() + 1)) {
+expected.push(d.toISOString().slice(0, 10));
+}
+for (const e of expected) if (!dateSet.has(e)) throw new Error('Missing date: ' + e);
+const implIcons = new Set(['cross','heart','leaf','flag','apple','walk','shield','brain','book','mom','child','teen','elder','mosquito','virus','syringe','microscope','megaphone','handshake','firstaid','news','family','atom','cart','plant','cap','gavel','newspaper','tree','building','scales','sun','money','sport','community','peace','water','graduation','globe','help','tractor','shopping','government','language','helmet','justice','venus','woman','man']);
+for (const r of cal) {
+if (!r.titleGu || r.titleGu === r.titleEn) throw new Error(r.date + ': missing Gujarati title');
+if (!r.importanceGu || r.importanceGu === r.importanceEn) throw new Error(r.date + ': missing Gujarati importance');
+if (!r.categoryGu || r.categoryGu === r.category) throw new Error(r.date + ': missing Gujarati category');
+if (r.actionsEn.length !== 4 || r.actionsGu.length !== 4) throw new Error(r.date + ': need 4 actions');
+r.actionsEn.forEach((a, i) => { if (!r.actionsGu[i] || r.actionsGu[i] === a) throw new Error(r.date + ': action "'+a+'" missing translation'); });
+if (!implIcons.has(r.icon)) throw new Error(r.date + ': unsupported icon "'+r.icon+'"');
+}
+}
+const CALENDAR = (() => { const c = buildFixedCalendar(); validateCalendar(c); return c; })();
+
+// =====================================================================
+// 2. STORAGE (IndexedDB)
+// =====================================================================
+const DB_NAME = 'HealthAwarenessStudio';
+const DB_VER = 2;
+const STORE = 'dailyRuns';
+const TEMPLATE_STORE = 'templates';
+const SCHEDULE_STORE = 'schedules';
+let dbp = null;
+
+function openDB() {
+if (dbp) return dbp;
+dbp = new Promise((resolve, reject) => {
+const req = indexedDB.open(DB_NAME, DB_VER);
+req.onupgradeneeded = (ev) => {
+const db = ev.target.result;
+if (!db.objectStoreNames.contains(STORE)) {
+const os = db.createObjectStore(STORE, { keyPath: 'date' });
+os.createIndex('titleEn', 'titleEn');
+}
+if (!db.objectStoreNames.contains(TEMPLATE_STORE)) {
+db.createObjectStore(TEMPLATE_STORE, { keyPath: 'id', autoIncrement: true });
+}
+if (!db.objectStoreNames.contains(SCHEDULE_STORE)) {
+db.createObjectStore(SCHEDULE_STORE, { keyPath: 'id', autoIncrement: true });
+}
+};
+req.onsuccess = () => resolve(req.result);
+req.onerror = () => reject(req.error);
+});
+return dbp;
+}
+
+function dbGet(store, key) {
+return openDB().then(db => new Promise((res, rej) => {
+const tx = db.transaction(store, 'readonly');
+const rq = tx.objectStore(store).get(key);
+rq.onsuccess = () => res(rq.result || null);
+rq.onerror = () => rej(rq.error);
+}));
+}
+
+function dbPut(store, record) {
+return openDB().then(db => new Promise((res, rej) => {
+const tx = db.transaction(store, 'readwrite');
+const rq = tx.objectStore(store).put(record);
+rq.onsuccess = () => res(rq.result);
+rq.onerror = () => rej(rq.error);
+}));
+}
+
+function dbDelete(store, key) {
+return openDB().then(db => new Promise((res, rej) => {
+const tx = db.transaction(store, 'readwrite');
+const rq = tx.objectStore(store).delete(key);
+rq.onsuccess = () => res();
+rq.onerror = () => rej(rq.error);
+}));
+}
+
+function dbAll(store) {
+return openDB().then(db => new Promise((res, rej) => {
+const rq = db.transaction(store).objectStore(store).getAll();
+rq.onsuccess = () => res(rq.result || []);
+rq.onerror = () => rej(rq.error);
+}));
+}
+
+function dbClear(store) {
+return openDB().then(db => new Promise((res, rej) => {
+const rq = db.transaction(store, 'readwrite').objectStore(store).clear();
+rq.onsuccess = () => res();
+rq.onerror = () => rej(rq.error);
+}));
+}
+
+// =====================================================================
+// 3. CONTENT HELPERS
+// =====================================================================
+function buildContent(entry) {
+const tags = [...new Set([...(entry.hashtags||[]), 'HealthAwareness', 'PublicHealth'])].slice(0,6).map(x => '#'+x.replace(/\s+/g,''));
+const en = entry.titleEn + '\n\n' + entry.importanceEn + '\n\nWhat you can do:\n' + entry.actionsEn.map(x => '• '+x).join('\n') + '\n\n' + tags.join(' ');
+const gu = entry.titleGu + '\n\n' + entry.importanceGu + '\n\nતમે શું કરી શકો:\n' + entry.actionsGu.map(x => '• '+x).join('\n') + '\n\n' + tags.join(' ');
+return { english: en, gujarati: gu, combined: en + '\n\n──────────\n\n' + gu, tags };
+}
+
+// =====================================================================
+// 4. POSTER GENERATOR
+// =====================================================================
+const FORMATS = [
+{ id: 'square-en', label: 'English Square', lang: 'en', w: 1080, h: 1080 },
+{ id: 'square-gu', label: 'Gujarati Square', lang: 'gu', w: 1080, h: 1080 },
+{ id: 'portrait-en', label: 'English Portrait', lang: 'en', w: 1080, h: 1350 },
+{ id: 'portrait-gu', label: 'Gujarati Portrait', lang: 'gu', w: 1080, h: 1350 },
+{ id: 'story-en', label: 'English Story', lang: 'en', w: 1080, h: 1920 },
+{ id: 'story-gu', label: 'Gujarati Story', lang: 'gu', w: 1080, h: 1920 }
+];
+
+function wrapText(ctx, text, maxW) {
+const words = String(text).split(/\s+/);
+const lines = [];
+let cur = '';
+for (const w of words) {
+const t = cur ? cur + ' ' + w : w;
+if (ctx.measureText(t).width > maxW && cur) {
+lines.push(cur);
+cur = w;
+} else {
+cur = t;
+}
+}
+if (cur) lines.push(cur);
+return lines;
+}
+
+function drawIcon(ctx, type, x, y, r, color) {
+ctx.save(); ctx.translate(x, y);
+ctx.fillStyle = color; ctx.strokeStyle = color; ctx.lineWidth = r * 0.14;
+switch (type) {
+case 'heart':
+ctx.beginPath();
+ctx.moveTo(0, r*0.6);
+ctx.bezierCurveTo(-r, -r*0.1, -r*0.55, -r*0.9, 0, -r*0.35);
+ctx.bezierCurveTo(r*0.55, -r*0.9, r, -r*0.1, 0, r*0.6);
+ctx.fill(); break;
+case 'woman': case 'man':
+ctx.beginPath();
+ctx.arc(0, -r*0.35, r*0.3, 0, Math.PI*2);
+ctx.fill();
+ctx.beginPath();
+ctx.moveTo(0, -r*0.05);
+ctx.lineTo(0, r*0.65);
+ctx.moveTo(-r*0.45, r*0.15);
+ctx.lineTo(r*0.45, r*0.15);
+ctx.stroke(); break;
+case 'leaf':
+ctx.beginPath();
+ctx.ellipse(0, 0, r*0.7, r*0.45, -0.6, 0, Math.PI*2);
+ctx.fill(); break;
+case 'flag':
+ctx.fillRect(-r*0.45, -r*0.65, r*0.12, r*1.3);
+ctx.fillRect(-r*0.3, -r*0.6, r*0.8, r*0.45); break;
+case 'water':
+ctx.beginPath();
+ctx.moveTo(0, -r*0.8);
+ctx.bezierCurveTo(r*0.7, 0, r*0.55, r*0.8, 0, r*0.8);
+ctx.bezierCurveTo(-r*0.55, r*0.8, -r*0.7, 0, 0, -r*0.8);
+ctx.fill(); break;
+default: // cross
+ctx.fillRect(-r*0.18, -r*0.65, r*0.36, r*1.3);
+ctx.fillRect(-r*0.65, -r*0.18, r*1.3, r*0.36);
+}
+ctx.restore();
+}
+
+function createPoster(entry, fmt) {
+const c = document.createElement('canvas');
+c.width = fmt.w; c.height = fmt.h;
+const ctx = c.getContext('2d');
+const gu = fmt.lang === 'gu';
+const title = gu ? entry.titleGu : entry.titleEn;
+const importance = gu ? entry.importanceGu : entry.importanceEn;
+const actions = gu ? entry.actionsGu : entry.actionsEn;
+const accent = entry.status === 'official' ? '#1668c1' : '#1a9f6e';
+ctx.fillStyle = '#f7fbfa';
+ctx.fillRect(0,0,c.width,c.height);
+ctx.fillStyle = accent;
+ctx.fillRect(0,0,c.width, Math.round(c.height*0.16));
+ctx.fillStyle = '#fff';
+ctx.font = `700 ${Math.round(c.width*0.034)}px sans-serif`;
+ctx.fillText('HEALTH AWARENESS STUDIO', 70, 90);
+ctx.font = `500 ${Math.round(c.width*0.024)}px sans-serif`;
+ctx.fillText(entry.date, 70, 135);
+drawIcon(ctx, entry.icon, c.width-145, 95, 55, '#fff');
+
+let y = Math.round(c.height*0.24);
+ctx.fillStyle = '#1f2a33';
+ctx.textAlign = 'center';
+let size = Math.round(c.width*0.062);
+ctx.font = `800 ${size}px sans-serif`;
+let lines = wrapText(ctx, title, c.width-140);
+while (lines.length > 4 && size > 38) { size -= 3; ctx.font = `800 ${size}px sans-serif`; lines = wrapText(ctx, title, c.width-140); }
+for (const ln of lines) { ctx.fillText(ln, c.width/2, y); y += size*1.18; }
+y += 35;
+ctx.fillStyle = '#65727d';
+ctx.font = `500 ${Math.round(c.width*0.029)}px sans-serif`;
+for (const ln of wrapText(ctx, importance, c.width-180).slice(0,5)) { ctx.fillText(ln, c.width/2, y); y += 42; }
+y += 35;
+ctx.textAlign = 'left';
+ctx.fillStyle = '#1f2a33';
+ctx.font = `700 ${Math.round(c.width*0.031)}px sans-serif`;
+actions.forEach((a, i) => {
+const ay = y + i*92;
+ctx.fillStyle = accent;
+ctx.beginPath();
+ctx.arc(100, ay-10, 22, 0, Math.PI*2);
+ctx.fill();
+ctx.fillStyle = '#fff';
+ctx.textAlign = 'center';
+ctx.font = '700 24px sans-serif';
+ctx.fillText(String(i+1), 100, ay-2);
+ctx.textAlign = 'left';
+ctx.fillStyle = '#1f2a33';
+ctx.font = `600 ${Math.round(c.width*0.027)}px sans-serif`;
+const al = wrapText(ctx, a, c.width-210).slice(0,2);
+al.forEach((ln,j) => ctx.fillText(ln, 145, ay+j*34));
+});
+ctx.fillStyle = accent;
+ctx.fillRect(0, c.height-110, c.width, 110);
+ctx.fillStyle = '#fff';
+ctx.textAlign = 'center';
+ctx.font = `700 ${Math.round(c.width*0.026)}px sans-serif`;
+ctx.fillText(gu ? 'જાગૃતિ ફેલાવો • સ્વસ્થ રહો' : 'Spread awareness • Stay healthy', c.width/2, c.height-48);
+return c;
+}
+
+async function generatePosters(entry, onProgress) {
+const out = [];
+for (let i=0; i<FORMATS.length; i++) {
+const f = FORMATS[i];
+const canvas = createPoster(entry, f);
+const dataUrl = canvas.toDataURL('image/png');
+out.push({ ...f, dataUrl, filename: `${entry.date}_${f.id}.png` });
+if (onProgress) onProgress(i+1, FORMATS.length);
+await new Promise(r => setTimeout(r, 0));
+}
+return out;
+}
+
+function safeFilename(name) {
+return String(name || 'poster').replace(/[^\w.\-]+/g, '_').replace(/_+/g, '_').replace(/^[_.]+/, '').slice(0, 120) || 'poster.png';
+}
+function downloadPoster(p) {
+const a = document.createElement('a');
+a.href = p.dataUrl;
+a.download = safeFilename(p.filename || 'poster.png');
+a.click();
+}
+
+// Download every poster in a set. No external ZIP library is bundled (offline,
+// no dependencies), so files are saved individually, spaced slightly apart to
+// avoid the browser suppressing rapid successive downloads.
+function downloadAll(posters) {
+if (!posters || !posters.length) { toast('Nothing to download'); return; }
+posters.forEach((p, i) => setTimeout(() => downloadPoster(p), i * 300));
+toast(`Downloading ${posters.length} posters`);
+}
+
+// =====================================================================
+// 5. SCHEDULER
+// =====================================================================
+function nowIST() {
+return new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+}
+function dateIST() {
+const p = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata', year:'numeric', month:'2-digit', day:'2-digit' }).formatToParts(new Date());
+const o = Object.fromEntries(p.map(x => [x.type, x.value]));
+return `${o.year}-${o.month}-${o.day}`;
+}
+function msUntil(hour=8) {
+const n = nowIST();
+const t = new Date(n);
+t.setHours(hour, 0, 0, 0);
+if (t <= n) t.setDate(t.getDate()+1);
+return t - n;
+}
+let schedulerTimer = null;
+
+function startScheduler(cb, hour=8) {
+stopScheduler();
+const delay = msUntil(hour);
+schedulerTimer = setTimeout(async () => {
+await cb();
+startScheduler(cb, hour);
+}, delay);
+return delay;
+}
+function stopScheduler() {
+if (schedulerTimer) clearTimeout(schedulerTimer);
+schedulerTimer = null;
+}
+
+// =====================================================================
+// 6. DASHBOARD / UI
+// =====================================================================
+const $main = document.getElementById('main');
+const $toast = document.getElementById('toast');
+let toastTimer = null;
+
+function toast(msg) {
+$toast.textContent = msg;
+$toast.classList.add('show');
+clearTimeout(toastTimer);
+toastTimer = setTimeout(() => $toast.classList.remove('show'), 3000);
+}
+
+function esc(s) { return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]); }
+
+// Clipboard copy with a fallback for file:// / insecure contexts where the
+// async Clipboard API is unavailable.
+async function copyText(text) {
+try {
+if (navigator.clipboard && navigator.clipboard.writeText) {
+await navigator.clipboard.writeText(text);
+toast('Caption copied');
+return;
+}
+throw new Error('clipboard-unavailable');
+} catch (err) {
+try {
+const ta = document.createElement('textarea');
+ta.value = text;
+ta.setAttribute('readonly', '');
+ta.style.position = 'fixed';
+ta.style.opacity = '0';
+document.body.appendChild(ta);
+ta.focus(); ta.select();
+const ok = document.execCommand('copy');
+document.body.removeChild(ta);
+toast(ok ? 'Caption copied' : 'Copy unavailable — please copy manually');
+} catch (e2) {
+toast('Copy unavailable in this browser');
+}
+}
+}
+
+function pageHead(title, sub='', right='') {
+return `<div class="page-head"><div><h2>${esc(title)}</h2><div class="sub">${esc(sub)}</div></div><div class="statusline">${right}</div></div>`;
+}
+
+let currentPage = 'home';
+let state = { entry: null, record: null };
+
+function todayEntry() {
+const date = dateIST();
+return CALENDAR.find(x => x.date === date) || CALENDAR[0];
+}
+
+async function refreshState() {
+state.entry = todayEntry();
+state.record = await dbGet(STORE, state.entry.date);
+}
+
+function workflow(stage=0) {
+const steps = ['08:00 Scheduler','Calendar','English','Gujarati','Captions','Posters','Storage','Dashboard','Download','Social posting'];
+return `<div class="workflow">${steps.map((x,i) => `<div class="workflow-step ${i<stage?'done':i===stage?'active':''}">${i+1}. ${x}</div>`).join('')}</div>`;
+}
+
+// =====================================================================
+// 7. RENDER FUNCTIONS
+// =====================================================================
+function renderHome() {
+const e = state.entry;
+const r = state.record;
+$main.innerHTML = pageHead('Daily Automation Dashboard', e.titleEn, `<span class="pill blue" id="clock"></span>`) +
+`<div class="grid cards">
+<div class="card stat"><div class="lbl">Today</div><div class="val" style="font-size:18px">${esc(e.titleEn)}</div><div class="hint">${esc(e.date)}</div></div>
+<div class="card stat"><div class="lbl">Posters</div><div class="val">${r?.posters?.length||0}/6</div><div class="hint">English + Gujarati</div></div>
+<div class="card stat"><div class="lbl">Status</div><div class="val" style="font-size:20px">${r?'Ready':'Pending'}</div><div class="hint">IndexedDB</div></div>
+<div class="card stat"><div class="lbl">Next scheduler</div><div class="countdown" id="countdown">--:--:--</div><div class="hint">Browser must be open</div></div>
+</div>
+<div class="card" style="margin-top:16px"><h3 class="sec">Automation workflow</h3>${workflow(r?8:0)}<div class="btnrow" style="margin-top:14px">
+<button class="btn primary" id="runNow">${r?'Regenerate today':'Run daily workflow now'}</button>
+<button class="btn" id="openGenerator">Open generator</button>
+<button class="btn" id="openEditor">Open editor</button>
+</div></div>
+<div class="notice" style="margin-top:16px">This build runs at 08:00 IST while open and performs a catch-up run when opened after 08:00.</div>`;
+document.getElementById('runNow').onclick = () => runDaily(true);
+document.getElementById('openGenerator').onclick = () => navigate('generator');
+document.getElementById('openEditor').onclick = () => navigate('editor');
+updateClock();
+}
+
+function renderGenerator() {
+const e = state.entry;
+const r = state.record;
+$main.innerHTML = pageHead('Poster Generator', e.titleEn) +
+`<div class="row"><div class="col card">
+<span class="pill">${esc(e.category)}</span>
+<h2>${esc(e.titleEn)}</h2>
+<h3 lang="gu">${esc(e.titleGu)}</h3>
+<p class="muted">${esc(e.importanceEn)}</p>
+<div class="btnrow"><button class="btn primary" id="generate">Generate all 6 posters</button><button class="btn" id="copyCaption">Copy bilingual caption</button><button class="btn" id="downloadAll" ${r?.posters?.length?'':'disabled'}>Download all</button></div>
+<div class="progress" style="margin-top:14px"><i id="genProgress"></i></div>
+</div></div>
+<div class="poster-grid" id="posterGrid" style="margin-top:16px">${(r?.posters||[]).map((p,i) => `<div class="poster-card"><img src="${p.dataUrl}" alt="${esc(p.label)}"><div class="meta"><b>${esc(p.label)}</b><br><button class="btn sm" data-dl="${i}">Download</button></div></div>`).join('')||'<div class="empty-state">No posters generated yet.</div>'}</div>`;
+document.getElementById('generate').onclick = () => runDaily(true, 'generator');
+document.getElementById('copyCaption').onclick = () => copyText(buildContent(e).combined);
+const dlAll = document.getElementById('downloadAll');
+if (dlAll) dlAll.onclick = () => downloadAll(r?.posters || []);
+document.querySelectorAll('[data-dl]').forEach(b => b.onclick = () => {
+const idx = +b.dataset.dl;
+if (r?.posters?.[idx]) downloadPoster(r.posters[idx]);
+});
+}
+
+function renderEditor() {
+$main.innerHTML = pageHead('Poster Editor', 'Drag & drop logo, background image, live preview') +
+`<div class="row"><div class="col card">
+<h3 class="sec">Editor Tools</h3>
+<div class="editor-tools">
+<button class="btn" id="addLogo">Add Logo</button>
+<button class="btn" id="addBg">Add Background</button>
+<button class="btn" id="addText">Add Text</button>
+<button class="btn" id="exportPNG">Export PNG</button>
+</div>
+<div class="posterwrap" id="editorPreview">
+<canvas id="editorCanvas" width="600" height="600" style="max-width:100%;height:auto;background:#fff;border:1px solid var(--line);border-radius:8px;"></canvas>
+</div>
+<div class="layer-list" id="layerList"><div class="empty-state" style="padding:10px">No layers</div></div>
+<div class="btnrow"><button class="btn" id="clearLayers">Clear Layers</button></div>
+</div></div>`;
+// Simple canvas editor
+const canvas = document.getElementById('editorCanvas');
+const ctx = canvas.getContext('2d');
+let layers = [];
+let selectedLayer = -1;
+
+function renderCanvas() {
+ctx.clearRect(0,0,canvas.width,canvas.height);
+ctx.fillStyle = '#fff';
+ctx.fillRect(0,0,canvas.width,canvas.height);
+layers.forEach((l) => {
+ctx.save();
+if (l.type === 'text') {
+ctx.font = l.font || '20px sans-serif';
+ctx.fillStyle = l.color || '#000';
+ctx.fillText(l.text || 'Text', l.x || 50, l.y || 50);
+} else if (l.type === 'logo' || l.type === 'bg') {
+// Cache a single Image per layer and redraw once it has decoded.
+// Fixes the previous race (img.complete was checked before load) and
+// the image-object leak (a new Image() was allocated on every redraw).
+if (!l._img) {
+l._img = new Image();
+l._img.onload = () => renderCanvas();
+l._img.onerror = () => { l._error = true; toast('Image failed to load'); };
+l._img.src = l.dataUrl || '';
+}
+const img = l._img;
+if (img.complete && img.naturalWidth) {
+if (l.type === 'bg') {
+ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+} else {
+ctx.drawImage(img, l.x||50, l.y||50, l.w||100, l.h||100);
+}
+}
+}
+ctx.restore();
+});
+}
+
+function updateLayerList() {
+const list = document.getElementById('layerList');
+if (!layers.length) {
+list.innerHTML = '<div class="empty-state" style="padding:10px">No layers</div>';
+return;
+}
+list.innerHTML = layers.map((l,i) =>
+`<div class="layer-item ${i===selectedLayer?'active':''}" data-idx="${i}">
+<span>${l.type} ${i+1}</span>
+<button class="btn sm" data-del="${i}">✕</button>
+</div>`
+).join('');
+list.querySelectorAll('[data-idx]').forEach(el => el.onclick = () => { selectedLayer = +el.dataset.idx; updateLayerList(); });
+list.querySelectorAll('[data-del]').forEach(el => el.onclick = (ev) => { ev.stopPropagation(); layers.splice(+el.dataset.del,1); selectedLayer=-1; updateLayerList(); renderCanvas(); });
+}
+
+document.getElementById('addLogo').onclick = () => {
+const input = document.createElement('input');
+input.type = 'file';
+input.accept = 'image/*';
+input.onchange = () => {
+const file = input.files[0];
+if (!file) return;
+const reader = new FileReader();
+reader.onload = (e) => {
+layers.push({ type: 'logo', dataUrl: e.target.result, x: 50, y: 50, w: 100, h: 100 });
+selectedLayer = layers.length - 1;
+updateLayerList();
+renderCanvas();
+};
+reader.readAsDataURL(file);
+};
+input.click();
+};
+document.getElementById('addBg').onclick = () => {
+const input = document.createElement('input');
+input.type = 'file';
+input.accept = 'image/*';
+input.onchange = () => {
+const file = input.files[0];
+if (!file) return;
+const reader = new FileReader();
+reader.onload = (e) => {
+layers.push({ type: 'bg', dataUrl: e.target.result });
+selectedLayer = layers.length - 1;
+updateLayerList();
+renderCanvas();
+};
+reader.readAsDataURL(file);
+};
+input.click();
+};
+document.getElementById('addText').onclick = () => {
+const text = prompt('Enter text:');
+if (text !== null) {
+layers.push({ type: 'text', text, x: 50, y: 50, font: '20px sans-serif', color: '#000' });
+selectedLayer = layers.length - 1;
+updateLayerList();
+renderCanvas();
+}
+};
+document.getElementById('exportPNG').onclick = () => {
+const link = document.createElement('a');
+link.download = 'poster_edit.png';
+link.href = canvas.toDataURL('image/png');
+link.click();
+};
+document.getElementById('clearLayers').onclick = () => { layers = []; selectedLayer = -1; updateLayerList(); renderCanvas(); };
+renderCanvas();
+updateLayerList();
+}
+
+function renderTemplates() {
+const e = state.entry;
+$main.innerHTML = pageHead('Poster Templates', 'Reusable poster formats · English & Gujarati') +
+`<div class="card"><p class="muted">Six built-in templates drive every poster. Preview any template rendered with today's content — <b>${esc(e.titleEn)}</b> (${esc(e.date)}) — and download a PNG.</p>
+<div class="poster-grid" id="tplGrid" style="margin-top:12px">${FORMATS.map((f,i) => `<div class="poster-card"><div id="tplBox${i}"></div><div class="meta"><b>${esc(f.label)}</b><br><span class="muted">${f.w}×${f.h} · ${f.lang==='gu'?'Gujarati':'English'}</span><div class="btnrow" style="margin-top:8px"><button class="btn sm" data-prev="${i}">Preview</button><button class="btn sm primary" data-tdl="${i}">Download</button></div></div></div>`).join('')}</div></div>`;
+const grid = document.getElementById('tplGrid');
+if (!grid) return;
+grid.querySelectorAll('[data-prev]').forEach(b => b.onclick = () => {
+const f = FORMATS[+b.dataset.prev];
+const box = document.getElementById('tplBox'+b.dataset.prev);
+const canvas = createPoster(e, f);
+box.innerHTML = '';
+const img = new Image();
+img.alt = f.label;
+img.src = canvas.toDataURL('image/png');
+box.appendChild(img);
+});
+grid.querySelectorAll('[data-tdl]').forEach(b => b.onclick = () => {
+const f = FORMATS[+b.dataset.tdl];
+const canvas = createPoster(e, f);
+downloadPoster({ dataUrl: canvas.toDataURL('image/png'), filename: `${e.date}_${f.id}.png` });
+});
+}
+
+function renderCalendar() {
+const rows = CALENDAR.slice(0,365);
+$main.innerHTML = pageHead('2026 Awareness Calendar', 'Fixed daily records') +
+`<div class="card" style="overflow-x:auto"><table class="tbl"><thead><tr><th>Date</th><th>English</th><th>Gujarati</th><th>Status</th></tr></thead><tbody>${rows.map(e => `<tr><td>${esc(e.date)}</td><td>${esc(e.titleEn)}</td><td lang="gu">${esc(e.titleGu)}</td><td><span class="pill ${e.status==='official'?'blue':'gray'}">${esc(e.status)}</span></td></tr>`).join('')}</tbody></table></div>`;
+}
+
+async function renderLibrary() {
+const all = (await dbAll(STORE)).sort((a,b)=>b.date.localeCompare(a.date));
+// Flatten to poster thumbnails; keep an index reference so handlers never
+// interpolate untrusted values into markup.
+const items = [];
+all.forEach(r => (r.posters||[]).forEach((p) => items.push({ r, p })));
+$main.innerHTML = pageHead('Poster Library', `${all.length} daily records · ${items.length} posters`) +
+`<div class="thumbgrid" id="libGrid">${
+items.map((it, i) => `<div class="thumb"><div class="imgbox"><img loading="lazy" src="${it.p.dataUrl}" alt="${esc(it.p.label)}"></div><div class="meta"><b>${esc(it.r.date)} · ${esc(it.p.label)}</b>${esc(it.r.titleEn)}</div><div class="actions"><button class="btn sm" data-dl="${i}">Download</button><button class="btn sm danger" data-del="${i}">Delete day</button></div></div>`).join('')
+|| '<div class="empty-state">Library is empty.</div>'
+}</div>`;
+const grid = document.getElementById('libGrid');
+if (!grid) return;
+grid.querySelectorAll('[data-dl]').forEach(b => b.onclick = () => {
+const it = items[+b.dataset.dl];
+if (it) downloadPoster(it.p);
+});
+grid.querySelectorAll('[data-del]').forEach(b => b.onclick = async () => {
+const it = items[+b.dataset.del];
+if (!it) return;
+if (!confirm('Delete all posters for ' + it.r.date + '?')) return;
+await dbDelete(STORE, it.r.date);
+if (state.record && state.record.date === it.r.date) state.record = null;
+toast('Deleted ' + it.r.date);
+renderLibrary();
+});
+}
+
+function renderPublishing() {
+const r = state.record;
+const ps = r?.publication || {};
+const platforms = ['WhatsApp','Facebook','Instagram','LinkedIn','Telegram','X'];
+$main.innerHTML = pageHead('Publishing Log', 'Manual social-media checklist') +
+`<div class="card"><h3 class="sec">${esc(state.entry.titleEn)}</h3>${platforms.map(p => `<label class="kv"><span>${p}</span><input type="checkbox" data-platform="${p}" ${ps[p]?'checked':''} ${r?'':'disabled'}></label>`).join('')}</div>`;
+document.querySelectorAll('[data-platform]').forEach(x => x.onchange = async () => {
+if (!state.record) return;
+const next = { ...state.record, publication: { ...state.record.publication, [x.dataset.platform]: x.checked } };
+await dbPut(STORE, next);
+state.record = next;
+toast(`${x.dataset.platform}: ${x.checked?'published':'not published'}`);
+});
+}
+
+function renderScheduler() {
+$main.innerHTML = pageHead('Scheduler', 'Daily, weekly, monthly, recurring campaigns') +
+`<div class="card"><h3 class="sec">Recurring Campaigns</h3>
+<div id="scheduleList"></div>
+<div class="btnrow"><button class="btn primary" id="addSchedule">Add Schedule</button></div>
+<div class="notice" style="margin-top:12px">Recurring schedules are recorded here; automated delivery still depends on the daily 08:00 IST run while the app is open.</div></div>`;
+document.getElementById('addSchedule').onclick = () => {
+let freq = prompt('Frequency (daily/weekly/monthly):','daily');
+if (freq === null) return;
+freq = freq.trim().toLowerCase();
+if (!['daily','weekly','monthly'].includes(freq)) { toast('Frequency must be daily, weekly or monthly'); return; }
+let time = prompt('Time (HH:MM IST, 24-hour):','08:00');
+if (time === null) return;
+time = time.trim();
+if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(time)) { toast('Time must be 24-hour HH:MM'); return; }
+dbPut(SCHEDULE_STORE, { freq, time, active: true, createdAt: new Date().toISOString() }).then(() => { toast('Schedule added'); renderScheduler(); });
+};
+dbAll(SCHEDULE_STORE).then(list => {
+const el = document.getElementById('scheduleList');
+if (!el) return;
+el.innerHTML = list.length
+? list.map(s => `<div class="kv"><span>${esc(s.freq)} at ${esc(s.time)} ${s.active?'✅':'⏸️'}</span><button class="btn sm" data-del="${esc(s.id)}">Delete</button></div>`).join('')
+: '<div class="empty-state" style="padding:16px">No schedules yet.</div>';
+el.querySelectorAll('[data-del]').forEach(b => b.onclick = async () => {
+await dbDelete(SCHEDULE_STORE, +b.dataset.del);
+renderScheduler();
+});
+});
+}
+
+function renderIntegrations() {
+const settings = JSON.parse(localStorage.getItem('n8nSettings') || '{}');
+$main.innerHTML = pageHead('n8n Integration', 'Webhook, queue, retry, timeout, error handling') +
+`<div class="card"><div class="field"><label class="fld">Webhook URL</label><input class="inp" id="webhookUrl" value="${esc(settings.url||'')}" placeholder="https://n8n.example.com/webhook"></div>
+<div class="field"><label class="fld">Retry attempts</label><input class="inp" id="retryCount" value="${settings.retry||3}" type="number"></div>
+<div class="field"><label class="fld">Timeout (ms)</label><input class="inp" id="timeoutMs" value="${settings.timeout||5000}" type="number"></div>
+<div class="btnrow"><button class="btn primary" id="saveN8n">Save</button><button class="btn" id="testN8n">Test Connection</button></div></div>`;
+document.getElementById('saveN8n').onclick = () => {
+const url = document.getElementById('webhookUrl').value.trim();
+const retry = parseInt(document.getElementById('retryCount').value) || 3;
+const timeout = parseInt(document.getElementById('timeoutMs').value) || 5000;
+localStorage.setItem('n8nSettings', JSON.stringify({ url, retry, timeout }));
+toast('n8n settings saved');
+};
+document.getElementById('testN8n').onclick = async () => {
+const url = document.getElementById('webhookUrl').value.trim();
+if (!url) { toast('Enter a webhook URL'); return; }
+try {
+const res = await fetch(url, { method: 'HEAD', signal: AbortSignal.timeout(5000) });
+toast(res.ok ? 'Connection OK' : 'Connection failed (status: '+res.status+')');
+} catch (e) {
+toast('Error: '+e.message);
+}
+};
+}
+
+// Safe restore: validates the file, snapshots current data, and rolls back on
+// any failure so a bad import can never erase valid existing records.
+async function restoreBackup(text) {
+let data;
+try { data = JSON.parse(text); }
+catch (err) { toast('Restore failed: invalid JSON — existing data preserved'); return false; }
+let runs;
+if (Array.isArray(data)) runs = data;                       // bare v5.0 array export
+else if (data && Array.isArray(data.runs)) runs = data.runs; // v5.1 envelope
+else { toast('Restore failed: unrecognised format — existing data preserved'); return false; }
+const valid = runs.filter(r => r && typeof r.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(r.date));
+if (!valid.length) { toast('Restore failed: no valid records — existing data preserved'); return false; }
+
+let snapshot;
+try { snapshot = await dbAll(STORE); }
+catch (err) { toast('Restore failed: cannot read current data — nothing changed'); return false; }
+
+try {
+for (const r of valid) {
+const rec = {
+date: r.date,
+titleEn: typeof r.titleEn === 'string' ? r.titleEn : '',
+titleGu: typeof r.titleGu === 'string' ? r.titleGu : '',
+generatedAt: r.generatedAt || new Date().toISOString(),
+captions: (r.captions && typeof r.captions === 'object') ? r.captions : null,
+posters: Array.isArray(r.posters) ? r.posters.filter(p => p && typeof p.dataUrl === 'string' && p.dataUrl.startsWith('data:image')) : [],
+publication: (r.publication && typeof r.publication === 'object') ? r.publication : {},
+version: r.version || '5.1'
+};
+await dbPut(STORE, rec); // keyPath 'date' — same-date records overwrite, never duplicate
+}
+if (!Array.isArray(data) && Array.isArray(data.schedules)) {
+const existing = await dbAll(SCHEDULE_STORE);
+const seen = new Set(existing.map(s => s.freq + '|' + s.time));
+for (const s of data.schedules) {
+if (s && ['daily','weekly','monthly'].includes(s.freq) && /^([01]\d|2[0-3]):[0-5]\d$/.test(s.time || '') && !seen.has(s.freq + '|' + s.time)) {
+seen.add(s.freq + '|' + s.time);
+await dbPut(SCHEDULE_STORE, { freq: s.freq, time: s.time, active: s.active !== false, createdAt: s.createdAt || new Date().toISOString() });
+}
+}
+}
+await refreshState();
+toast(`Restore complete: ${valid.length} record(s) merged`);
+return true;
+} catch (err) {
+try {
+await dbClear(STORE);
+for (const r of snapshot) await dbPut(STORE, r);
+toast('Restore failed and was rolled back — no data lost');
+} catch (e2) {
+toast('Restore error; rollback incomplete: ' + e2.message);
+}
+return false;
+}
+}
+
+function renderDiagnostics() {
+(async () => {
+const checks = [];
+const add = (name, status, detail) => checks.push({ name, status, detail });
+
+add('Application init', (Array.isArray(CALENDAR) && CALENDAR.length > 0 && window.HealthApp) ? 'PASS' : 'FAIL', CALENDAR.length + ' calendar entries loaded');
+
+let calStatus = 'PASS', calDetail = '365 unique valid dates';
+try { validateCalendar(CALENDAR); }
+catch (err) { calStatus = 'FAIL'; calDetail = err.message; }
+add('Calendar integrity', calStatus, calDetail);
+
+const dupSeen = new Set(), dup = new Set();
+CALENDAR.forEach(r => { if (dupSeen.has(r.date)) dup.add(r.date); dupSeen.add(r.date); });
+add('Duplicate dates', dup.size ? 'FAIL' : 'PASS', dup.size ? (dup.size + ' duplicate(s)') : 'None');
+
+const missGu = CALENDAR.filter(r => !r.titleGu || r.titleGu === r.titleEn || !r.importanceGu || r.importanceGu === r.importanceEn || !r.categoryGu).length;
+add('Translation coverage', missGu ? 'WARNING' : 'PASS', missGu ? (missGu + ' entry/entries missing Gujarati') : 'All entries have EN + GU');
+
+const missAct = CALENDAR.filter(r => !Array.isArray(r.actionsEn) || r.actionsEn.length !== 4 || !Array.isArray(r.actionsGu) || r.actionsGu.length !== 4).length;
+const missMap = [...new Set(CALENDAR.map(r => r.category))].filter(c => !CATEGORY_ACTIONS[c]).length;
+add('Category-action coverage', (missAct || missMap) ? 'WARNING' : 'PASS', (missAct || missMap) ? (missAct + ' entries / ' + missMap + ' categories incomplete') : 'Every category has 4 bilingual actions');
+
+const tplBad = FORMATS.filter(f => !f.id || !f.lang || !(f.w > 0) || !(f.h > 0)).length;
+add('Template integrity', tplBad ? 'FAIL' : 'PASS', FORMATS.length + ' formats valid');
+
+let runs = [], schedules = [], templates = [], dbStatus = 'PASS', dbDetail = '';
+try {
+runs = await dbAll(STORE);
+schedules = await dbAll(SCHEDULE_STORE);
+templates = await dbAll(TEMPLATE_STORE);
+dbDetail = runs.length + ' run(s) readable';
+} catch (err) { dbStatus = 'FAIL'; dbDetail = 'IndexedDB error: ' + err.message; }
+add('IndexedDB access', dbStatus, dbDetail);
+
+let lsStatus = 'PASS', lsDetail = 'read/write OK';
+try { const k = '__has_probe__'; localStorage.setItem(k, '1'); localStorage.getItem(k); localStorage.removeItem(k); }
+catch (err) { lsStatus = 'WARNING'; lsDetail = 'localStorage unavailable'; }
+add('localStorage access', lsStatus, lsDetail);
+
+add('Library records', 'PASS', runs.length + ' record(s), ' + runs.reduce((s, r) => s + ((r.posters || []).length), 0) + ' poster(s)');
+add('Scheduler records', 'PASS', schedules.length + ' schedule(s), ' + templates.length + ' template store row(s)');
+
+const badRuns = runs.filter(r => !r.date || !/^\d{4}-\d{2}-\d{2}$/.test(r.date) || !Array.isArray(r.posters));
+add('Saved-object validity', badRuns.length ? 'WARNING' : 'PASS', badRuns.length ? (badRuns.length + ' malformed record(s)') : 'All records well-formed');
+
+let canvasStatus = 'PASS', canvasDetail = '2D canvas + PNG export OK';
+try {
+const t = createPoster(state.entry, FORMATS[0]);
+if (!t || typeof t.toDataURL !== 'function' || !t.toDataURL('image/png').startsWith('data:image/png')) throw new Error('canvas render failed');
+} catch (err) { canvasStatus = 'FAIL'; canvasDetail = err.message; }
+add('Poster canvas', canvasStatus, canvasDetail);
+
+const exportOk = (typeof Blob !== 'undefined' && typeof URL !== 'undefined' && typeof URL.createObjectURL === 'function');
+add('Export capability', exportOk ? 'PASS' : 'FAIL', exportOk ? 'Blob + object URL available' : 'Blob/URL unavailable');
+add('Backup capability', exportOk ? 'PASS' : 'FAIL', exportOk ? 'JSON export + validated restore ready' : 'Unavailable');
+
+const vp = document.querySelector('meta[name="viewport"]');
+add('Mobile viewport', (vp && /width=device-width/.test(vp.content || '')) ? 'PASS' : 'WARNING', vp ? (vp.getAttribute('content') || '') : 'No viewport meta');
+
+const externals = [...document.querySelectorAll('script[src],link[href],img[src]')].filter(el => {
+const u = el.getAttribute('src') || el.getAttribute('href') || '';
+return /^(https?:)?\/\//i.test(u);
+});
+add('Offline / no external deps', externals.length ? 'FAIL' : 'PASS', externals.length ? (externals.length + ' external resource(s)') : 'No external resources referenced');
+
+const cls = s => s === 'PASS' ? 'ok' : (s === 'WARNING' ? 'warn' : 'err');
+const icon = s => s === 'PASS' ? '✅' : (s === 'WARNING' ? '⚠️' : '❌');
+const fails = checks.filter(c => c.status === 'FAIL').length;
+const warns = checks.filter(c => c.status === 'WARNING').length;
+const overall = fails ? 'FAIL' : (warns ? 'WARNING' : 'PASS');
+const storageBytes = runs.reduce((sum, r) => sum + (r.posters || []).reduce((s, p) => s + (p.dataUrl ? p.dataUrl.length : 0), 0), 0);
+
+$main.innerHTML = pageHead('Diagnostics', 'Live health checks · PASS / WARNING / FAIL', `<span class="pill ${overall === 'PASS' ? '' : overall === 'WARNING' ? 'warn' : 'danger'}">${icon(overall)} ${overall}</span>`) +
+`<div class="diag-grid">${checks.map(c => `<div class="diag-card ${cls(c.status)}"><div class="label">${esc(c.name)}</div><div class="val" style="font-size:20px">${icon(c.status)} ${esc(c.status)}</div><div class="muted">${esc(c.detail)}</div></div>`).join('')}</div>
+<div class="card" style="margin-top:16px"><h3 class="sec">Storage</h3><div class="kv"><span>Estimated poster storage</span><b>${Math.round(storageBytes/1024)} KB</b></div><div class="kv"><span>Daily records</span><b>${runs.length}</b></div><div class="kv"><span>Checks</span><b>${checks.length - fails - warns} pass · ${warns} warning · ${fails} fail</b></div></div>
+<div class="card" style="margin-top:16px"><h3 class="sec">Backup &amp; Restore</h3>
+<div class="btnrow">
+<button class="btn" id="exportBackup">Export Backup (JSON)</button>
+<button class="btn" id="importBackup">Import / Restore</button>
+<button class="btn danger" id="clearAll">Clear All Data</button>
+</div>
+<input type="file" id="importFile" accept="application/json,.json" style="display:none">
+<div class="notice" style="margin-top:12px">Restore validates the file first, then merges records by date (no duplicates). A malformed or unreadable file is rejected and existing data is left untouched; any mid-restore error is rolled back.</div></div>`;
+
+document.getElementById('exportBackup').onclick = () => {
+const backup = { app: 'Health Awareness Studio', schema: DB_VER, version: '5.1', exportedAt: new Date().toISOString(), runs, schedules, templates };
+const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+const url = URL.createObjectURL(blob);
+const a = document.createElement('a');
+a.href = url; a.download = safeFilename('has_backup_' + dateIST() + '.json'); a.click();
+setTimeout(() => URL.revokeObjectURL(url), 1000);
+toast('Backup exported');
+};
+
+const fileInput = document.getElementById('importFile');
+document.getElementById('importBackup').onclick = () => fileInput.click();
+fileInput.onchange = () => {
+const file = fileInput.files && fileInput.files[0];
+if (!file) return;
+const reader = new FileReader();
+reader.onload = async () => { await restoreBackup(String(reader.result)); fileInput.value = ''; renderDiagnostics(); };
+reader.onerror = () => { toast('Could not read file'); fileInput.value = ''; };
+reader.readAsText(file);
+};
+
+document.getElementById('clearAll').onclick = async () => {
+if (!confirm('Delete all poster data? Consider exporting a backup first.')) return;
+await dbClear(STORE);
+state.record = null;
+toast('All data cleared');
+renderDiagnostics();
+};
+})();
+}
+
+function renderSettings() {
+$main.innerHTML = pageHead('Settings', 'Scheduler and local data') +
+`<div class="card"><div class="field"><label class="fld">Daily scheduler time (IST)</label><input class="inp" value="08:00" disabled></div>
+<div class="kv"><span>Version</span><b>5.1</b></div>
+<div class="kv"><span>Storage engine</span><b>IndexedDB (schema v${DB_VER})</b></div>
+<div class="btnrow" style="margin-top:12px"><button class="btn danger" id="clearData">Clear local database</button></div>
+<div class="notice" style="margin-top:12px">This removes every daily run, template and schedule from this browser. Export a backup from Diagnostics first if you may need the data.</div></div>`;
+document.getElementById('clearData').onclick = async () => {
+if (confirm('Delete all data? This cannot be undone.')) {
+await dbClear(STORE);
+await dbClear(TEMPLATE_STORE);
+await dbClear(SCHEDULE_STORE);
+state.record = null;
+await refreshState();
+toast('All data cleared');
+}
+};
+}
+
+// =====================================================================
+// 8. NAVIGATION & RUNTIME
+// =====================================================================
+const pageMap = {
+home: renderHome,
+generator: renderGenerator,
+editor: renderEditor,
+templates: renderTemplates,
+calendar: renderCalendar,
+library: renderLibrary,
+publishing: renderPublishing,
+scheduler: renderScheduler,
+integrations: renderIntegrations,
+diagnostics: renderDiagnostics,
+settings: renderSettings
+};
+
+function navigate(page) {
+if (!pageMap[page]) { toast('Unknown page: ' + page); return; }
+currentPage = page;
+document.querySelectorAll('#nav button').forEach(b => {
+const on = b.dataset.page === page;
+b.classList.toggle('active', on);
+b.setAttribute('aria-current', on ? 'page' : 'false');
+});
+refreshState().then(() => pageMap[page]());
+}
+
+async function runDaily(force=false, returnPage) {
+await refreshState();
+if (state.record && !force) { toast('Today\'s posters already ready'); return state.record; }
+const e = state.entry;
+const progress = document.getElementById('genProgress');
+const posters = await generatePosters(e, (n,total) => { if (progress) progress.style.width = `${n/total*100}%`; });
+const nextPublication = { WhatsApp:false, Facebook:false, Instagram:false, LinkedIn:false, Telegram:false, X:false };
+const next = {
+date: e.date,
+titleEn: e.titleEn,
+titleGu: e.titleGu,
+generatedAt: new Date().toISOString(),
+captions: buildContent(e),
+posters,
+publication: nextPublication,
+version: '5.1'
+};
+await dbPut(STORE, next);
+state.record = next;
+toast('Daily workflow completed: 6 posters stored');
+if (returnPage) currentPage = returnPage;
+await refreshState();
+if (pageMap[currentPage]) pageMap[currentPage]();
+return next;
+}
+
+function updateClock() {
+const c = document.getElementById('clock');
+if (c) c.textContent = new Intl.DateTimeFormat('en-IN', { timeZone:'Asia/Kolkata', dateStyle:'medium', timeStyle:'medium' }).format(new Date());
+const cd = document.getElementById('countdown');
+if (cd) {
+const ms = msUntil(8);
+const s = Math.floor(ms/1000);
+cd.textContent = [Math.floor(s/3600), Math.floor(s%3600/60), s%60].map(x=>String(x).padStart(2,'0')).join(':');
+}
+}
+
+// =====================================================================
+// 9. INIT
+// =====================================================================
+async function init() {
+validateCalendar(CALENDAR);
+await openDB();
+// Bind nav
+document.querySelectorAll('#nav button').forEach(b => {
+b.onclick = () => navigate(b.dataset.page);
+});
+await refreshState();
+const n = nowIST();
+if (n.getHours() >= 8 && !state.record) {
+await runDaily(false);
+} else {
+navigate('home');
+}
+startScheduler(() => runDaily(false), 8);
+setInterval(updateClock, 1000);
+updateClock();
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+init().catch(e => {
+console.error(e);
+$main.innerHTML = `<div class="card"><h2>Startup failed</h2><pre>${e.stack||e.message}</pre></div>`;
+});
+});
+
+// Expose for debugging
+window.HealthApp = { navigate, runDaily, toast, refreshState };
+</script>
+</body>
+</html>

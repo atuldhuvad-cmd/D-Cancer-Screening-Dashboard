@@ -1,4 +1,24 @@
-# React + TypeScript + Vite
+# Health Awareness Studio
+
+A simple, self-contained **single HTML file** for generating daily health-awareness
+posters (English + Gujarati) for personal use — no backend, no build step, no install.
+
+**Use it:** open [`health-awareness-studio.html`](./health-awareness-studio.html) in any
+modern browser.
+
+- Works fully offline. Posters and settings are stored on your device (IndexedDB + LocalStorage).
+- Each day it auto-picks the awareness topic and can generate 6 posters
+  (English + Gujarati × Story / Feed / Square) from one template design.
+- Sections: Home, Calendar, Poster Generator, Poster Library, Captions, Downloads,
+  Publishing Log, Analytics, Settings.
+- Download individual images or a full ZIP (with `captions.json` + `metadata.json`).
+- Set your organisation name, logo, colours and hashtags in **Settings**.
+
+Content uses only general, verified public-health advice — no invented statistics.
+
+---
+
+# React + TypeScript + Vite (existing template, unrelated)
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 

@@ -1,0 +1,1226 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Health Awareness Studio</title>
+<meta name="description" content="Automated daily health-awareness poster generation for hospitals, NGOs, public-health departments and government campaigns." />
+<style>
+/* ============================================================
+   Health Awareness Studio — self-contained, offline-capable.
+   No external frameworks. Vanilla HTML/CSS/JS + IndexedDB.
+   Theme: White / Green / Medical Blue.
+   ============================================================ */
+:root{
+  --green:#1a9f6e; --green-dark:#0f7a52; --green-soft:#e7f6ef;
+  --blue:#1668c1; --blue-soft:#e8f1fb;
+  --ink:#1f2a33; --muted:#65727d; --line:#e6ebef; --bg:#f4f7f9;
+  --card:#ffffff; --warn:#d98a1a; --danger:#d9482b; --ok:#1a9f6e;
+  --radius:16px; --shadow:0 1px 2px rgba(16,40,60,.05),0 6px 18px rgba(16,40,60,.06);
+  --font:'Segoe UI',system-ui,-apple-system,Roboto,'Noto Sans',Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:var(--font);color:var(--ink);background:var(--bg);font-size:14.5px;line-height:1.5}
+a{color:var(--blue);text-decoration:none}
+button{font-family:inherit}
+.app{display:grid;grid-template-columns:248px 1fr;min-height:100vh}
+/* Sidebar */
+.side{background:linear-gradient(180deg,#0f7a52,#0c6647);color:#eafaf3;padding:18px 14px;position:sticky;top:0;height:100vh;overflow:auto}
+.brand{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.brand .logo{width:38px;height:38px;border-radius:10px;background:#fff;display:grid;place-items:center;color:var(--green-dark);font-weight:800;font-size:20px}
+.brand h1{font-size:15px;margin:0;line-height:1.15;font-weight:700}
+.brand small{color:#bfe6d6;font-size:11px;font-weight:500}
+.nav{margin-top:16px;display:flex;flex-direction:column;gap:2px}
+.nav button{display:flex;align-items:center;gap:11px;width:100%;text-align:left;background:transparent;border:0;color:#dff5ea;padding:10px 12px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:500}
+.nav button .ic{width:20px;text-align:center}
+.nav button:hover{background:rgba(255,255,255,.09)}
+.nav button.active{background:#fff;color:var(--green-dark);font-weight:700}
+.side .foot{margin-top:18px;font-size:11px;color:#bfe6d6;border-top:1px solid rgba(255,255,255,.15);padding-top:12px}
+/* Main */
+.main{padding:22px 26px 60px;overflow:auto}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px;flex-wrap:wrap}
+.topbar h2{margin:0;font-size:20px}
+.topbar .sub{color:var(--muted);font-size:13px}
+.searchbox{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px 12px;min-width:240px}
+.searchbox input{border:0;outline:0;flex:1;font-size:14px;background:transparent}
+/* cards */
+.grid{display:grid;gap:16px}
+.cards{grid-template-columns:repeat(4,1fr)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px}
+.stat{display:flex;flex-direction:column;gap:6px}
+.stat .lbl{color:var(--muted);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+.stat .val{font-size:26px;font-weight:800;line-height:1}
+.stat .hint{font-size:12px;color:var(--muted)}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--green-soft);color:var(--green-dark)}
+.pill.blue{background:var(--blue-soft);color:var(--blue)}
+.pill.warn{background:#fdf1e0;color:var(--warn)}
+.pill.gray{background:#eef2f5;color:var(--muted)}
+.pill.danger{background:#fbe9e5;color:var(--danger)}
+.row{display:flex;gap:16px;flex-wrap:wrap}
+.col{flex:1;min-width:280px}
+h3.sec{font-size:15px;margin:0 0 12px}
+.btn{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:#fff;color:var(--ink);padding:9px 14px;border-radius:10px;font-size:13.5px;font-weight:600;cursor:pointer;transition:.12s}
+.btn:hover{border-color:#cdd6dd;background:#fbfdfe}
+.btn.primary{background:var(--green);border-color:var(--green);color:#fff}
+.btn.primary:hover{background:var(--green-dark);border-color:var(--green-dark)}
+.btn.blue{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn.blue:hover{background:#12569f}
+.btn.ghost{background:transparent}
+.btn.sm{padding:6px 10px;font-size:12.5px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap}
+label.fld{display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin:0 0 5px}
+input.inp,select.inp,textarea.inp{width:100%;border:1px solid var(--line);border-radius:10px;padding:9px 11px;font-size:14px;font-family:inherit;outline:0;background:#fff}
+input.inp:focus,select.inp:focus,textarea.inp:focus{border-color:var(--green)}
+.field{margin-bottom:14px}
+.muted{color:var(--muted)}
+.kv{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px dashed var(--line);font-size:13.5px}
+.kv:last-child{border-bottom:0}
+.kv b{font-weight:700}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.tabs button{border:1px solid var(--line);background:#fff;padding:7px 13px;border-radius:999px;font-size:12.5px;font-weight:600;cursor:pointer;color:var(--muted)}
+.tabs button.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+.posterwrap{background:#f0f4f6;border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;align-items:center;gap:10px}
+.posterwrap canvas,.posterwrap img{max-width:100%;height:auto;border-radius:8px;box-shadow:var(--shadow);background:#fff}
+.thumbgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
+.thumb{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:var(--shadow)}
+.thumb .imgbox{background:#eef3f5;display:grid;place-items:center;aspect-ratio:1/1;overflow:hidden}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb .meta{padding:9px 10px;font-size:11.5px}
+.thumb .meta b{display:block;font-size:12px;margin-bottom:3px}
+.thumb .actions{display:flex;gap:6px;padding:0 10px 10px}
+.thumb .actions .btn{padding:5px 8px;font-size:11px;flex:1;justify-content:center}
+table.tbl{width:100%;border-collapse:collapse;font-size:13px}
+table.tbl th,table.tbl td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line)}
+table.tbl th{color:var(--muted);font-size:11.5px;text-transform:uppercase;letter-spacing:.03em;font-weight:700}
+.calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.calcell{background:#fff;border:1px solid var(--line);border-radius:9px;min-height:78px;padding:7px;font-size:11.5px;cursor:pointer;position:relative}
+.calcell:hover{border-color:var(--green)}
+.calcell.empty{background:transparent;border:0;cursor:default}
+.calcell .d{font-weight:700;color:var(--muted)}
+.calcell.today{outline:2px solid var(--green)}
+.calcell .ev{margin-top:4px;font-weight:600;line-height:1.25;color:var(--ink);font-size:10.5px}
+.calcell .cat{position:absolute;bottom:6px;left:7px;width:8px;height:8px;border-radius:50%}
+.dow{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px}
+.dow div{text-align:center;font-size:11px;font-weight:700;color:var(--muted)}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin-top:10px}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i{width:9px;height:9px;border-radius:50%;display:inline-block}
+.captionbox{border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff;margin-bottom:12px}
+.captionbox .hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.captionbox pre{white-space:pre-wrap;font-family:inherit;font-size:13px;margin:0;color:#2b3843}
+.bar{height:8px;background:#eef2f5;border-radius:999px;overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--green);border-radius:999px}
+.chart-legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:8px;font-size:12px}
+.chart-legend span{display:inline-flex;align-items:center;gap:6px}
+.chart-legend i{width:10px;height:10px;border-radius:3px}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:11px 18px;border-radius:10px;font-size:13.5px;box-shadow:0 8px 24px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:.25s;z-index:9999}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(-4px)}
+.empty-state{text-align:center;padding:40px 20px;color:var(--muted)}
+.empty-state .big{font-size:40px;margin-bottom:8px}
+.hide{display:none!important}
+.countdown{font-variant-numeric:tabular-nums;font-weight:800;font-size:22px;color:var(--blue)}
+.badge-lang{font-size:10.5px;font-weight:800;padding:2px 6px;border-radius:5px}
+.badge-lang.en{background:var(--blue-soft);color:var(--blue)}
+.badge-lang.gu{background:var(--green-soft);color:var(--green-dark)}
+@media (max-width:1080px){.cards{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:860px){.app{grid-template-columns:1fr}.side{position:static;height:auto}.nav{flex-direction:row;flex-wrap:wrap}}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- ===================== SIDEBAR ===================== -->
+  <aside class="side">
+    <div class="brand">
+      <div class="logo">✚</div>
+      <div>
+        <h1>Health Awareness<br/>Studio</h1>
+        <small>Daily poster automation</small>
+      </div>
+    </div>
+    <nav class="nav" id="nav">
+      <button data-page="home" class="active"><span class="ic">🏠</span> Home</button>
+      <button data-page="calendar"><span class="ic">🗓️</span> Calendar</button>
+      <button data-page="generator"><span class="ic">🎨</span> Poster Generator</button>
+      <button data-page="library"><span class="ic">🖼️</span> Poster Library</button>
+      <button data-page="captions"><span class="ic">💬</span> Captions</button>
+      <button data-page="downloads"><span class="ic">⬇️</span> Downloads</button>
+      <button data-page="publishing"><span class="ic">📣</span> Publishing Log</button>
+      <button data-page="analytics"><span class="ic">📊</span> Analytics</button>
+      <button data-page="settings"><span class="ic">⚙️</span> Settings</button>
+    </nav>
+    <div class="foot">
+      <div id="schedStatus">Scheduler: 08:00 IST</div>
+      <div style="margin-top:6px">Offline-capable • v1.0</div>
+    </div>
+  </aside>
+
+  <!-- ===================== MAIN ===================== -->
+  <main class="main" id="main"></main>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* =====================================================================
+   1. AWARENESS CALENDAR (curated, honest, verified public-health topics)
+      Content rules: no invented statistics, no fake WHO/ministry data,
+      simple English + Gujarati, general verified advice only.
+   ===================================================================== */
+const CATEGORIES = {
+  Health:{color:'#1a9f6e'}, National:{color:'#c0392b'}, Environment:{color:'#2e8b57'},
+  Education:{color:'#8e44ad'}, Women:{color:'#d6336c'}, Children:{color:'#e67e22'},
+  International:{color:'#1668c1'}, Nutrition:{color:'#e1a300'}, Yoga:{color:'#16a085'}
+};
+
+// helper to build a topic entry compactly
+function T(m,d,cat,en,gu,imp_en,imp_gu,kp_en,kp_gu,cta_en,cta_gu,tags,icon){
+  return {month:m,day:d,category:cat,title_en:en,title_gu:gu,importance_en:imp_en,
+    importance_gu:imp_gu,keyPoints_en:kp_en,keyPoints_gu:kp_gu,cta_en:cta_en,cta_gu:cta_gu,
+    hashtags:tags,icon:icon};
+}
+const AWARENESS = [
+  T(1,30,'Health','World Leprosy Day','વિશ્વ રક્તપિત્ત દિવસ',
+    'Leprosy is curable. Early detection and full treatment prevent disability.',
+    'રક્તપિત્ત મટાડી શકાય છે. વહેલી તપાસ અને પૂરી સારવારથી અપંગતા અટકે છે.',
+    ['Watch for pale or reddish skin patches','Free treatment (MDT) is available at health centres','Leprosy does not spread by touch','No stigma — patients live normal lives'],
+    ['ત્વચા પર ફિક્કા કે લાલ ધબ્બા પર ધ્યાન આપો','આરોગ્ય કેન્દ્ર પર મફત સારવાર (MDT) ઉપલબ્ધ છે','સ્પર્શથી રક્તપિત્ત ફેલાતું નથી','ભેદભાવ નહીં — દર્દી સામાન્ય જીવન જીવે છે'],
+    'Notice a skin patch? Visit your nearest health centre today.',
+    'ત્વચા પર ધબ્બો દેખાય? આજે નજીકના આરોગ્ય કેન્દ્રે જાઓ.',
+    ['LeprosyFree','EarlyDetection','HealthForAll'],'ribbon'),
+  T(2,4,'Health','World Cancer Day','વિશ્વ કેન્સર દિવસ',
+    'Many cancers can be prevented or treated when found early.',
+    'ઘણા કેન્સર વહેલા ઓળખાય તો અટકાવી કે મટાડી શકાય છે.',
+    ['Avoid tobacco and limit alcohol','Eat more fruits and vegetables','Get recommended screenings on time','Know the warning signs of your body'],
+    ['તમાકુ ટાળો અને દારૂ મર્યાદિત કરો','વધુ ફળ અને શાકભાજી ખાઓ','સમયસર ભલામણ કરેલ તપાસ કરાવો','શરીરના ચેતવણી સંકેતો જાણો'],
+    'Early detection saves lives. Talk to your doctor about screening.',
+    'વહેલી તપાસ જીવન બચાવે છે. તપાસ માટે ડોક્ટરને મળો.',
+    ['WorldCancerDay','CloseTheCareGap','BeatCancer'],'ribbon'),
+  T(2,11,'Women','International Day of Women & Girls in Science','વિજ્ઞાનમાં મહિલા દિવસ',
+    'Encouraging girls in science builds a healthier, stronger society.',
+    'વિજ્ઞાનમાં દીકરીઓને પ્રોત્સાહન સ્વસ્થ, મજબૂત સમાજ બનાવે છે.',
+    ['Support girls to study science','Celebrate women scientists','Provide equal learning opportunities','Mentorship opens doors'],
+    ['દીકરીઓને વિજ્ઞાન ભણવા સાથ આપો','મહિલા વૈજ્ઞાનિકોને બિરદાવો','સમાન શિક્ષણ તક આપો','માર્ગદર્શન દ્વાર ખોલે છે'],
+    'Encourage a girl in your family to explore science.',
+    'તમારા પરિવારની દીકરીને વિજ્ઞાન તરફ પ્રોત્સાહિત કરો.',
+    ['WomenInScience','GirlsInSTEM'],'flask'),
+  T(3,8,'Women','International Women’s Day','આંતરરાષ્ટ્રીય મહિલા દિવસ',
+    'Women’s health and equality strengthen every family and community.',
+    'મહિલા આરોગ્ય અને સમાનતા દરેક પરિવાર અને સમાજને મજબૂત કરે છે.',
+    ['Regular health check-ups matter','Nutrition and rest are essential','Speak up against discrimination','Education empowers women'],
+    ['નિયમિત આરોગ્ય તપાસ જરૂરી છે','પોષણ અને આરામ આવશ્યક છે','ભેદભાવ સામે અવાજ ઉઠાવો','શિક્ષણ મહિલાને સશક્ત કરે છે'],
+    'Support the women around you — health, respect, opportunity.',
+    'આસપાસની મહિલાઓને સાથ આપો — આરોગ્ય, સન્માન, તક.',
+    ['IWD','WomensHealth','EqualityForAll'],'venus'),
+  T(3,24,'Health','World TB Day','વિશ્વ ક્ષય રોગ દિવસ',
+    'TB is preventable and curable with complete, on-time treatment.',
+    'ટીબી અટકાવી અને પૂરી, સમયસર સારવારથી મટાડી શકાય છે.',
+    ['Cough over 2 weeks? Get tested','TB diagnosis and treatment are free','Complete the full course of medicine','Cover your mouth while coughing'],
+    ['2 અઠવાડિયાથી ખાંસી? તપાસ કરાવો','ટીબીની તપાસ અને સારવાર મફત છે','દવાનો પૂરો કોર્સ કરો','ખાંસતી વખતે મોઢું ઢાંકો'],
+    'End TB together. Get tested at your nearest health centre.',
+    'સાથે મળી ટીબી હટાવીએ. નજીકના કેન્દ્રે તપાસ કરાવો.',
+    ['EndTB','TBHaregaDeshJeetega','WorldTBDay'],'lungs'),
+  T(4,7,'Health','World Health Day','વિશ્વ આરોગ્ય દિવસ',
+    'Good health for all begins with small daily habits.',
+    'બધા માટે સારું આરોગ્ય નાની રોજિંદી આદતોથી શરૂ થાય છે.',
+    ['Eat balanced, home-cooked meals','Stay active for 30 minutes daily','Drink safe water, wash hands','Sleep well and manage stress'],
+    ['સંતુલિત, ઘરનું ભોજન લો','રોજ 30 મિનિટ સક્રિય રહો','સ્વચ્છ પાણી પીઓ, હાથ ધોવો','સારી ઊંઘ લો, તણાવ ઓછો કરો'],
+    'Choose one healthy habit to start today.',
+    'આજથી એક સ્વસ્થ આદત શરૂ કરો.',
+    ['WorldHealthDay','HealthForAll'],'heart'),
+  T(4,25,'Health','World Malaria Day','વિશ્વ મેલેરિયા દિવસ',
+    'Malaria spreads through mosquito bites — and it is preventable.',
+    'મેલેરિયા મચ્છર કરડવાથી ફેલાય છે — અને અટકાવી શકાય છે.',
+    ['Sleep under a mosquito net','Remove stagnant water around home','Use repellents in the evening','Fever with chills? Get a blood test'],
+    ['મચ્છરદાની હેઠળ સૂઓ','ઘરની આસપાસ ભરાયેલું પાણી દૂર કરો','સાંજે મચ્છર ભગાડનાર વાપરો','ટાઢ સાથે તાવ? લોહીની તપાસ કરાવો'],
+    'Stop mosquito breeding — check your home this week.',
+    'મચ્છર ઉત્પત્તિ અટકાવો — આ અઠવાડિયે ઘર તપાસો.',
+    ['WorldMalariaDay','ZeroMalaria'],'mosquito'),
+  T(5,8,'Health','World Thalassaemia Day','વિશ્વ થેલેસેમિયા દિવસ',
+    'A simple blood test before marriage can prevent thalassaemia in children.',
+    'લગ્ન પહેલાં સાદી લોહીની તપાસ બાળકોમાં થેલેસેમિયા અટકાવી શકે છે.',
+    ['Get screened before marriage','Carrier testing is quick and safe','Regular transfusions help patients','Voluntary blood donation saves them'],
+    ['લગ્ન પહેલાં તપાસ કરાવો','કેરિયર તપાસ ઝડપી અને સલામત છે','નિયમિત રક્તદાન દર્દીને મદદ કરે છે','સ્વૈચ્છિક રક્તદાન તેમને બચાવે છે'],
+    'Know your status — get a thalassaemia screening test.',
+    'તમારી સ્થિતિ જાણો — થેલેસેમિયા તપાસ કરાવો.',
+    ['Thalassaemia','GetTested','DonateBlood'],'blood'),
+  T(5,31,'Health','World No Tobacco Day','વિશ્વ તમાકુ નિષેધ દિવસ',
+    'Quitting tobacco lowers your risk of cancer, heart and lung disease.',
+    'તમાકુ છોડવાથી કેન્સર, હૃદય અને ફેફસાના રોગનું જોખમ ઘટે છે.',
+    ['Every day without tobacco helps','Ask for help to quit — it works','Protect your family from smoke','Chewing tobacco harms too'],
+    ['તમાકુ વગરનો દરેક દિવસ મદદ કરે છે','છોડવા મદદ માંગો — તે કામ કરે છે','પરિવારને ધુમાડાથી બચાવો','ખાવાની તમાકુ પણ નુકસાનકારક'],
+    'Take the first step — quit tobacco today.',
+    'પહેલું પગલું ભરો — આજે તમાકુ છોડો.',
+    ['NoTobaccoDay','QuitTobacco','SayNoToTobacco'],'nosmoke'),
+  T(6,5,'Environment','World Environment Day','વિશ્વ પર્યાવરણ દિવસ',
+    'A clean environment is the foundation of good health.',
+    'સ્વચ્છ પર્યાવરણ સારા આરોગ્યનો પાયો છે.',
+    ['Plant and care for a tree','Reduce single-use plastic','Save water and electricity','Keep your surroundings clean'],
+    ['વૃક્ષ વાવો અને સંભાળો','એક વખત વપરાતું પ્લાસ્ટિક ઘટાડો','પાણી અને વીજળી બચાવો','આસપાસ સ્વચ્છ રાખો'],
+    'Plant one tree today for a healthier tomorrow.',
+    'સ્વસ્થ આવતીકાલ માટે આજે એક વૃક્ષ વાવો.',
+    ['WorldEnvironmentDay','BeatPlasticPollution'],'leaf'),
+  T(6,14,'Health','World Blood Donor Day','વિશ્વ રક્તદાતા દિવસ',
+    'One blood donation can save up to three lives.',
+    'એક વખતનું રક્તદાન ત્રણ જીવન સુધી બચાવી શકે છે.',
+    ['Healthy adults can donate safely','Donate every 3 months','It takes only a few minutes','Your blood may save a stranger'],
+    ['સ્વસ્થ પુખ્ત વ્યક્તિ સલામતીથી દાન કરી શકે','દર 3 મહિને દાન કરો','માત્ર થોડી મિનિટ લાગે છે','તમારું લોહી કોઈને બચાવી શકે'],
+    'Be a hero — donate blood at your nearest blood bank.',
+    'હીરો બનો — નજીકની બ્લડ બેંકે રક્તદાન કરો.',
+    ['BloodDonorDay','DonateBlood','GiveBlood'],'blood'),
+  T(6,21,'Yoga','International Day of Yoga','આંતરરાષ્ટ્રીય યોગ દિવસ',
+    'Daily yoga improves flexibility, calm and overall wellbeing.',
+    'રોજ યોગ કરવાથી લચક, શાંતિ અને સંપૂર્ણ સ્વાસ્થ્ય સુધરે છે.',
+    ['Start with 15 minutes a day','Breathe deeply and slowly','Practise regularly, not perfectly','Yoga suits all ages'],
+    ['રોજ 15 મિનિટથી શરૂ કરો','ઊંડા અને ધીમા શ્વાસ લો','નિયમિત અભ્યાસ કરો','યોગ દરેક ઉંમર માટે યોગ્ય'],
+    'Roll out your mat — begin your yoga journey today.',
+    'સાદડી પાથરો — આજથી યોગ યાત્રા શરૂ કરો.',
+    ['YogaDay','InternationalYogaDay','YogaForHealth'],'yoga'),
+  T(7,28,'Health','World Hepatitis Day','વિશ્વ હિપેટાઇટિસ દિવસ',
+    'Hepatitis B and C can be prevented and managed — get tested.',
+    'હિપેટાઇટિસ B અને C અટકાવી અને સંભાળી શકાય — તપાસ કરાવો.',
+    ['Vaccination protects against Hepatitis B','Use only sterile needles','Get tested if at risk','Avoid sharing razors or blades'],
+    ['રસી હિપેટાઇટિસ Bથી બચાવે છે','માત્ર જંતુમુક્ત સોય વાપરો','જોખમ હોય તો તપાસ કરાવો','રેઝર કે બ્લેડ શેર ન કરો'],
+    'Know your status — ask about hepatitis testing.',
+    'તમારી સ્થિતિ જાણો — હિપેટાઇટિસ તપાસ વિશે પૂછો.',
+    ['WorldHepatitisDay','HepCantWait'],'lungs'),
+  T(8,1,'Children','World Breastfeeding Week','વિશ્વ સ્તનપાન સપ્તાહ',
+    'Breast milk is the best first food for a baby’s health.',
+    'માતાનું દૂધ બાળકના આરોગ્ય માટે શ્રેષ્ઠ પ્રથમ આહાર છે.',
+    ['Breastfeed within the first hour','Only breast milk for 6 months','It protects baby from infections','Support mothers to breastfeed'],
+    ['જન્મના પ્રથમ કલાકમાં સ્તનપાન કરાવો','6 મહિના સુધી માત્ર માતાનું દૂધ','તે બાળકને ચેપથી બચાવે છે','માતાઓને સ્તનપાનમાં સાથ આપો'],
+    'Support every mother to breastfeed her baby.',
+    'દરેક માતાને સ્તનપાનમાં સાથ આપો.',
+    ['BreastfeedingWeek','BreastfeedingSupport'],'baby'),
+  T(9,29,'Health','World Heart Day','વિશ્વ હૃદય દિવસ',
+    'Simple lifestyle choices keep your heart strong.',
+    'સાદી જીવનશૈલી પસંદગી તમારા હૃદયને મજબૂત રાખે છે.',
+    ['Eat less salt, oil and sugar','Walk or exercise daily','Avoid tobacco completely','Check blood pressure regularly'],
+    ['મીઠું, તેલ અને ખાંડ ઓછું લો','રોજ ચાલો કે કસરત કરો','તમાકુ સંપૂર્ણ ટાળો','બ્લડ પ્રેશર નિયમિત તપાસો'],
+    'Love your heart — move more, eat wise today.',
+    'હૃદયને ચાહો — વધુ ચાલો, સમજદારીથી ખાઓ.',
+    ['WorldHeartDay','UseHeart','HeartHealth'],'heart'),
+  T(10,1,'Health','International Day of Older Persons','આંતરરાષ્ટ્રીય વૃદ્ધ દિવસ',
+    'Caring for our elders keeps them healthy and happy.',
+    'આપણા વડીલોની સંભાળ તેમને સ્વસ્થ અને ખુશ રાખે છે.',
+    ['Regular check-ups for elders','Ensure they take medicines on time','Encourage light daily activity','Spend time and listen to them'],
+    ['વડીલોની નિયમિત તપાસ','સમયસર દવા લે તે જુઓ','હળવી દૈનિક પ્રવૃત્તિ કરાવો','સમય આપો અને સાંભળો'],
+    'Call or visit an elder today — care matters.',
+    'આજે વડીલને મળો કે ફોન કરો — સંભાળ મહત્વની છે.',
+    ['OlderPersonsDay','ElderCare'],'elder'),
+  T(10,10,'Health','World Mental Health Day','વિશ્વ માનસિક આરોગ્ય દિવસ',
+    'Mental health is health. It is okay to ask for help.',
+    'માનસિક આરોગ્ય પણ આરોગ્ય છે. મદદ માંગવી યોગ્ય છે.',
+    ['Talk to someone you trust','Sleep, exercise and routine help','Take breaks from screens','Seek help early, without shame'],
+    ['વિશ્વાસુ વ્યક્તિ સાથે વાત કરો','ઊંઘ, કસરત અને દિનચર્યા મદદ કરે','સ્ક્રીનથી વિરામ લો','શરમ વગર વહેલી મદદ લો'],
+    'Reach out — a conversation can change a life.',
+    'વાત કરો — એક સંવાદ જીવન બદલી શકે.',
+    ['MentalHealthDay','ItsOkayToNotBeOkay'],'brain'),
+  T(10,15,'Health','Global Handwashing Day','વૈશ્વિક હાથ ધોવા દિવસ',
+    'Clean hands are one of the easiest ways to stop disease.',
+    'સ્વચ્છ હાથ રોગ અટકાવવાનો સૌથી સરળ ઉપાય છે.',
+    ['Wash with soap for 20 seconds','Wash before eating and cooking','Wash after using the toilet','Teach children to wash hands'],
+    ['સાબુથી 20 સેકન્ડ ધોવો','ખાવા અને રાંધતા પહેલા ધોવો','શૌચાલય પછી ધોવો','બાળકોને હાથ ધોવાનું શીખવો'],
+    'Wash your hands the right way — every time.',
+    'દર વખતે યોગ્ય રીતે હાથ ધોવો.',
+    ['HandwashingDay','CleanHands'],'hands'),
+  T(11,14,'Health','World Diabetes Day','વિશ્વ ડાયાબિટીસ દિવસ',
+    'Diabetes can be managed well with healthy habits and check-ups.',
+    'સ્વસ્થ આદતો અને તપાસથી ડાયાબિટીસ સારી રીતે સંભાળી શકાય.',
+    ['Reduce sugar and refined foods','Stay active every day','Check blood sugar regularly','Take medicines as advised'],
+    ['ખાંડ અને રિફાઇન્ડ ખોરાક ઓછું કરો','રોજ સક્રિય રહો','બ્લડ સુગર નિયમિત તપાસો','સલાહ મુજબ દવા લો'],
+    'Know your numbers — get a blood sugar check.',
+    'તમારા આંકડા જાણો — બ્લડ સુગર તપાસ કરાવો.',
+    ['WorldDiabetesDay','BeatDiabetes'],'drop'),
+  T(11,14,'Children','Children’s Day','બાળ દિવસ',
+    'Healthy, happy children build a stronger nation.',
+    'સ્વસ્થ, ખુશ બાળકો મજબૂત રાષ્ટ્ર બનાવે છે.',
+    ['Complete all childhood vaccines','Give balanced, nutritious food','Encourage play and study','Protect children from harm'],
+    ['બાળપણની બધી રસી પૂરી કરાવો','સંતુલિત, પોષક ખોરાક આપો','રમત અને અભ્યાસને પ્રોત્સાહન','બાળકોને નુકસાનથી બચાવો'],
+    'Give every child health, care and a bright future.',
+    'દરેક બાળકને આરોગ્ય, સંભાળ અને ઉજ્જવળ ભવિષ્ય આપો.',
+    ['ChildrensDay','BalDiwas'],'baby'),
+  T(12,1,'Health','World AIDS Day','વિશ્વ એઇડ્સ દિવસ',
+    'Knowledge, testing and treatment help us end HIV/AIDS.',
+    'જ્ઞાન, તપાસ અને સારવાર HIV/AIDS હટાવવામાં મદદ કરે છે.',
+    ['HIV testing is free and confidential','Treatment lets people live long lives','No discrimination against patients','Prevention protects everyone'],
+    ['HIV તપાસ મફત અને ગુપ્ત છે','સારવારથી લોકો લાંબુ જીવે છે','દર્દી સાથે ભેદભાવ નહીં','બચાવ દરેકને રક્ષણ આપે છે'],
+    'Get informed, get tested, end the stigma.',
+    'જાણો, તપાસ કરાવો, ભેદભાવ દૂર કરો.',
+    ['WorldAIDSDay','EndAIDS','KnowYourStatus'],'ribbon'),
+  T(6,8,'Health','World Brain Tumour Day','વિશ્વ મગજ ગાંઠ દિવસ',
+    'Persistent headaches and warning signs should never be ignored.',
+    'સતત માથાનો દુખાવો અને ચેતવણી સંકેતોને અવગણશો નહીં.',
+    ['Note frequent, worsening headaches','Report vision or balance changes','Early diagnosis improves outcomes','Follow up with a doctor'],
+    ['વારંવાર, વધતો માથાનો દુખાવો નોંધો','દ્રષ્ટિ કે સંતુલન બદલાવ જણાવો','વહેલી તપાસ પરિણામ સુધારે','ડોક્ટર સાથે ફોલોઅપ કરો'],
+    'Listen to your body — see a doctor for lasting symptoms.',
+    'શરીરને સાંભળો — સતત લક્ષણો માટે ડોક્ટરને મળો.',
+    ['BrainTumourDay','EarlyDetection'],'brain'),
+  T(3,21,'Health','World Down Syndrome Day','વિશ્વ ડાઉન સિન્ડ્રોમ દિવસ',
+    'Inclusion and support help every child reach their potential.',
+    'સમાવેશ અને સાથ દરેક બાળકને તેની ક્ષમતા સુધી પહોંચાડે.',
+    ['Every child deserves respect','Early support helps development','Include, don’t exclude','Celebrate different abilities'],
+    ['દરેક બાળક સન્માનને પાત્ર છે','વહેલો સાથ વિકાસમાં મદદ કરે','સમાવો, દૂર ન કરો','અલગ ક્ષમતાઓને બિરદાવો'],
+    'Choose inclusion — support every ability.',
+    'સમાવેશ પસંદ કરો — દરેક ક્ષમતાને સાથ આપો.',
+    ['DownSyndromeDay','Inclusion'],'heart'),
+  T(4,11,'Women','National Safe Motherhood Day','રાષ્ટ્રીય સુરક્ષિત માતૃત્વ દિવસ',
+    'Safe pregnancy care protects both mother and baby.',
+    'સુરક્ષિત ગર્ભાવસ્થા સંભાળ માતા અને બાળક બંનેને બચાવે.',
+    ['Attend all antenatal check-ups','Take iron and folic acid','Plan a safe institutional delivery','Watch for danger signs'],
+    ['બધી પ્રસૂતિપૂર્વ તપાસ કરાવો','આયર્ન અને ફોલિક એસિડ લો','સુરક્ષિત સંસ્થાકીય પ્રસૂતિ યોજો','જોખમ સંકેતો પર ધ્યાન આપો'],
+    'Every mother deserves safe, respectful care.',
+    'દરેક માતા સુરક્ષિત, સન્માનજનક સંભાળને પાત્ર છે.',
+    ['SafeMotherhood','MaternalHealth'],'venus'),
+  T(6,26,'Health','Anti-Drug Abuse Day','નશા વિરોધી દિવસ',
+    'Say no to drugs — choose a healthy, free life.',
+    'નશાને ના કહો — સ્વસ્થ, મુક્ત જીવન પસંદ કરો.',
+    ['Drugs harm brain and body','Support, don’t judge, those affected','Help is available to recover','Guide youth to healthy choices'],
+    ['નશો મગજ અને શરીરને નુકસાન કરે','પીડિતોને સાથ આપો, ન્યાય ન કરો','સ્વસ્થ થવા મદદ ઉપલબ્ધ છે','યુવાનોને સ્વસ્થ પસંદગી તરફ દોરો'],
+    'Choose life — stay free from drugs.',
+    'જીવન પસંદ કરો — નશાથી મુક્ત રહો.',
+    ['SayNoToDrugs','DrugFree'],'brain'),
+  T(9,28,'Health','World Rabies Day','વિશ્વ હડકવા દિવસ',
+    'Rabies is deadly but 100% preventable with timely care.',
+    'હડકવા ઘાતક છે પણ સમયસર સંભાળથી 100% અટકાવી શકાય.',
+    ['Wash any animal bite with soap','Get anti-rabies vaccine promptly','Vaccinate pet dogs yearly','Never ignore a stray bite'],
+    ['કોઈપણ પ્રાણી કરડે તો સાબુથી ધોવો','તરત હડકવા વિરોધી રસી લો','પાળેલા કૂતરાને દર વર્ષે રસી આપો','રખડતા કરડવાને અવગણશો નહીં'],
+    'Bitten by an animal? Wash and get vaccinated now.',
+    'પ્રાણી કરડ્યું? ધોવો અને તરત રસી લો.',
+    ['WorldRabiesDay','VaccinateToEliminate'],'drop'),
+  T(10,29,'Health','World Stroke Day','વિશ્વ સ્ટ્રોક દિવસ',
+    'Recognising stroke fast can save a life and prevent disability.',
+    'સ્ટ્રોકને ઝડપથી ઓળખવાથી જીવન બચે અને અપંગતા અટકે.',
+    ['Face drooping — act fast','Arm weakness on one side','Slurred or difficult speech','Rush to hospital immediately'],
+    ['ચહેરો લબડે — ઝડપથી કાર્ય કરો','એક બાજુ હાથમાં નબળાઈ','અસ્પષ્ટ કે મુશ્કેલ બોલી','તરત હોસ્પિટલ પહોંચો'],
+    'Remember F.A.S.T. — every minute matters in a stroke.',
+    'F.A.S.T. યાદ રાખો — સ્ટ્રોકમાં દરેક મિનિટ મહત્વની.',
+    ['WorldStrokeDay','ActFAST'],'brain'),
+  T(11,17,'Women','World Prematurity Day','વિશ્વ અકાળ પ્રસૂતિ દિવસ',
+    'Small and early babies need extra warmth, care and feeding.',
+    'નાના અને અકાળ બાળકોને વધારાની ઉષ્મા, સંભાળ અને દૂધ જોઈએ.',
+    ['Kangaroo care keeps babies warm','Breast milk is vital for them','Attend all follow-up visits','Keep them safe from infection'],
+    ['કાંગારૂ કેર બાળકને ગરમ રાખે','માતાનું દૂધ તેમના માટે અતિ જરૂરી','બધી ફોલોઅપ મુલાકાત કરો','ચેપથી સુરક્ષિત રાખો'],
+    'Give preterm babies the warmth and care they need.',
+    'અકાળ બાળકોને જરૂરી ઉષ્મા અને સંભાળ આપો.',
+    ['WorldPrematurityDay','EveryBabyCounts'],'baby'),
+  T(2,15,'Children','International Childhood Cancer Day','બાળ કેન્સર દિવસ',
+    'Childhood cancer is often treatable when detected early.',
+    'બાળ કેન્સર વહેલું ઓળખાય તો ઘણીવાર મટાડી શકાય.',
+    ['Notice unexplained lumps or fever','Persistent tiredness needs a check','Early care improves recovery','Support families through treatment'],
+    ['કારણ વગરની ગાંઠ કે તાવ ધ્યાનમાં લો','સતત થાક તપાસ માંગે','વહેલી સંભાળ સ્વસ્થતા સુધારે','સારવારમાં પરિવારને સાથ આપો'],
+    'Early signs matter — consult a doctor without delay.',
+    'વહેલા સંકેત મહત્વના — વિલંબ વગર ડોક્ટરને મળો.',
+    ['ChildhoodCancer','GoGold'],'ribbon'),
+  T(3,20,'Health','World Oral Health Day','વિશ્વ મૌખિક આરોગ્ય દિવસ',
+    'A healthy mouth supports a healthy body.',
+    'સ્વસ્થ મોઢું સ્વસ્થ શરીરને સાથ આપે છે.',
+    ['Brush twice a day','Limit sugary snacks and drinks','Avoid tobacco and paan','Visit a dentist regularly'],
+    ['દિવસમાં બે વાર બ્રશ કરો','ખાંડવાળા નાસ્તા-પીણાં ઓછાં કરો','તમાકુ અને પાન ટાળો','દાંતના ડોક્ટરને નિયમિત મળો'],
+    'Smile healthy — brush twice, snack less.',
+    'સ્વસ્થ સ્મિત — બે વાર બ્રશ કરો, ઓછું ખાઓ.',
+    ['WorldOralHealthDay','HealthySmile'],'hands'),
+  T(12,3,'Health','International Day of Persons with Disabilities','દિવ્યાંગ જન દિવસ',
+    'An inclusive society gives everyone equal opportunity.',
+    'સમાવેશી સમાજ દરેકને સમાન તક આપે છે.',
+    ['Build accessible spaces','Include, respect and support','Focus on ability, not disability','Provide equal opportunities'],
+    ['સુલભ જગ્યાઓ બનાવો','સમાવો, સન્માન અને સાથ આપો','અક્ષમતા નહીં, ક્ષમતા પર ધ્યાન','સમાન તક આપો'],
+    'Build a world that includes everyone.',
+    'એવી દુનિયા બનાવો જે દરેકને સમાવે.',
+    ['IDPD','Inclusion','DisabilityAwareness'],'heart')
+];
+
+/* Fallback general health tips when a date has no listed awareness day */
+const FALLBACKS = [
+  T(0,0,'Health','Daily Health Tip','દૈનિક આરોગ્ય સૂચન',
+    'Small daily habits add up to lifelong good health.',
+    'નાની રોજિંદી આદતો જીવનભરના સારા આરોગ્યમાં પરિણમે છે.',
+    ['Drink enough safe water','Eat fruits and vegetables','Stay active every day','Sleep 7–8 hours'],
+    ['પૂરતું સ્વચ્છ પાણી પીઓ','ફળ અને શાકભાજી ખાઓ','રોજ સક્રિય રહો','7–8 કલાક ઊંઘો'],
+    'Pick one healthy habit and start today.',
+    'એક સ્વસ્થ આદત પસંદ કરો અને આજથી શરૂ કરો.',
+    ['HealthTip','StayHealthy','WellnessDaily'],'heart')
+];
+
+const SIZES = [
+  {key:'Story', w:1080, h:1920, label:'Story 9:16 (WhatsApp/IG)'},
+  {key:'Feed',  w:1080, h:1350, label:'Feed 4:5 (LinkedIn/IG)'},
+  {key:'Square',w:1200, h:1200, label:'Square 1:1 (Facebook/X)'}
+];
+const LANGS=[{key:'English',code:'en'},{key:'Gujarati',code:'gu'}];
+
+/* =====================================================================
+   2. STORAGE — IndexedDB for posters, localStorage for settings/logs
+   ===================================================================== */
+const DB_NAME='has_db', STORE='posters';
+let _db=null;
+function openDB(){
+  return new Promise((res,rej)=>{
+    if(_db) return res(_db);
+    const rq=indexedDB.open(DB_NAME,1);
+    rq.onupgradeneeded=e=>{
+      const db=e.target.result;
+      if(!db.objectStoreNames.contains(STORE)){
+        const os=db.createObjectStore(STORE,{keyPath:'id'});
+        os.createIndex('date','date'); os.createIndex('language','language');
+        os.createIndex('category','category');
+      }
+    };
+    rq.onsuccess=e=>{_db=e.target.result;res(_db)};
+    rq.onerror=e=>rej(e.target.error);
+  });
+}
+async function dbPut(rec){const db=await openDB();return new Promise((res,rej)=>{const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).put(rec);tx.oncomplete=()=>res();tx.onerror=e=>rej(e.target.error);});}
+async function dbAll(){const db=await openDB();return new Promise((res,rej)=>{const out=[];const tx=db.transaction(STORE,'readonly');tx.objectStore(STORE).openCursor().onsuccess=e=>{const c=e.target.result;if(c){out.push(c.value);c.continue();}else res(out);};tx.onerror=e=>rej(e.target.error);});}
+async function dbGet(id){const db=await openDB();return new Promise((res,rej)=>{const tx=db.transaction(STORE,'readonly');const rq=tx.objectStore(STORE).get(id);rq.onsuccess=()=>res(rq.result);rq.onerror=e=>rej(e.target.error);});}
+async function dbDelete(id){const db=await openDB();return new Promise((res,rej)=>{const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).delete(id);tx.oncomplete=()=>res();tx.onerror=e=>rej(e.target.error);});}
+
+const LS={
+  get(k,def){try{const v=localStorage.getItem('has_'+k);return v==null?def:JSON.parse(v);}catch(e){return def;}},
+  set(k,v){localStorage.setItem('has_'+k,JSON.stringify(v));}
+};
+const DEFAULT_SETTINGS={
+  org:'Health Awareness Studio', footer:'Issued in public interest',
+  watermark:'', logoData:'', brandGreen:'#1a9f6e', brandBlue:'#1668c1',
+  quality:'high', defaultHashtags:'HealthForAll SwasthBharat', language:'English'
+};
+function getSettings(){return Object.assign({},DEFAULT_SETTINGS,LS.get('settings',{}));}
+function saveSettings(s){LS.set('settings',s);}
+
+/* Publishing log stored in localStorage: [{id,date,topic,category,event,ts}] */
+function getLog(){return LS.get('log',[]);}
+function addLog(entry){const l=getLog();l.unshift(Object.assign({ts:Date.now()},entry));LS.set('log',l.slice(0,500));}
+
+/* =====================================================================
+   3. DATE + TOPIC HELPERS
+   ===================================================================== */
+function pad(n){return String(n).padStart(2,'0');}
+function ymd(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+function topicForDate(d){
+  const m=d.getMonth()+1, day=d.getDate();
+  const hit=AWARENESS.find(t=>t.month===m && t.day===day);
+  if(hit) return hit;
+  // deterministic fallback by day-of-year
+  const start=new Date(d.getFullYear(),0,0);
+  const doy=Math.floor((d-start)/86400000);
+  return FALLBACKS[doy%FALLBACKS.length];
+}
+function fmtLongDate(d){
+  return d.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+}
+function slug(s){return s.replace(/[^A-Za-z0-9]+/g,'-').replace(/^-|-$/g,'');}
+function fileName(dateStr,category,lang,size){return `${dateStr}_${slug(category)}_${lang}_${size}.png`;}
+function posterId(dateStr,lang,size){return `${dateStr}__${lang}__${size}`;}
+
+/* =====================================================================
+   4. POSTER RENDERING ENGINE (template-based, one master → 3 ratios)
+      Draws professional flat medical poster on a canvas per size/lang.
+   ===================================================================== */
+function drawIcon(ctx,type,cx,cy,r,color){
+  ctx.save();ctx.translate(cx,cy);ctx.strokeStyle=color;ctx.fillStyle=color;ctx.lineWidth=r*0.14;ctx.lineCap='round';ctx.lineJoin='round';
+  const s=r;
+  switch(type){
+    case 'heart':{ctx.beginPath();ctx.moveTo(0,s*0.55);ctx.bezierCurveTo(-s*1.1,-s*0.25,-s*0.5,-s*0.95,0,-s*0.35);ctx.bezierCurveTo(s*0.5,-s*0.95,s*1.1,-s*0.25,0,s*0.55);ctx.closePath();ctx.fill();break;}
+    case 'ribbon':{ctx.lineWidth=r*0.22;ctx.beginPath();ctx.moveTo(-s*0.35,s*0.9);ctx.quadraticCurveTo(0,-s*0.2,0,-s*0.7);ctx.stroke();ctx.beginPath();ctx.moveTo(s*0.35,s*0.9);ctx.quadraticCurveTo(0,-s*0.2,0,-s*0.7);ctx.stroke();break;}
+    case 'lungs':{ctx.lineWidth=r*0.13;ctx.beginPath();ctx.moveTo(0,-s*0.8);ctx.lineTo(0,s*0.1);ctx.stroke();for(const sgn of [-1,1]){ctx.beginPath();ctx.moveTo(0,-s*0.2);ctx.quadraticCurveTo(sgn*s*0.15,s*0.0,sgn*s*0.5,s*0.15);ctx.quadraticCurveTo(sgn*s*0.85,s*0.35,sgn*s*0.55,s*0.85);ctx.quadraticCurveTo(sgn*s*0.1,s*0.9,sgn*s*0.15,s*0.2);ctx.stroke();}break;}
+    case 'blood':case 'drop':{ctx.beginPath();ctx.moveTo(0,-s*0.85);ctx.bezierCurveTo(s*0.7,-s*0.1,s*0.55,s*0.75,0,s*0.75);ctx.bezierCurveTo(-s*0.55,s*0.75,-s*0.7,-s*0.1,0,-s*0.85);ctx.closePath();ctx.fill();ctx.fillStyle='rgba(255,255,255,.55)';ctx.beginPath();ctx.arc(-s*0.18,s*0.25,s*0.16,0,7);ctx.fill();break;}
+    case 'brain':{ctx.lineWidth=r*0.12;ctx.beginPath();ctx.arc(-s*0.25,0,s*0.55,0.6,2*Math.PI);ctx.stroke();ctx.beginPath();ctx.arc(s*0.25,0,s*0.55,-Math.PI-0.6,Math.PI);ctx.stroke();ctx.beginPath();ctx.moveTo(0,-s*0.55);ctx.lineTo(0,s*0.55);ctx.stroke();break;}
+    case 'leaf':{ctx.beginPath();ctx.moveTo(-s*0.6,s*0.6);ctx.quadraticCurveTo(-s*0.6,-s*0.7,s*0.6,-s*0.6);ctx.quadraticCurveTo(s*0.6,s*0.6,-s*0.6,s*0.6);ctx.closePath();ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=r*0.1;ctx.beginPath();ctx.moveTo(-s*0.45,s*0.45);ctx.lineTo(s*0.4,-s*0.4);ctx.stroke();break;}
+    case 'yoga':{ctx.beginPath();ctx.arc(0,-s*0.55,s*0.22,0,7);ctx.fill();ctx.lineWidth=r*0.13;ctx.beginPath();ctx.moveTo(0,-s*0.3);ctx.lineTo(0,s*0.15);ctx.stroke();ctx.beginPath();ctx.moveTo(-s*0.7,0);ctx.lineTo(s*0.7,0);ctx.stroke();ctx.beginPath();ctx.moveTo(0,s*0.15);ctx.lineTo(-s*0.55,s*0.7);ctx.moveTo(0,s*0.15);ctx.lineTo(s*0.55,s*0.7);ctx.stroke();break;}
+    case 'venus':{ctx.lineWidth=r*0.13;ctx.beginPath();ctx.arc(0,-s*0.25,s*0.45,0,7);ctx.stroke();ctx.beginPath();ctx.moveTo(0,s*0.2);ctx.lineTo(0,s*0.85);ctx.moveTo(-s*0.3,s*0.5);ctx.lineTo(s*0.3,s*0.5);ctx.stroke();break;}
+    case 'baby':{ctx.beginPath();ctx.arc(0,-s*0.25,s*0.5,0,7);ctx.fill();ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(-s*0.18,-s*0.3,s*0.07,0,7);ctx.arc(s*0.18,-s*0.3,s*0.07,0,7);ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=r*0.08;ctx.beginPath();ctx.arc(0,-s*0.12,s*0.18,0.2,Math.PI-0.2);ctx.stroke();break;}
+    case 'elder':{ctx.beginPath();ctx.arc(0,-s*0.5,s*0.28,0,7);ctx.fill();ctx.lineWidth=r*0.13;ctx.beginPath();ctx.moveTo(-s*0.1,-s*0.2);ctx.lineTo(-s*0.1,s*0.6);ctx.stroke();ctx.beginPath();ctx.moveTo(s*0.35,-s*0.3);ctx.lineTo(s*0.35,s*0.7);ctx.stroke();break;}
+    case 'hands':{ctx.lineWidth=r*0.12;for(const sgn of[-1,1]){ctx.beginPath();ctx.moveTo(sgn*s*0.5,s*0.7);ctx.lineTo(sgn*s*0.15,0);ctx.stroke();}ctx.beginPath();ctx.arc(0,-s*0.1,s*0.32,0,7);ctx.stroke();break;}
+    case 'nosmoke':{ctx.lineWidth=r*0.1;ctx.strokeStyle=color;ctx.strokeRect(-s*0.6,s*0.1,s*1.2,s*0.35);ctx.beginPath();ctx.arc(0,0,s*0.85,0,7);ctx.stroke();ctx.beginPath();ctx.moveTo(-s*0.6,-s*0.6);ctx.lineTo(s*0.6,s*0.6);ctx.stroke();break;}
+    case 'mosquito':{ctx.beginPath();ctx.arc(0,0,s*0.22,0,7);ctx.fill();ctx.lineWidth=r*0.08;for(const sgn of[-1,1]){ctx.beginPath();ctx.moveTo(0,0);ctx.quadraticCurveTo(sgn*s*0.6,-s*0.5,sgn*s*0.9,-s*0.1);ctx.stroke();ctx.beginPath();ctx.moveTo(0,0);ctx.quadraticCurveTo(sgn*s*0.6,s*0.5,sgn*s*0.9,s*0.2);ctx.stroke();}break;}
+    case 'flask':{ctx.lineWidth=r*0.12;ctx.beginPath();ctx.moveTo(-s*0.2,-s*0.7);ctx.lineTo(-s*0.2,-s*0.1);ctx.lineTo(-s*0.55,s*0.6);ctx.lineTo(s*0.55,s*0.6);ctx.lineTo(s*0.2,-s*0.1);ctx.lineTo(s*0.2,-s*0.7);ctx.stroke();ctx.beginPath();ctx.moveTo(-s*0.35,-s*0.7);ctx.lineTo(s*0.35,-s*0.7);ctx.stroke();break;}
+    default:{ // medical cross
+      ctx.fillRect(-s*0.22,-s*0.7,s*0.44,s*1.4);ctx.fillRect(-s*0.7,-s*0.22,s*1.4,s*0.44);}
+  }
+  ctx.restore();
+}
+function wrapLines(ctx,text,maxW){
+  const words=String(text).split(/\s+/);const lines=[];let cur='';
+  for(const w of words){const t=cur?cur+' '+w:w;if(ctx.measureText(t).width>maxW&&cur){lines.push(cur);cur=w;}else cur=t;}
+  if(cur)lines.push(cur);return lines;
+}
+function shade(hex,amt){
+  const n=parseInt(hex.slice(1),16);let r=(n>>16)+amt,g=((n>>8)&255)+amt,b=(n&255)+amt;
+  r=Math.max(0,Math.min(255,r));g=Math.max(0,Math.min(255,g));b=Math.max(0,Math.min(255,b));
+  return '#'+((r<<16)|(g<<8)|b).toString(16).padStart(6,'0');
+}
+function renderPoster(topic,dateObj,lang,size,settings){
+  const cv=document.createElement('canvas');cv.width=size.w;cv.height=size.h;
+  const ctx=cv.getContext('2d');
+  const en=lang.code==='en';
+  const green=settings.brandGreen||'#1a9f6e', blue=settings.brandBlue||'#1668c1';
+  const S=size.w/1080; // scale factor relative to base width
+  const title=en?topic.title_en:topic.title_gu;
+  const imp=en?topic.importance_en:topic.importance_gu;
+  const points=en?topic.keyPoints_en:topic.keyPoints_gu;
+  const cta=en?topic.cta_en:topic.cta_gu;
+
+  // Background
+  ctx.fillStyle='#ffffff';ctx.fillRect(0,0,cv.width,cv.height);
+  // subtle top band gradient (green health theme)
+  const headH=size.h*0.20;
+  const g=ctx.createLinearGradient(0,0,cv.width,headH);
+  g.addColorStop(0,green);g.addColorStop(1,shade(green,-25));
+  ctx.fillStyle=g;ctx.fillRect(0,0,cv.width,headH);
+  // decorative circle
+  ctx.fillStyle='rgba(255,255,255,.08)';ctx.beginPath();ctx.arc(cv.width*0.9,headH*0.3,headH*0.7,0,7);ctx.fill();
+
+  // Header: date + category chip
+  ctx.textBaseline='top';
+  ctx.fillStyle='rgba(255,255,255,.92)';
+  ctx.font=`600 ${28*S}px ${'Segoe UI,Noto Sans Gujarati,sans-serif'}`;
+  const dateStr=en?fmtLongDate(dateObj):dateObj.toLocaleDateString('gu-IN',{day:'numeric',month:'long',year:'numeric'});
+  ctx.fillText(dateStr,60*S,48*S);
+  // category chip
+  ctx.font=`700 ${24*S}px Segoe UI,sans-serif`;
+  const chip=(en?topic.category:topic.category).toUpperCase();
+  const cw=ctx.measureText(chip).width+40*S;
+  ctx.fillStyle='rgba(255,255,255,.22)';roundRect(ctx,60*S,90*S,cw,44*S,22*S);ctx.fill();
+  ctx.fillStyle='#fff';ctx.fillText(chip,80*S,100*S);
+
+  // Awareness title (large)
+  ctx.fillStyle='#ffffff';
+  let ty=150*S;
+  ctx.font=`800 ${58*S}px Segoe UI,Noto Sans Gujarati,sans-serif`;
+  const tLines=wrapLines(ctx,title,cv.width-120*S);
+  for(const ln of tLines.slice(0,2)){ctx.fillText(ln,60*S,ty);ty+=66*S;}
+
+  // Illustration area
+  const illoY=headH+ (size.h*0.02);
+  const illoH=size.h*0.24;
+  const cx=cv.width/2, cy=illoY+illoH/2;
+  // soft circle backing
+  ctx.fillStyle=shade(green,120);ctx.globalAlpha=0.5;ctx.beginPath();ctx.arc(cx,cy,illoH*0.46,0,7);ctx.fill();ctx.globalAlpha=1;
+  drawIcon(ctx,topic.icon,cx,cy,illoH*0.30,green);
+
+  // Importance line
+  let y=illoY+illoH+ size.h*0.015;
+  ctx.fillStyle=blue;
+  ctx.font=`700 ${34*S}px Segoe UI,Noto Sans Gujarati,sans-serif`;
+  const impLines=wrapLines(ctx,imp,cv.width-120*S);
+  for(const ln of impLines.slice(0,3)){ctx.fillText(ln,60*S,y);y+=44*S;}
+  y+=14*S;
+
+  // Four key points
+  ctx.font=`600 ${30*S}px Segoe UI,Noto Sans Gujarati,sans-serif`;
+  const bulletR=11*S;
+  for(let i=0;i<Math.min(4,points.length);i++){
+    ctx.fillStyle=green;ctx.beginPath();ctx.arc(74*S,y+18*S,bulletR,0,7);ctx.fill();
+    ctx.fillStyle='#243039';
+    const pl=wrapLines(ctx,points[i],cv.width-150*S);
+    for(let j=0;j<pl.length;j++){ctx.fillText(pl[j],104*S,y+ (j*38*S));}
+    y+=Math.max(52*S, pl.length*38*S+14*S);
+  }
+
+  // Call to action band
+  y+=6*S;
+  const ctaH=size.h*0.09;
+  const cg=ctx.createLinearGradient(0,y,cv.width,y+ctaH);cg.addColorStop(0,blue);cg.addColorStop(1,shade(blue,-30));
+  ctx.fillStyle=cg;roundRect(ctx,40*S,y,cv.width-80*S,ctaH,20*S);ctx.fill();
+  ctx.fillStyle='#fff';ctx.font=`800 ${34*S}px Segoe UI,Noto Sans Gujarati,sans-serif`;
+  const ctaLines=wrapLines(ctx,cta,cv.width-160*S);
+  const ctaStartY=y+ (ctaH-ctaLines.length*42*S)/2;
+  for(let i=0;i<ctaLines.length;i++){const t=ctaLines[i];const w=ctx.measureText(t).width;ctx.fillText(t,(cv.width-w)/2,ctaStartY+i*42*S);}
+
+  // Footer
+  const footY=cv.height-size.h*0.11;
+  ctx.fillStyle='#f2f6f8';ctx.fillRect(0,footY,cv.width,cv.height-footY);
+  ctx.fillStyle=green;ctx.fillRect(0,footY,cv.width,4*S);
+  // hashtags
+  ctx.fillStyle=green;ctx.font=`700 ${24*S}px Segoe UI,sans-serif`;
+  const tags=(topic.hashtags||[]).map(h=>'#'+h).join('  ');
+  ctx.fillText(tags,60*S,footY+22*S);
+  // org + footer note
+  ctx.fillStyle='#4a5761';ctx.font=`600 ${22*S}px Segoe UI,Noto Sans Gujarati,sans-serif`;
+  ctx.fillText((settings.org||'')+ (settings.footer?('  •  '+settings.footer):''),60*S,footY+56*S);
+  // logo placeholder / logo
+  const lpx=cv.width-150*S, lpy=footY+18*S, lps=size.h*0.055;
+  if(settings.logoData){
+    const im=logoImageCache; if(im&&im.complete&&im.naturalWidth){try{ctx.drawImage(im,lpx,lpy,lps,lps);}catch(e){}}
+  } else {
+    ctx.strokeStyle='#c3ced5';ctx.lineWidth=2*S;ctx.setLineDash([6*S,5*S]);ctx.strokeRect(lpx,lpy,lps,lps);ctx.setLineDash([]);
+    ctx.fillStyle='#9aa7b0';ctx.font=`600 ${16*S}px Segoe UI`;ctx.fillText('LOGO',lpx+lps*0.22,lpy+lps*0.4);
+  }
+  // QR placeholder
+  const qx=cv.width-lps-190*S, qy=footY+18*S;
+  ctx.strokeStyle='#c3ced5';ctx.lineWidth=2*S;ctx.setLineDash([6*S,5*S]);ctx.strokeRect(qx,qy,lps,lps);ctx.setLineDash([]);
+  ctx.fillStyle='#9aa7b0';ctx.font=`600 ${15*S}px Segoe UI`;ctx.fillText('QR',qx+lps*0.34,qy+lps*0.4);
+
+  // Watermark
+  if(settings.watermark){
+    ctx.save();ctx.globalAlpha=0.10;ctx.translate(cv.width/2,cv.height/2);ctx.rotate(-0.5);
+    ctx.fillStyle='#0f7a52';ctx.font=`800 ${70*S}px Segoe UI`;ctx.textAlign='center';
+    ctx.fillText(settings.watermark,0,0);ctx.restore();ctx.textAlign='left';
+  }
+  return cv;
+}
+function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+let logoImageCache=null;
+function refreshLogoCache(){const s=getSettings();if(s.logoData){logoImageCache=new Image();logoImageCache.src=s.logoData;}else logoImageCache=null;}
+
+function canvasToDataURL(cv,quality){return cv.toDataURL('image/png');}
+
+/* Generate + store a set of posters for a date/lang(s)/size(s) */
+async function generateSet(dateObj,langs,sizes){
+  const settings=getSettings();refreshLogoCache();
+  if(settings.logoData){await new Promise(r=>{if(logoImageCache.complete)r();else{logoImageCache.onload=r;logoImageCache.onerror=r;}});}
+  const topic=topicForDate(dateObj);const dateStr=ymd(dateObj);
+  const made=[];
+  for(const lang of langs){
+    for(const size of sizes){
+      const cv=renderPoster(topic,dateObj,lang,size,settings);
+      const url=canvasToDataURL(cv,settings.quality);
+      const rec={id:posterId(dateStr,lang.key,size.key),date:dateStr,category:topic.category,
+        topic:lang.code==='en'?topic.title_en:topic.title_gu,topicEn:topic.title_en,
+        language:lang.key,size:size.key,w:size.w,h:size.h,dataURL:url,
+        published:false,downloaded:false,createdAt:Date.now(),
+        fileName:fileName(dateStr,topic.category,lang.key,size.key)};
+      await dbPut(rec);made.push(rec);
+    }
+  }
+  addLog({date:dateStr,topic:topic.title_en,category:topic.category,event:'Generated',count:made.length});
+  return made;
+}
+
+/* =====================================================================
+   5. CAPTIONS
+   ===================================================================== */
+function buildCaptions(topic,dateObj,langCode){
+  const en=langCode==='en';
+  const title=en?topic.title_en:topic.title_gu;
+  const imp=en?topic.importance_en:topic.importance_gu;
+  const pts=(en?topic.keyPoints_en:topic.keyPoints_gu);
+  const cta=en?topic.cta_en:topic.cta_gu;
+  const tags=(topic.hashtags||[]).map(h=>'#'+h).join(' ');
+  const extra=(getSettings().defaultHashtags||'').split(/\s+/).filter(Boolean).map(h=>'#'+h.replace(/^#/,'')).join(' ');
+  const allTags=(tags+' '+extra).trim();
+  const bullets=pts.map(p=>'• '+p).join('\n');
+  const emojiTitle=(en?'📢 ':'📢 ')+title;
+  const short=`${emojiTitle}\n${cta}\n${allTags}`;
+  const medium=`${emojiTitle}\n\n${imp}\n\n${bullets}\n\n👉 ${cta}\n\n${allTags}`;
+  const long=`${emojiTitle}\n\n${imp}\n\n${en?'Key things to remember:':'યાદ રાખવા જેવી બાબતો:'}\n${bullets}\n\n${en?'What you can do today:':'આજે તમે શું કરી શકો:'}\n👉 ${cta}\n\n${en?'Share this message to spread awareness in your community.':'આ સંદેશ શેર કરી તમારા સમાજમાં જાગૃતિ ફેલાવો.'}\n\n${allTags}`;
+  return {
+    WhatsApp:medium, Telegram:medium, Instagram:medium, Facebook:long, LinkedIn:long,
+    'Twitter/X':short, Short:short, Medium:medium, Long:long
+  };
+}
+
+/* =====================================================================
+   6. MINIMAL STORE-ONLY ZIP WRITER (pure JS, no deps)
+   ===================================================================== */
+const CRC_TABLE=(()=>{const t=[];for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0;}return t;})();
+function crc32(bytes){let c=0xFFFFFFFF;for(let i=0;i<bytes.length;i++)c=CRC_TABLE[(c^bytes[i])&0xFF]^(c>>>8);return (c^0xFFFFFFFF)>>>0;}
+function strBytes(s){const out=[];for(let i=0;i<s.length;i++){const c=s.charCodeAt(i);if(c<128)out.push(c);else out.push(...new TextEncoder().encode(s[i]));}return out;}
+function u16(n){return [n&255,(n>>8)&255];}
+function u32(n){return [n&255,(n>>8)&255,(n>>16)&255,(n>>24)&255];}
+function makeZip(files){ // files: [{name, bytes:Uint8Array}]
+  const chunks=[];const central=[];let offset=0;
+  for(const f of files){
+    const nameB=strBytes(f.name);const data=f.bytes;const crc=crc32(data);const sz=data.length;
+    const local=[...u32(0x04034b50),...u16(20),...u16(0),...u16(0),...u16(0),...u16(0),...u32(crc),...u32(sz),...u32(sz),...u16(nameB.length),...u16(0),...nameB];
+    const lb=new Uint8Array(local.length+sz);lb.set(local,0);lb.set(data,local.length);chunks.push(lb);
+    const cen=[...u32(0x02014b50),...u16(20),...u16(20),...u16(0),...u16(0),...u16(0),...u16(0),...u32(crc),...u32(sz),...u32(sz),...u16(nameB.length),...u16(0),...u16(0),...u16(0),...u16(0),...u32(0),...u32(offset),...nameB];
+    central.push(new Uint8Array(cen));offset+=lb.length;
+  }
+  let cenSize=0;central.forEach(c=>cenSize+=c.length);
+  const end=new Uint8Array([...u32(0x06054b50),...u16(0),...u16(0),...u16(files.length),...u16(files.length),...u32(cenSize),...u32(offset),...u16(0)]);
+  const total=offset+cenSize+end.length;const out=new Uint8Array(total);let p=0;
+  chunks.forEach(c=>{out.set(c,p);p+=c.length;});central.forEach(c=>{out.set(c,p);p+=c.length;});out.set(end,p);
+  return new Blob([out],{type:'application/zip'});
+}
+function dataURLtoBytes(durl){const b64=durl.split(',')[1];const bin=atob(b64);const arr=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);return arr;}
+function downloadBlob(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1500);}
+function downloadDataURL(durl,name){const a=document.createElement('a');a.href=durl;a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>a.remove(),1000);}
+
+/* =====================================================================
+   7. UI FRAMEWORK
+   ===================================================================== */
+const main=document.getElementById('main');
+const toastEl=document.getElementById('toast');
+let toastT=null;
+function toast(msg){toastEl.textContent=msg;toastEl.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>toastEl.classList.remove('show'),2200);}
+function el(html){const t=document.createElement('template');t.innerHTML=html.trim();return t.content.firstElementChild;}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+let currentPage='home';
+document.getElementById('nav').addEventListener('click',e=>{
+  const b=e.target.closest('button[data-page]');if(!b)return;go(b.dataset.page);
+});
+function go(page,arg){
+  currentPage=page;
+  document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===page));
+  ({home:pageHome,calendar:pageCalendar,generator:pageGenerator,library:pageLibrary,
+    captions:pageCaptions,downloads:pageDownloads,publishing:pagePublishing,
+    analytics:pageAnalytics,settings:pageSettings}[page]||pageHome)(arg);
+  main.scrollTop=0;
+}
+
+function topbar(title,sub,rightHtml){
+  return `<div class="topbar"><div><h2>${esc(title)}</h2><div class="sub">${sub||''}</div></div><div>${rightHtml||''}</div></div>`;
+}
+
+/* -------- HOME -------- */
+async function pageHome(){
+  const today=new Date();const topic=topicForDate(today);const dateStr=ymd(today);
+  const all=await dbAll();
+  const todays=all.filter(p=>p.date===dateStr);
+  const enCount=todays.filter(p=>p.language==='English').length;
+  const guCount=todays.filter(p=>p.language==='Gujarati').length;
+  const downloads=all.filter(p=>p.downloaded).length;
+  const published=all.filter(p=>p.published).length;
+  const pending=all.length-published;
+  const storageKB=Math.round(all.reduce((a,p)=>a+(p.dataURL?p.dataURL.length:0),0)/1024);
+  main.innerHTML=topbar('Home Dashboard',fmtLongDate(today),
+    `<span class="pill">Scheduler 08:00 IST</span>`);
+  const cards=el(`<div class="grid cards" style="margin-bottom:16px"></div>`);
+  const stat=(lbl,val,hint,cls)=>`<div class="card stat"><span class="lbl">${lbl}</span><span class="val" style="color:${cls||'var(--ink)'}">${val}</span><span class="hint">${hint||''}</span></div>`;
+  cards.innerHTML=
+    stat('Today’s Theme',esc(topic.category),esc(topic.title_en),'var(--green)')+
+    stat('Images Today',todays.length+' / 6',`EN ${enCount} • GU ${guCount}`,'var(--blue)')+
+    stat('Days Remaining','<span id="cd" class="countdown"></span>','until tomorrow 08:00')+
+    stat('Total Posters',all.length,'in library')+
+    stat('Downloads',downloads,'images downloaded')+
+    stat('Published',published,'marked posted','var(--green)')+
+    stat('Pending',pending,'not yet published','var(--warn)')+
+    stat('Storage Used',storageKB+' KB','local IndexedDB');
+  main.appendChild(cards);
+
+  const row=el('<div class="row"></div>');
+  // Left: today's poster + actions
+  const left=el(`<div class="col card"></div>`);
+  left.innerHTML=`<h3 class="sec">Today’s Awareness — ${esc(topic.title_en)}</h3>
+    <div class="posterwrap" id="homePoster"><div class="empty-state"><div class="big">🎨</div>No poster generated yet for today.</div></div>
+    <div class="btnrow" style="margin-top:14px">
+      <button class="btn primary" id="hGen">✚ Generate</button>
+      <button class="btn" id="hRegen">↻ Regenerate</button>
+      <button class="btn" id="hDl">⬇️ Download</button>
+      <button class="btn" id="hDlAll">⬇️ Download All</button>
+      <button class="btn blue" id="hPub">✓ Mark Published</button>
+      <button class="btn" id="hCap">📋 Copy Caption</button>
+    </div>`;
+  row.appendChild(left);
+  // Right: status
+  const right=el(`<div class="col card" style="max-width:360px"></div>`);
+  const langStatus=(n,c,total)=>`<div class="kv"><span>${n}</span><b>${c}/${total}</b></div>`;
+  right.innerHTML=`<h3 class="sec">Daily Status</h3>
+    <div class="kv"><span>Awareness Day</span><b>${esc(topic.title_en)}</b></div>
+    <div class="kv"><span>Category</span><span class="pill" style="background:${CATEGORIES[topic.category]?.color+'22'};color:${CATEGORIES[topic.category]?.color}">${esc(topic.category)}</span></div>
+    ${langStatus('English images',enCount,3)}
+    ${langStatus('Gujarati images',guCount,3)}
+    <div class="kv"><span>Publishing status</span>${todays.length&&todays.every(p=>p.published)?'<span class="pill">Published</span>':(todays.length?'<span class="pill warn">Pending</span>':'<span class="pill gray">Not generated</span>')}</div>
+    <h3 class="sec" style="margin-top:18px">Key Messages</h3>
+    <ul style="margin:0;padding-left:18px;color:#38454f">${topic.keyPoints_en.map(p=>`<li style="margin-bottom:5px">${esc(p)}</li>`).join('')}</ul>`;
+  row.appendChild(right);
+  main.appendChild(row);
+
+  // countdown to next 08:00 IST (IST = UTC+5:30)
+  function tickCD(){
+    const now=new Date();
+    const istNow=new Date(now.getTime()+(now.getTimezoneOffset()+330)*60000);
+    let target=new Date(istNow);target.setHours(8,0,0,0);if(istNow>=target)target.setDate(target.getDate()+1);
+    let diff=Math.max(0,target-istNow);const h=Math.floor(diff/3.6e6),m=Math.floor(diff%3.6e6/6e4),s=Math.floor(diff%6e4/1000);
+    const cd=document.getElementById('cd');if(cd)cd.textContent=`${pad(h)}:${pad(m)}:${pad(s)}`;else clearInterval(cdI);
+  }
+  const cdI=setInterval(tickCD,1000);tickCD();
+
+  async function renderTodayPreview(){
+    const list=await dbAll();const t=list.filter(p=>p.date===dateStr&&p.size==='Square');
+    const box=document.getElementById('homePoster');if(!box)return;
+    const pick=t.find(p=>p.language==='English')||t[0];
+    if(pick){box.innerHTML=`<img src="${pick.dataURL}" alt="poster"/>`;}
+  }
+  renderTodayPreview();
+
+  document.getElementById('hGen').onclick=async()=>{toast('Generating 6 posters…');await generateSet(today,LANGS,SIZES);toast('✓ Generated today’s posters');pageHome();};
+  document.getElementById('hRegen').onclick=async()=>{toast('Regenerating…');await generateSet(today,LANGS,SIZES);toast('✓ Regenerated');pageHome();};
+  document.getElementById('hDl').onclick=async()=>{const list=await dbAll();const p=list.find(x=>x.date===dateStr&&x.language==='English'&&x.size==='Square');if(!p)return toast('Generate first');downloadDataURL(p.dataURL,p.fileName);await dbPut(Object.assign(p,{downloaded:true}));toast('Downloaded');};
+  document.getElementById('hDlAll').onclick=()=>downloadDay(dateStr);
+  document.getElementById('hPub').onclick=async()=>{const list=await dbAll();const t=list.filter(p=>p.date===dateStr);if(!t.length)return toast('Generate first');for(const p of t)await dbPut(Object.assign(p,{published:true}));addLog({date:dateStr,topic:topic.title_en,category:topic.category,event:'Published',count:t.length});toast('✓ Marked published');pageHome();};
+  document.getElementById('hCap').onclick=()=>{const caps=buildCaptions(topic,today,'en');navigator.clipboard?.writeText(caps.WhatsApp);toast('WhatsApp caption copied');};
+}
+
+/* -------- CALENDAR -------- */
+let calState={year:new Date().getFullYear(),month:new Date().getMonth(),filter:'',search:''};
+function pageCalendar(){
+  const cats=['','Health','National','Environment','Education','Women','Children','International','Nutrition','Yoga'];
+  main.innerHTML=topbar('Awareness Calendar','Yearly public-health calendar',
+    `<div class="searchbox"><span>🔍</span><input id="calSearch" placeholder="Search topic…" value="${esc(calState.search)}"></div>`);
+  const controls=el(`<div class="card" style="margin-bottom:16px"><div class="btnrow" style="justify-content:space-between;align-items:center">
+    <div class="btnrow">
+      <button class="btn sm" id="prevM">‹</button>
+      <b id="mLabel" style="min-width:150px;text-align:center;display:inline-block"></b>
+      <button class="btn sm" id="nextM">›</button>
+      <button class="btn sm" id="todayBtn">Today</button>
+    </div>
+    <div class="btnrow">
+      <select class="inp" id="catFilter" style="width:auto">${cats.map(c=>`<option value="${c}" ${c===calState.filter?'selected':''}>${c||'All categories'}</option>`).join('')}</select>
+    </div></div></div>`);
+  main.appendChild(controls);
+  const grid=el('<div class="card"></div>');main.appendChild(grid);
+  const legend=el(`<div class="legend">${Object.entries(CATEGORIES).map(([k,v])=>`<span><i style="background:${v.color}"></i>${k}</span>`).join('')}</div>`);
+  main.appendChild(legend);
+
+  function draw(){
+    const y=calState.year,m=calState.month;
+    document.getElementById('mLabel').textContent=new Date(y,m,1).toLocaleDateString('en-IN',{month:'long',year:'numeric'});
+    const first=new Date(y,m,1).getDay();const days=new Date(y,m+1,0).getDate();
+    let cells='';const dows=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    let html=`<div class="dow">${dows.map(d=>`<div>${d}</div>`).join('')}</div><div class="calgrid">`;
+    for(let i=0;i<first;i++)html+='<div class="calcell empty"></div>';
+    const todayStr=ymd(new Date());
+    for(let d=1;d<=days;d++){
+      const dObj=new Date(y,m,d);const t=topicForDate(dObj);
+      const isReal=AWARENESS.some(a=>a.month===m+1&&a.day===d);
+      const matchF=!calState.filter||(isReal&&t.category===calState.filter);
+      const matchS=!calState.search||(isReal&&t.title_en.toLowerCase().includes(calState.search.toLowerCase()));
+      const dim=(calState.filter||calState.search)&&!(matchF&&matchS);
+      const col=CATEGORIES[t.category]?.color||'#ccc';
+      html+=`<div class="calcell ${ymd(dObj)===todayStr?'today':''}" data-date="${ymd(dObj)}" style="${dim?'opacity:.32':''}">
+        <div class="d">${d}</div>${isReal?`<div class="ev">${esc(t.title_en)}</div><span class="cat" style="background:${col}"></span>`:''}</div>`;
+    }
+    html+='</div>';grid.innerHTML=html;
+    grid.querySelectorAll('.calcell[data-date]').forEach(c=>c.onclick=()=>showDay(c.dataset.date));
+  }
+  draw();
+  document.getElementById('prevM').onclick=()=>{if(--calState.month<0){calState.month=11;calState.year--;}draw();};
+  document.getElementById('nextM').onclick=()=>{if(++calState.month>11){calState.month=0;calState.year++;}draw();};
+  document.getElementById('todayBtn').onclick=()=>{const n=new Date();calState.year=n.getFullYear();calState.month=n.getMonth();draw();};
+  document.getElementById('catFilter').onchange=e=>{calState.filter=e.target.value;draw();};
+  document.getElementById('calSearch').oninput=e=>{calState.search=e.target.value;draw();};
+
+  function showDay(dateStr){
+    const [Y,M,D]=dateStr.split('-').map(Number);const dObj=new Date(Y,M-1,D);const t=topicForDate(dObj);
+    const w=el(`<div class="card" style="margin-top:16px" id="dayCard"></div>`);
+    w.innerHTML=`<div class="topbar" style="margin-bottom:8px"><div><h2 style="font-size:16px">${esc(t.title_en)} <span class="badge-lang gu">${esc(t.title_gu)}</span></h2><div class="sub">${fmtLongDate(dObj)} • ${esc(t.category)}</div></div>
+      <button class="btn primary sm" id="goGenDay">🎨 Generate posters</button></div>
+      <div class="row">
+        <div class="col"><h3 class="sec">Importance</h3><p class="muted">${esc(t.importance_en)}</p><p class="muted">${esc(t.importance_gu)}</p>
+          <h3 class="sec">Key Messages</h3><ul style="padding-left:18px">${t.keyPoints_en.map(p=>`<li>${esc(p)}</li>`).join('')}</ul></div>
+        <div class="col"><h3 class="sec">Call to Action</h3><p>${esc(t.cta_en)}</p><p class="muted">${esc(t.cta_gu)}</p>
+          <h3 class="sec">Hashtags</h3><p>${t.hashtags.map(h=>'#'+h).join(' ')}</p></div>
+      </div>`;
+    const old=document.getElementById('dayCard');if(old)old.remove();
+    main.appendChild(w);
+    document.getElementById('goGenDay').onclick=()=>{genState.date=dateStr;go('generator');};
+    w.scrollIntoView({behavior:'smooth',block:'nearest'});
+  }
+}
+
+/* -------- POSTER GENERATOR -------- */
+let genState={date:ymd(new Date())};
+function pageGenerator(){
+  const dateStr=genState.date||ymd(new Date());
+  const [Y,M,D]=dateStr.split('-').map(Number);const dObj=new Date(Y,M-1,D);const topic=topicForDate(dObj);
+  main.innerHTML=topbar('Poster Generator',fmtLongDate(dObj),
+    `<input type="date" class="inp" id="genDate" value="${dateStr}" style="width:auto">`);
+  const row=el('<div class="row"></div>');
+  const left=el(`<div class="col card" style="max-width:380px"></div>`);
+  left.innerHTML=`<h3 class="sec">${esc(topic.title_en)}</h3>
+    <div class="kv"><span>Category</span><span class="pill" style="background:${CATEGORIES[topic.category]?.color+'22'};color:${CATEGORIES[topic.category]?.color}">${esc(topic.category)}</span></div>
+    <h3 class="sec" style="margin-top:14px">Importance</h3><p class="muted">${esc(topic.importance_en)}</p>
+    <h3 class="sec">Key Messages</h3><ul style="padding-left:18px;color:#38454f">${topic.keyPoints_en.map(p=>`<li>${esc(p)}</li>`).join('')}</ul>
+    <h3 class="sec">Image Prompt (for AI image APIs)</h3>
+    <textarea class="inp" rows="4" readonly>${esc(imagePrompt(topic))}</textarea>
+    <div class="btnrow" style="margin-top:14px;flex-direction:column">
+      <button class="btn primary" id="gEn">Generate English (3 sizes)</button>
+      <button class="btn primary" id="gGu">Generate Gujarati (3 sizes)</button>
+      <button class="btn blue" id="gBoth">Generate Both Languages</button>
+      <button class="btn" id="gAll">Generate All Sizes</button>
+      <button class="btn ghost" id="gRegen">↻ Regenerate</button>
+    </div>`;
+  row.appendChild(left);
+  const right=el(`<div class="col"></div>`);
+  right.innerHTML=`<div class="card"><h3 class="sec">Preview</h3><div class="tabs" id="prevTabs"></div><div class="posterwrap" id="genPrev"><div class="empty-state"><div class="big">🖼️</div>Generate to see posters.</div></div></div>`;
+  row.appendChild(right);
+  main.appendChild(row);
+
+  document.getElementById('genDate').onchange=e=>{genState.date=e.target.value;pageGenerator();};
+  const gen=async(langs,sizes,msg)=>{toast(msg);await generateSet(dObj,langs,sizes);toast('✓ Done');loadPreview();};
+  document.getElementById('gEn').onclick=()=>gen([LANGS[0]],SIZES,'Generating English…');
+  document.getElementById('gGu').onclick=()=>gen([LANGS[1]],SIZES,'Generating Gujarati…');
+  document.getElementById('gBoth').onclick=()=>gen(LANGS,SIZES,'Generating both languages…');
+  document.getElementById('gAll').onclick=()=>gen(LANGS,SIZES,'Generating all 6…');
+  document.getElementById('gRegen').onclick=()=>gen(LANGS,SIZES,'Regenerating…');
+
+  async function loadPreview(){
+    const all=(await dbAll()).filter(p=>p.date===dateStr).sort((a,b)=>a.language.localeCompare(b.language)||a.size.localeCompare(b.size));
+    const tabs=document.getElementById('prevTabs');const prev=document.getElementById('genPrev');
+    if(!all.length){return;}
+    tabs.innerHTML=all.map((p,i)=>`<button data-i="${i}" class="${i===0?'active':''}">${p.language[0]==='E'?'EN':'GU'} ${p.size}</button>`).join('');
+    function show(i){tabs.querySelectorAll('button').forEach(b=>b.classList.toggle('active',+b.dataset.i===i));prev.innerHTML=`<img src="${all[i].dataURL}"><div class="btnrow"><button class="btn sm" id="pvDl">⬇️ Download</button></div>`;document.getElementById('pvDl').onclick=async()=>{downloadDataURL(all[i].dataURL,all[i].fileName);await dbPut(Object.assign(all[i],{downloaded:true}));toast('Downloaded');};}
+    tabs.querySelectorAll('button').forEach(b=>b.onclick=()=>show(+b.dataset.i));show(0);
+  }
+  loadPreview();
+}
+function imagePrompt(topic){
+  return `Professional public-health awareness poster, "${topic.title_en}". Modern flat illustration with realistic Indian people, ${topic.category.toLowerCase()} theme, clean white background, green health palette, large readable typography, medical iconography (${topic.icon}), high contrast, accessible colours, no clutter, no distorted text or hands, government campaign quality.`;
+}
+
+/* -------- POSTER LIBRARY -------- */
+let libState={group:'Month',search:'',fCat:'',fLang:'',fStatus:''};
+async function pageLibrary(){
+  const all=(await dbAll()).sort((a,b)=>b.date.localeCompare(a.date)||a.language.localeCompare(b.language));
+  main.innerHTML=topbar('Poster Library',all.length+' posters stored',
+    `<div class="searchbox"><span>🔍</span><input id="libSearch" placeholder="Search…" value="${esc(libState.search)}"></div>`);
+  const bar=el(`<div class="card" style="margin-bottom:16px"><div class="btnrow">
+    <select class="inp" id="libGroup" style="width:auto"><option>Month</option><option>Category</option><option>Language</option><option>Status</option><option>Year</option></select>
+    <select class="inp" id="libCat" style="width:auto"><option value="">All categories</option>${Object.keys(CATEGORIES).map(c=>`<option ${c===libState.fCat?'selected':''}>${c}</option>`).join('')}</select>
+    <select class="inp" id="libLang" style="width:auto"><option value="">All languages</option><option>English</option><option>Gujarati</option></select>
+    <select class="inp" id="libStatus" style="width:auto"><option value="">All status</option><option value="published">Published</option><option value="pending">Pending</option><option value="downloaded">Downloaded</option></select>
+  </div></div>`);
+  main.appendChild(bar);
+  const wrap=el('<div id="libWrap"></div>');main.appendChild(wrap);
+  document.getElementById('libGroup').value=libState.group;
+  document.getElementById('libLang').value=libState.fLang;
+  document.getElementById('libStatus').value=libState.fStatus;
+  ['libSearch','libGroup','libCat','libLang','libStatus'].forEach(id=>{const e=document.getElementById(id);e.oninput=e.onchange=()=>{libState.search=document.getElementById('libSearch').value;libState.group=document.getElementById('libGroup').value;libState.fCat=document.getElementById('libCat').value;libState.fLang=document.getElementById('libLang').value;libState.fStatus=document.getElementById('libStatus').value;render();};});
+
+  function render(){
+    let list=all.filter(p=>{
+      if(libState.search&&!(p.topic+p.topicEn+p.date).toLowerCase().includes(libState.search.toLowerCase()))return false;
+      if(libState.fCat&&p.category!==libState.fCat)return false;
+      if(libState.fLang&&p.language!==libState.fLang)return false;
+      if(libState.fStatus==='published'&&!p.published)return false;
+      if(libState.fStatus==='pending'&&p.published)return false;
+      if(libState.fStatus==='downloaded'&&!p.downloaded)return false;
+      return true;
+    });
+    if(!list.length){wrap.innerHTML=`<div class="card"><div class="empty-state"><div class="big">🗂️</div>No posters match. Generate some from the Poster Generator.</div></div>`;return;}
+    const keyer={Month:p=>p.date.slice(0,7),Category:p=>p.category,Language:p=>p.language,Status:p=>p.published?'Published':'Pending',Year:p=>p.date.slice(0,4)}[libState.group];
+    const groups={};list.forEach(p=>{const k=keyer(p);(groups[k]=groups[k]||[]).push(p);});
+    wrap.innerHTML=Object.keys(groups).sort().reverse().map(k=>`
+      <div class="card" style="margin-bottom:16px"><h3 class="sec">${esc(k)} <span class="muted">(${groups[k].length})</span></h3>
+      <div class="thumbgrid">${groups[k].map(p=>thumb(p)).join('')}</div></div>`).join('');
+    wrap.querySelectorAll('[data-dl]').forEach(b=>b.onclick=async()=>{const p=await dbGet(b.dataset.dl);downloadDataURL(p.dataURL,p.fileName);await dbPut(Object.assign(p,{downloaded:true}));toast('Downloaded');});
+    wrap.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{await dbDelete(b.dataset.del);toast('Deleted');pageLibrary();});
+    wrap.querySelectorAll('[data-pub]').forEach(b=>b.onclick=async()=>{const p=await dbGet(b.dataset.pub);await dbPut(Object.assign(p,{published:!p.published}));toast(p.published?'Marked pending':'Marked published');pageLibrary();});
+  }
+  function thumb(p){
+    return `<div class="thumb"><div class="imgbox"><img src="${p.dataURL}" loading="lazy"></div>
+      <div class="meta"><b>${esc(p.topicEn)}</b>
+      <span class="badge-lang ${p.language[0]==='E'?'en':'gu'}">${p.language[0]==='E'?'EN':'GU'}</span> ${p.size} • ${p.date}
+      <div style="margin-top:4px">${p.published?'<span class="pill">Published</span>':'<span class="pill warn">Pending</span>'} ${p.downloaded?'<span class="pill gray">DL</span>':''}</div></div>
+      <div class="actions"><button class="btn" data-dl="${p.id}">⬇️</button><button class="btn" data-pub="${p.id}">✓</button><button class="btn" data-del="${p.id}">🗑️</button></div></div>`;
+  }
+  render();
+}
+
+/* -------- CAPTIONS -------- */
+let capState={date:ymd(new Date()),lang:'en'};
+function pageCaptions(){
+  const dateStr=capState.date;const [Y,M,D]=dateStr.split('-').map(Number);const dObj=new Date(Y,M-1,D);const topic=topicForDate(dObj);
+  const caps=buildCaptions(topic,dObj,capState.lang);
+  main.innerHTML=topbar('Captions',esc(topic.title_en),
+    `<input type="date" class="inp" id="capDate" value="${dateStr}" style="width:auto">`);
+  const langTabs=el(`<div class="tabs"><button data-l="en" class="${capState.lang==='en'?'active':''}">English</button><button data-l="gu" class="${capState.lang==='gu'?'active':''}">Gujarati</button></div>`);
+  main.appendChild(langTabs);
+  const platforms=['WhatsApp','LinkedIn','Facebook','Instagram','Twitter/X','Telegram'];
+  const lengths=['Short','Medium','Long'];
+  const wrap=el('<div class="row"></div>');
+  const c1=el('<div class="col"></div>');const c2=el('<div class="col"></div>');
+  platforms.forEach((p,i)=>((i%2?c2:c1)).appendChild(captionBox(p,caps[p])));
+  lengths.forEach((p,i)=>((i%2?c1:c2)).appendChild(captionBox(p+' form',caps[p])));
+  wrap.appendChild(c1);wrap.appendChild(c2);main.appendChild(wrap);
+  langTabs.querySelectorAll('button').forEach(b=>b.onclick=()=>{capState.lang=b.dataset.l;pageCaptions();});
+  document.getElementById('capDate').onchange=e=>{capState.date=e.target.value;pageCaptions();};
+  function captionBox(label,text){
+    const box=el(`<div class="captionbox"><div class="hd"><b>${esc(label)}</b><button class="btn sm">📋 Copy</button></div><pre>${esc(text)}</pre></div>`);
+    box.querySelector('button').onclick=()=>{navigator.clipboard?.writeText(text);toast(label+' caption copied');};
+    return box;
+  }
+}
+
+/* -------- DOWNLOADS -------- */
+async function pageDownloads(){
+  const all=await dbAll();const dateStr=ymd(new Date());const todays=all.filter(p=>p.date===dateStr);
+  main.innerHTML=topbar('Downloads','Export individual images, language sets, or full ZIP packages','');
+  const c=el('<div class="row"></div>');
+  const left=el(`<div class="col card"></div>`);
+  left.innerHTML=`<h3 class="sec">Today (${dateStr})</h3>
+    <p class="muted">${todays.length} images generated for today.</p>
+    <div class="btnrow">
+      <button class="btn" id="dToday">⬇️ Download Today (ZIP)</button>
+      <button class="btn" id="dEn">All English (ZIP)</button>
+      <button class="btn" id="dGu">All Gujarati (ZIP)</button>
+    </div>`;
+  const right=el(`<div class="col card"></div>`);
+  right.innerHTML=`<h3 class="sec">Full Library</h3>
+    <p class="muted">${all.length} posters total.</p>
+    <div class="btnrow">
+      <button class="btn blue" id="dAll">⬇️ Download Everything (ZIP)</button>
+      <button class="btn" id="dMeta">Export metadata.json</button>
+    </div>
+    <p class="muted" style="margin-top:12px;font-size:12px">Each ZIP includes posters plus <b>captions.json</b> and <b>metadata.json</b> per day, using the standard file-naming scheme.</p>`;
+  c.appendChild(left);c.appendChild(right);main.appendChild(c);
+
+  const byDate=el('<div class="card" style="margin-top:16px"></div>');
+  const dates=[...new Set(all.map(p=>p.date))].sort().reverse();
+  byDate.innerHTML=`<h3 class="sec">By Day</h3>`+(dates.length?`<table class="tbl"><thead><tr><th>Date</th><th>Topic</th><th>Images</th><th></th></tr></thead><tbody>${dates.map(d=>{const g=all.filter(p=>p.date===d);return `<tr><td>${d}</td><td>${esc(g[0].topicEn)}</td><td>${g.length}</td><td><button class="btn sm" data-day="${d}">⬇️ ZIP</button></td></tr>`;}).join('')}</tbody></table>`:`<div class="empty-state">No posters yet.</div>`);
+  main.appendChild(byDate);
+  byDate.querySelectorAll('[data-day]').forEach(b=>b.onclick=()=>downloadDay(b.dataset.day));
+
+  document.getElementById('dToday').onclick=()=>downloadDay(dateStr);
+  document.getElementById('dEn').onclick=()=>downloadFiltered(p=>p.language==='English','English_posters');
+  document.getElementById('dGu').onclick=()=>downloadFiltered(p=>p.language==='Gujarati','Gujarati_posters');
+  document.getElementById('dAll').onclick=()=>downloadFiltered(()=>true,'Health_Awareness_Library');
+  document.getElementById('dMeta').onclick=async()=>{const meta=(await dbAll()).map(({dataURL,...m})=>m);downloadBlob(new Blob([JSON.stringify(meta,null,2)],{type:'application/json'}),'metadata.json');toast('Exported metadata.json');};
+}
+async function downloadDay(dateStr){
+  const all=(await dbAll()).filter(p=>p.date===dateStr);
+  if(!all.length)return toast('Nothing generated for '+dateStr);
+  const [Y,M,D]=dateStr.split('-').map(Number);const dObj=new Date(Y,M-1,D);const topic=topicForDate(dObj);
+  const files=all.map(p=>({name:p.fileName,bytes:dataURLtoBytes(p.dataURL)}));
+  files.push({name:'captions.json',bytes:new Uint8Array(strBytes(JSON.stringify({en:buildCaptions(topic,dObj,'en'),gu:buildCaptions(topic,dObj,'gu')},null,2)))});
+  files.push({name:'metadata.json',bytes:new Uint8Array(strBytes(JSON.stringify({date:dateStr,topic:topic.title_en,topic_gu:topic.title_gu,category:topic.category,hashtags:topic.hashtags,images:all.map(({dataURL,...m})=>m)},null,2)))});
+  downloadBlob(makeZip(files),`${dateStr}_${slug(topic.category)}_HealthAwareness.zip`);
+  for(const p of all)await dbPut(Object.assign(p,{downloaded:true}));
+  addLog({date:dateStr,topic:topic.title_en,category:topic.category,event:'Downloaded',count:all.length});
+  toast('ZIP downloaded');
+}
+async function downloadFiltered(pred,name){
+  const all=(await dbAll()).filter(pred);
+  if(!all.length)return toast('Nothing to download');
+  const files=all.map(p=>({name:p.date.slice(0,7)+'/'+p.fileName,bytes:dataURLtoBytes(p.dataURL)}));
+  files.push({name:'metadata.json',bytes:new Uint8Array(strBytes(JSON.stringify(all.map(({dataURL,...m})=>m),null,2)))});
+  downloadBlob(makeZip(files),name+'.zip');
+  for(const p of all)await dbPut(Object.assign(p,{downloaded:true}));
+  toast('ZIP downloaded ('+all.length+' images)');
+}
+
+/* -------- PUBLISHING LOG -------- */
+function pagePublishing(){
+  const log=getLog();
+  const counts={Generated:0,Downloaded:0,Published:0};
+  log.forEach(e=>{if(counts[e.event]!=null)counts[e.event]++;});
+  main.innerHTML=topbar('Publishing Log','Activity across generation, downloads and publishing','');
+  const cards=el('<div class="grid cards" style="margin-bottom:16px"></div>');
+  const stat=(l,v,c)=>`<div class="card stat"><span class="lbl">${l}</span><span class="val" style="color:${c}">${v}</span></div>`;
+  cards.innerHTML=stat('Generated',counts.Generated,'var(--blue)')+stat('Downloaded',counts.Downloaded,'var(--ink)')+stat('Published',counts.Published,'var(--green)')+stat('Log Entries',log.length,'var(--muted)');
+  main.appendChild(cards);
+  const card=el('<div class="card"></div>');
+  card.innerHTML=`<div class="topbar" style="margin-bottom:8px"><h3 class="sec" style="margin:0">Recent Activity</h3><button class="btn sm" id="clearLog">Clear log</button></div>`+
+    (log.length?`<table class="tbl"><thead><tr><th>When</th><th>Event</th><th>Topic</th><th>Category</th><th>Count</th></tr></thead><tbody>${log.map(e=>`<tr><td>${new Date(e.ts).toLocaleString('en-IN')}</td><td>${eventPill(e.event)}</td><td>${esc(e.topic||'')}</td><td>${esc(e.category||'')}</td><td>${e.count||''}</td></tr>`).join('')}</tbody></table>`:`<div class="empty-state"><div class="big">📣</div>No activity yet. Generate a poster to start the log.</div>`);
+  main.appendChild(card);
+  const cl=document.getElementById('clearLog');if(cl)cl.onclick=()=>{LS.set('log',[]);toast('Log cleared');pagePublishing();};
+}
+function eventPill(ev){const map={Generated:'blue',Downloaded:'gray',Published:'',Skipped:'warn',Error:'danger'};return `<span class="pill ${map[ev]||'gray'}">${esc(ev)}</span>`;}
+
+/* -------- ANALYTICS (custom lightweight canvas charts) -------- */
+async function pageAnalytics(){
+  const all=await dbAll();
+  main.innerHTML=topbar('Analytics','Generation, category, language and publishing insights','');
+  if(!all.length){main.appendChild(el(`<div class="card"><div class="empty-state"><div class="big">📊</div>No data yet. Generate posters to see analytics.</div></div>`));return;}
+  const row=el('<div class="row"></div>');
+  // monthly bar
+  const months={};all.forEach(p=>{months[p.date.slice(0,7)]=(months[p.date.slice(0,7)]||0)+1;});
+  const cat={};all.forEach(p=>{cat[p.category]=(cat[p.category]||0)+1;});
+  const lang={English:0,Gujarati:0};all.forEach(p=>lang[p.language]++);
+  const published=all.filter(p=>p.published).length;const downloaded=all.filter(p=>p.downloaded).length;
+
+  row.appendChild(chartCard('Posters per Month',cvBar(months)));
+  row.appendChild(chartCard('Category Distribution',cvDonut(cat)));
+  main.appendChild(row);
+  const row2=el('<div class="row"></div>');
+  row2.appendChild(chartCard('Language Distribution',cvDonut(lang,['#1668c1','#1a9f6e'])));
+  const completion=el(`<div class="col card"><h3 class="sec">Publishing Completion</h3>
+    ${progress('Published',published,all.length)}
+    ${progress('Downloaded',downloaded,all.length)}
+    <div class="kv" style="margin-top:10px"><span>Total posters</span><b>${all.length}</b></div>
+    <div class="kv"><span>Unique days covered</span><b>${new Set(all.map(p=>p.date)).size}</b></div>
+    </div>`);
+  row2.appendChild(completion);
+  main.appendChild(row2);
+}
+function progress(l,v,total){const pct=total?Math.round(v/total*100):0;return `<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px"><span>${l}</span><b>${v}/${total} (${pct}%)</b></div><div class="bar"><i style="width:${pct}%"></i></div></div>`;}
+function chartCard(title,node){const c=el(`<div class="col card"><h3 class="sec">${esc(title)}</h3></div>`);c.appendChild(node);return c;}
+function cvBar(data){
+  const keys=Object.keys(data).sort();const vals=keys.map(k=>data[k]);const max=Math.max(...vals,1);
+  const w=Math.max(320,keys.length*70),h=200;const cv=document.createElement('canvas');cv.width=w*2;cv.height=h*2;cv.style.width='100%';cv.style.maxWidth=w+'px';cv.style.height=h+'px';
+  const ctx=cv.getContext('2d');ctx.scale(2,2);ctx.font='11px Segoe UI';
+  const bw=w/keys.length*0.55;
+  keys.forEach((k,i)=>{const x=i*(w/keys.length)+(w/keys.length-bw)/2;const bh=(vals[i]/max)*(h-46);
+    ctx.fillStyle='#1a9f6e';roundRect(ctx,x,h-30-bh,bw,bh,5);ctx.fill();
+    ctx.fillStyle='#65727d';ctx.textAlign='center';ctx.fillText(k.slice(2),x+bw/2,h-14);
+    ctx.fillStyle='#243039';ctx.fillText(vals[i],x+bw/2,h-34-bh);});
+  return cv;
+}
+function cvDonut(data,palette){
+  const keys=Object.keys(data).filter(k=>data[k]>0);const total=keys.reduce((a,k)=>a+data[k],0)||1;
+  const cols=palette||keys.map(k=>CATEGORIES[k]?.color||'#'+((Math.abs(hash(k))&0xffffff).toString(16).padStart(6,'0')));
+  const size=180;const cv=document.createElement('canvas');cv.width=size*2;cv.height=size*2;cv.style.width=size+'px';cv.style.height=size+'px';
+  const ctx=cv.getContext('2d');ctx.scale(2,2);let a=-Math.PI/2;const cx=size/2,cy=size/2,r=size/2-6;
+  keys.forEach((k,i)=>{const ang=data[k]/total*2*Math.PI;ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,a,a+ang);ctx.closePath();ctx.fillStyle=cols[i];ctx.fill();a+=ang;});
+  ctx.beginPath();ctx.arc(cx,cy,r*0.58,0,7);ctx.fillStyle='#fff';ctx.fill();
+  ctx.fillStyle='#243039';ctx.textAlign='center';ctx.font='700 20px Segoe UI';ctx.fillText(total,cx,cy-4);ctx.font='11px Segoe UI';ctx.fillStyle='#65727d';ctx.fillText('total',cx,cy+12);
+  const wrap=document.createElement('div');wrap.appendChild(cv);
+  wrap.appendChild(el(`<div class="chart-legend">${keys.map((k,i)=>`<span><i style="background:${cols[i]}"></i>${esc(k)} (${data[k]})</span>`).join('')}</div>`));
+  return wrap;
+}
+function hash(s){let h=0;for(let i=0;i<s.length;i++)h=(h<<5)-h+s.charCodeAt(i)|0;return h;}
+
+/* -------- SETTINGS -------- */
+function pageSettings(){
+  const s=getSettings();
+  main.innerHTML=topbar('Settings','Organisation branding, image quality and defaults','');
+  const card=el('<div class="card" style="max-width:720px"></div>');
+  const f=(label,id,val,type='text',ph='')=>`<div class="field"><label class="fld">${label}</label><input class="inp" id="${id}" type="${type}" value="${esc(val||'')}" placeholder="${ph}"></div>`;
+  card.innerHTML=`
+    <div class="row">
+      <div class="col">${f('Organisation name','sOrg',s.org)}${f('Footer note','sFooter',s.footer)}${f('Watermark text (optional)','sWm',s.watermark,'text','e.g. DRAFT')}</div>
+      <div class="col">
+        <div class="field"><label class="fld">Brand green</label><input class="inp" id="sGreen" type="color" value="${s.brandGreen}" style="height:42px;padding:4px"></div>
+        <div class="field"><label class="fld">Brand blue</label><input class="inp" id="sBlue" type="color" value="${s.brandBlue}" style="height:42px;padding:4px"></div>
+        <div class="field"><label class="fld">Image quality</label><select class="inp" id="sQual"><option value="high" ${s.quality==='high'?'selected':''}>High</option><option value="standard" ${s.quality==='standard'?'selected':''}>Standard</option></select></div>
+      </div>
+    </div>
+    <div class="field"><label class="fld">Default language</label><select class="inp" id="sLang" style="max-width:240px"><option ${s.language==='English'?'selected':''}>English</option><option ${s.language==='Gujarati'?'selected':''}>Gujarati</option></select></div>
+    <div class="field"><label class="fld">Default hashtags (space separated)</label><input class="inp" id="sTags" value="${esc(s.defaultHashtags)}"></div>
+    <div class="field"><label class="fld">Logo (PNG, appears on posters)</label><input class="inp" id="sLogo" type="file" accept="image/*"><div id="logoPrev" style="margin-top:8px">${s.logoData?`<img src="${s.logoData}" style="height:56px;border:1px solid var(--line);border-radius:8px;padding:4px;background:#fff">`:'<span class="muted">No logo uploaded</span>'}</div></div>
+    <div class="field"><label class="fld">Storage location</label><input class="inp" value="Browser IndexedDB + LocalStorage (offline, on this device)" readonly></div>
+    <div class="btnrow"><button class="btn primary" id="saveS">💾 Save Settings</button><button class="btn" id="clearLogo">Remove logo</button><button class="btn ghost" id="resetS">Reset defaults</button></div>
+    <h3 class="sec" style="margin-top:22px">Automation-ready</h3>
+    <p class="muted" style="font-size:12.5px">This app is structured to later connect with n8n, Make, Google Drive/Sheets, OpenAI &amp; image APIs, and WhatsApp/LinkedIn/Facebook/Instagram/Telegram. Metadata and captions export as JSON to feed those workflows.</p>`;
+  main.appendChild(card);
+  let logoData=s.logoData;
+  document.getElementById('sLogo').onchange=e=>{const file=e.target.files[0];if(!file)return;const r=new FileReader();r.onload=()=>{logoData=r.result;document.getElementById('logoPrev').innerHTML=`<img src="${logoData}" style="height:56px;border:1px solid var(--line);border-radius:8px;padding:4px;background:#fff">`;};r.readAsDataURL(file);};
+  document.getElementById('clearLogo').onclick=()=>{logoData='';document.getElementById('logoPrev').innerHTML='<span class="muted">No logo uploaded</span>';};
+  document.getElementById('saveS').onclick=()=>{
+    saveSettings({org:val('sOrg'),footer:val('sFooter'),watermark:val('sWm'),brandGreen:val('sGreen'),brandBlue:val('sBlue'),quality:val('sQual'),language:val('sLang'),defaultHashtags:val('sTags'),logoData});
+    refreshLogoCache();toast('✓ Settings saved');
+  };
+  document.getElementById('resetS').onclick=()=>{saveSettings(DEFAULT_SETTINGS);refreshLogoCache();toast('Reset to defaults');pageSettings();};
+  function val(id){return document.getElementById(id).value;}
+}
+
+/* =====================================================================
+   8. DAILY SCHEDULER (client-side): auto-generate today's set once/day
+   ===================================================================== */
+async function dailyAutoRun(){
+  const dateStr=ymd(new Date());
+  const lastRun=LS.get('lastAutoRun','');
+  if(lastRun===dateStr)return;
+  // Only auto-generate if nothing exists for today yet
+  const all=await dbAll();
+  if(!all.some(p=>p.date===dateStr)){
+    await generateSet(new Date(),LANGS,SIZES);
+    LS.set('lastAutoRun',dateStr);
+    toast('✓ Today’s posters auto-generated');
+  } else {LS.set('lastAutoRun',dateStr);}
+}
+
+/* =====================================================================
+   9. BOOT
+   ===================================================================== */
+(async function boot(){
+  refreshLogoCache();
+  await dailyAutoRun().catch(()=>{});
+  go('home');
+})();
+</script>
+</body>
+</html>

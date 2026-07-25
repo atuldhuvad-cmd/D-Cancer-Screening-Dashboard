@@ -288,12 +288,12 @@ const LANGS=[{key:'English',code:'en'},{key:'Gujarati',code:'gu'}];
 /* =====================================================================
    2. STORAGE — IndexedDB for posters, localStorage for settings/logs
    ===================================================================== */
-const DB_NAME='has_db', STORE='posters';
+const DB_NAME='has_db', STORE='posters', ASSETS='assets';
 let _db=null;
 function openDB(){
   return new Promise((res,rej)=>{
     if(_db) return res(_db);
-    const rq=indexedDB.open(DB_NAME,1);
+    const rq=indexedDB.open(DB_NAME,2);
     rq.onupgradeneeded=e=>{
       const db=e.target.result;
       if(!db.objectStoreNames.contains(STORE)){
@@ -301,11 +301,21 @@ function openDB(){
         os.createIndex('date','date'); os.createIndex('language','language');
         os.createIndex('category','category');
       }
+      if(!db.objectStoreNames.contains(ASSETS)){
+        db.createObjectStore(ASSETS,{keyPath:'key'}); // theme hero images: {key, dataURL, title, ts}
+      }
     };
     rq.onsuccess=e=>{_db=e.target.result;res(_db)};
     rq.onerror=e=>rej(e.target.error);
   });
 }
+/* Theme hero-image assets (optional uploaded imagery, keyed by theme) */
+function themeKey(topic){return slug(topic.title_en).toLowerCase();}
+async function assetPut(key,dataURL,title){const db=await openDB();return new Promise((res,rej)=>{const tx=db.transaction(ASSETS,'readwrite');tx.objectStore(ASSETS).put({key,dataURL,title,ts:Date.now()});tx.oncomplete=()=>res();tx.onerror=e=>rej(e.target.error);});}
+async function assetGet(key){const db=await openDB();return new Promise((res,rej)=>{const tx=db.transaction(ASSETS,'readonly');const rq=tx.objectStore(ASSETS).get(key);rq.onsuccess=()=>res(rq.result);rq.onerror=e=>rej(e.target.error);});}
+async function assetAll(){const db=await openDB();return new Promise((res,rej)=>{const out=[];const tx=db.transaction(ASSETS,'readonly');tx.objectStore(ASSETS).openCursor().onsuccess=e=>{const c=e.target.result;if(c){out.push(c.value);c.continue();}else res(out);};tx.onerror=e=>rej(e.target.error);});}
+async function assetDelete(key){const db=await openDB();return new Promise((res,rej)=>{const tx=db.transaction(ASSETS,'readwrite');tx.objectStore(ASSETS).delete(key);tx.oncomplete=()=>res();tx.onerror=e=>rej(e.target.error);});}
+async function assetClearAll(){const db=await openDB();return new Promise((res,rej)=>{const tx=db.transaction(ASSETS,'readwrite');tx.objectStore(ASSETS).clear();tx.oncomplete=()=>res();tx.onerror=e=>rej(e.target.error);});}
 async function dbPut(rec){const db=await openDB();return new Promise((res,rej)=>{const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).put(rec);tx.oncomplete=()=>res();tx.onerror=e=>rej(e.target.error);});}
 async function dbAll(){const db=await openDB();return new Promise((res,rej)=>{const out=[];const tx=db.transaction(STORE,'readonly');tx.objectStore(STORE).openCursor().onsuccess=e=>{const c=e.target.result;if(c){out.push(c.value);c.continue();}else res(out);};tx.onerror=e=>rej(e.target.error);});}
 async function dbGet(id){const db=await openDB();return new Promise((res,rej)=>{const tx=db.transaction(STORE,'readonly');const rq=tx.objectStore(STORE).get(id);rq.onsuccess=()=>res(rq.result);rq.onerror=e=>rej(e.target.error);});}
@@ -484,7 +494,17 @@ function refineIcon(topic){const t=(topic.title_en+' '+(topic.keyPoints_en||[]).
   if(/hearing|\bear\b|deaf/.test(t))return 'ear';
   return topic.icon;}
 /* Richer hero motif with soft backdrop + prohibition ring for mosquito themes */
-function drawHero(ctx,topic,cx,cy,R,green){
+function drawHero(ctx,topic,cx,cy,R,green,heroImg){
+  if(heroImg && heroImg.complete && heroImg.naturalWidth){
+    // framed uploaded image (e.g. a Canva export) replaces the vector motif
+    const w=Math.min(R*2.9,R*2*(heroImg.naturalWidth/heroImg.naturalHeight)+R), h=R*2.05, x=cx-w/2, y=cy-h/2, rad=Math.min(20,R*0.18);
+    ctx.save();roundRect(ctx,x,y,w,h,rad);ctx.clip();
+    const ar=heroImg.naturalWidth/heroImg.naturalHeight, arB=w/h; let dw,dh;
+    if(ar>arB){dh=h;dw=h*ar;}else{dw=w;dh=w/ar;}
+    ctx.drawImage(heroImg,cx-dw/2,cy-dh/2,dw,dh);ctx.restore();
+    ctx.strokeStyle=shade(green,-15);ctx.lineWidth=Math.max(1.5,R*0.02);roundRect(ctx,x,y,w,h,rad);ctx.stroke();
+    return;
+  }
   const icon=refineIcon(topic);
   ctx.fillStyle=shade(green,125);ctx.globalAlpha=0.5;ctx.beginPath();ctx.arc(cx,cy,R,0,7);ctx.fill();ctx.globalAlpha=1;
   ctx.fillStyle=shade(green,150);ctx.globalAlpha=0.55;ctx.beginPath();ctx.arc(cx,cy,R*0.8,0,7);ctx.fill();ctx.globalAlpha=1;
@@ -514,7 +534,7 @@ function wrapCap(ctx,text,maxW,maxLines){
   if(cur) lines.push(ellipsize(ctx,cur,maxW));
   return lines.slice(0,maxLines);
 }
-function renderPoster(topic,dateObj,lang,size,settings){
+function renderPoster(topic,dateObj,lang,size,settings,heroImg){
   const cv=document.createElement('canvas');cv.width=size.w;cv.height=size.h;
   const ctx=cv.getContext('2d');
   const en=lang.code==='en';
@@ -556,8 +576,8 @@ function renderPoster(topic,dateObj,lang,size,settings){
   ctx.fillStyle='#fff';ctx.font=`800 ${tPx}px ${GFONT}`;
   { const lh=tPx*1.12; let yy=titleTop; for(const ln of tLines){ ctx.fillText(ln,M,yy); yy+=lh; } }
 
-  // ---- Hero illustration ----
-  drawHero(ctx,topic,W/2,illoY+illoH/2,illoH*0.46,green);
+  // ---- Hero illustration (uploaded theme image if present, else vector) ----
+  drawHero(ctx,topic,W/2,illoY+illoH/2,illoH*0.46,green,heroImg);
 
   // ---- CTA (fit first so we know its top) ----
   const ctaMaxW=W-160*S; let cPx=34*S, cLines;
@@ -652,6 +672,8 @@ function canvasToDataURL(cv,quality){return quality==='standard'?cv.toDataURL('i
 async function generateSet(dateObj,langs,sizes){
   const settings=getSettings();await refreshLogoCache();
   const topic=topicForDate(dateObj);const dateStr=ymd(dateObj);
+  const asset=await assetGet(themeKey(topic));
+  const heroImg=asset?await loadImg(asset.dataURL):null;
   const existing=await dbAll();
   const puts=[], updates=[];
   for(const lang of langs){
@@ -661,9 +683,9 @@ async function generateSet(dateObj,langs,sizes){
       const nextV=slotRecs.reduce((m,p)=>Math.max(m,p.version||1),0)+1;
       // deactivate previous active version of this slot (in the same tx)
       slotRecs.filter(p=>p.active).forEach(p=>updates.push(Object.assign({},p,{active:false})));
-      const cv=renderPoster(topic,dateObj,lang,size,settings); // may throw -> abort, nothing stored
+      const cv=renderPoster(topic,dateObj,lang,size,settings,heroImg); // may throw -> abort, nothing stored
       const url=canvasToDataURL(cv,settings.quality);
-      puts.push({id:posterId(dateStr,lang.key,size.key,nextV),slot,version:nextV,active:true,
+      puts.push({id:posterId(dateStr,lang.key,size.key,nextV),slot,version:nextV,active:true,hasImage:!!heroImg,
         date:dateStr,category:topic.category,status:topic.status,
         topic:lang.code==='en'?topic.title_en:topic.title_gu,topicEn:topic.title_en,
         language:lang.key,size:size.key,w:size.w,h:size.h,dataURL:url,
@@ -948,7 +970,11 @@ function pageGenerator(){
       <button class="btn blue" id="gBoth">Generate Both Languages</button>
       <button class="btn" id="gAll">Generate All Sizes</button>
       <button class="btn ghost" id="gRegen">↻ Regenerate</button>
-    </div>`;
+    </div>
+    <h3 class="sec" style="margin-top:16px">Theme image (optional)</h3>
+    <p class="muted" style="font-size:12px;margin:0 0 8px">Drop in a photo or a Canva/AI export to replace the vector illustration for this theme (<b>${esc(topic.title_en)}</b>). Used on every date with this theme. Regenerate to apply.</p>
+    <div id="themeImgPrev" style="margin-bottom:8px"></div>
+    <div class="btnrow"><label class="btn sm" style="cursor:pointer">📷 Upload image<input type="file" id="themeImg" accept="image/*" hidden></label><button class="btn sm" id="themeImgClear">Remove</button></div>`;
   row.appendChild(left);
   const right=el(`<div class="col"></div>`);
   right.innerHTML=`<div class="card"><h3 class="sec">Preview</h3><div class="tabs" id="prevTabs"></div><div class="posterwrap" id="genPrev"><div class="empty-state"><div class="big">🖼️</div>Generate to see posters.</div></div></div>`;
@@ -962,6 +988,16 @@ function pageGenerator(){
   document.getElementById('gBoth').onclick=()=>gen(LANGS,SIZES,'Generating both languages…');
   document.getElementById('gAll').onclick=()=>gen(LANGS,SIZES,'Generating all 6…');
   document.getElementById('gRegen').onclick=()=>gen(LANGS,SIZES,'Regenerating…');
+
+  // theme image upload
+  const tkey=themeKey(topic);
+  async function refreshThemeImg(){
+    const a=await assetGet(tkey);const box=document.getElementById('themeImgPrev');if(!box)return;
+    box.innerHTML=a?`<img src="${a.dataURL}" style="max-height:120px;max-width:100%;border:1px solid var(--line);border-radius:8px;background:#fff">`:'<span class="muted" style="font-size:12px">No image — using vector illustration.</span>';
+  }
+  refreshThemeImg();
+  document.getElementById('themeImg').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=async()=>{await assetPut(tkey,r.result,topic.title_en);toast('Theme image saved — regenerate to apply');refreshThemeImg();};r.readAsDataURL(f);};
+  document.getElementById('themeImgClear').onclick=async()=>{await assetDelete(tkey);toast('Theme image removed');refreshThemeImg();};
 
   async function loadPreview(){
     const all=activeOnly(await dbAll()).filter(p=>p.date===dateStr).sort((a,b)=>a.language.localeCompare(b.language)||a.size.localeCompare(b.size));
@@ -1241,7 +1277,7 @@ function pageSettings(){
   };
   document.getElementById('resetS').onclick=async()=>{saveSettings(DEFAULT_SETTINGS);await refreshLogoCache();toast('Reset to defaults');pageSettings();};
   document.getElementById('clearPosters').onclick=async()=>{if(!confirm('Delete ALL generated posters (all versions)? This cannot be undone.'))return;await dbClearAll();toast('All posters cleared');pageSettings();};
-  document.getElementById('resetAll').onclick=async()=>{if(!confirm('Reset EVERYTHING — posters, settings and log? This cannot be undone.'))return;await dbClearAll();['settings','log','lastAutoRun'].forEach(k=>localStorage.removeItem('has_'+k));await refreshLogoCache();toast('Everything reset');go('home');};
+  document.getElementById('resetAll').onclick=async()=>{if(!confirm('Reset EVERYTHING — posters, theme images, settings and log? This cannot be undone.'))return;await dbClearAll();await assetClearAll();['settings','log','lastAutoRun'].forEach(k=>localStorage.removeItem('has_'+k));await refreshLogoCache();toast('Everything reset');go('home');};
   function val(id){return document.getElementById(id).value;}
 }
 

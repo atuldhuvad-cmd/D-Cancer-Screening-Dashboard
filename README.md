@@ -20,6 +20,9 @@ modern browser.
 - **Non-destructive versioning**: regenerating keeps previous versions; restore any
   version from the Library. Generation and publishing are **atomic** (all-or-nothing).
 - **Movable observances** (Mother's/Father's/Friendship Day) are computed per year.
+- **Optional theme image**: upload a photo or a Canva/AI export for any theme in the
+  Poster Generator and the app composites it into the poster layout (header, icon
+  strip, footer) across all 6 posters; falls back to built-in vector art otherwise.
 - Sections: Home, Calendar, Poster Generator, Poster Library, Captions, Downloads,
   Publishing Log, Analytics, Settings.
 - Download individual images or a full ZIP (with `captions.json` + `metadata.json`).

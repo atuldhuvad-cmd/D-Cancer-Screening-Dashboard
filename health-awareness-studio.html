@@ -167,11 +167,7 @@ table.tbl th{color:var(--muted);font-size:11.5px;text-transform:uppercase;letter
       Content rules: no invented statistics, no fake WHO/ministry data,
       simple English + Gujarati, general verified advice only.
    ===================================================================== */
-const CATEGORIES = {
-  Health:{color:'#1a9f6e'}, National:{color:'#c0392b'}, Environment:{color:'#2e8b57'},
-  Education:{color:'#8e44ad'}, Women:{color:'#d6336c'}, Children:{color:'#e67e22'},
-  International:{color:'#1668c1'}, Nutrition:{color:'#e1a300'}, Yoga:{color:'#16a085'}
-};
+/* CATEGORIES (buckets) + calendar engine defined below, after AWARENESS overrides */
 
 // helper to build a topic entry compactly
 function T(m,d,cat,en,gu,imp_en,imp_gu,kp_en,kp_gu,cta_en,cta_gu,tags,icon){
@@ -430,17 +426,158 @@ const AWARENESS = [
     ['IDPD','Inclusion','DisabilityAwareness'],'heart')
 ];
 
-/* Fallback general health tips when a date has no listed awareness day */
-const FALLBACKS = [
-  T(0,0,'Health','Daily Health Tip','દૈનિક આરોગ્ય સૂચન',
-    'Small daily habits add up to lifelong good health.',
-    'નાની રોજિંદી આદતો જીવનભરના સારા આરોગ્યમાં પરિણમે છે.',
-    ['Drink enough safe water','Eat fruits and vegetables','Stay active every day','Sleep 7–8 hours'],
-    ['પૂરતું સ્વચ્છ પાણી પીઓ','ફળ અને શાકભાજી ખાઓ','રોજ સક્રિય રહો','7–8 કલાક ઊંઘો'],
-    'Pick one healthy habit and start today.',
-    'એક સ્વસ્થ આદત પસંદ કરો અને આજથી શરૂ કરો.',
-    ['HealthTip','StayHealthy','WellnessDaily'],'heart')
-];
+const CAL_ROWS=[[1,1,"Balanced Diet Awareness Day","Health & Nutrition"],[1,2,"Daily Walking Awareness Day","Physical Activity"],[1,3,"Safe Drinking Water Awareness Day","Public Health"],[1,4,"World Braille Day","Health & Inclusion"],[1,5,"Sleep Health Awareness Day","Mental & Physical Health"],[1,6,"Oral Hygiene Awareness Day","Health"],[1,7,"Handwashing Practice Day","Public Health"],[1,8,"Healthy Heart Habits Day","Health"],[1,9,"Pravasi Bharatiya Divas","National"],[1,10,"World Hindi Day","Language & Culture"],[1,11,"Diabetes Prevention Awareness Day","Health"],[1,12,"National Youth Day","National"],[1,13,"Blood Pressure Check Awareness Day","Health"],[1,14,"Cancer Prevention Awareness Day","Health"],[1,15,"Indian Army Day","National"],[1,16,"Tobacco-Free Living Day","Health"],[1,17,"Mental Well-being Awareness Day","Mental Health"],[1,18,"Maternal Health Awareness Day","Reproductive & Maternal Health"],[1,19,"Child Nutrition Awareness Day","Child Health"],[1,20,"Adolescent Health Awareness Day","Adolescent Health"],[1,21,"Senior Citizen Wellness Day","Healthy Ageing"],[1,22,"Road Safety Awareness Day","Safety & Injury Prevention"],[1,23,"Parakram Diwas","National"],[1,24,"National Girl Child Day","Health & Social"],[1,25,"National Voters' Day","National"],[1,26,"Republic Day","National"],[1,27,"Mosquito-Borne Disease Prevention Day","Vector-Borne Disease"],[1,28,"Dengue Prevention Awareness Day","Vector-Borne Disease"],[1,29,"Malaria Prevention Awareness Day","Vector-Borne Disease"],[1,30,"Martyrs' Day / Anti-Leprosy Day","National & Health"],[1,31,"Tuberculosis Prevention Awareness Day","Communicable Disease"],[2,1,"Vaccination Awareness Day","Immunization"],[2,2,"World Wetlands Day","Environment"],[2,3,"Anaemia Prevention Awareness Day","Nutrition"],[2,4,"World Cancer Day","Health"],[2,5,"Women's Health Awareness Day","Women's Health"],[2,6,"International Day of Zero Tolerance for FGM","Health & Rights"],[2,7,"Men's Health Awareness Day","Men's Health"],[2,8,"Eye Health Awareness Day","Health"],[2,9,"Hearing Health Awareness Day","Health"],[2,10,"National Deworming Day","Health"],[2,11,"International Day of Women and Girls in Science","Science & Inclusion"],[2,12,"Kidney Health Awareness Day","Health"],[2,13,"World Radio Day","Communication"],[2,14,"Liver Health Awareness Day","Health"],[2,15,"International Childhood Cancer Day","Health"],[2,16,"Respiratory Health Awareness Day","Health"],[2,17,"Food Safety Awareness Day","Public Health"],[2,18,"Sanitation Awareness Day","Public Health"],[2,19,"Occupational Health Awareness Day","Occupational Health"],[2,20,"World Day of Social Justice","Social"],[2,21,"International Mother Language Day","Language & Culture"],[2,22,"First Aid Awareness Day","Emergency Preparedness"],[2,23,"Organ Donation Awareness Day","Health"],[2,24,"Blood Donation Awareness Day","Health"],[2,25,"Antimicrobial Resistance Awareness Day","Public Health"],[2,26,"Zoonotic Disease Prevention Day","Public Health"],[2,27,"World NGO Day","Social"],[2,28,"National Science Day","National & Science"],[3,1,"Zero Discrimination Day","Health & Rights"],[3,2,"One Health Awareness Day","Public Health"],[3,3,"World Hearing Day / World Wildlife Day","Health & Environment"],[3,4,"World Obesity Day","Health"],[3,5,"Climate and Health Awareness Day","Health & Environment"],[3,6,"Balanced Diet Awareness Day","Health & Nutrition"],[3,7,"Daily Walking Awareness Day","Physical Activity"],[3,8,"International Women's Day","Health & Social"],[3,9,"Safe Drinking Water Awareness Day","Public Health"],[3,10,"CISF Raising Day","National"],[3,11,"Sleep Health Awareness Day","Mental & Physical Health"],[3,12,"World Kidney Day","Health"],[3,13,"Oral Hygiene Awareness Day","Health"],[3,14,"Handwashing Practice Day","Public Health"],[3,15,"World Consumer Rights Day","Consumer Affairs"],[3,16,"National Vaccination Day","Health"],[3,17,"Healthy Heart Habits Day","Health"],[3,18,"Diabetes Prevention Awareness Day","Health"],[3,19,"Blood Pressure Check Awareness Day","Health"],[3,20,"World Oral Health Day","Health"],[3,21,"World Down Syndrome Day / International Day of Forests","Health & Environment"],[3,22,"World Water Day","Health & Environment"],[3,23,"Shaheed Diwas","National"],[3,24,"World Tuberculosis Day","Health"],[3,25,"Cancer Prevention Awareness Day","Health"],[3,26,"Tobacco-Free Living Day","Health"],[3,27,"Mental Well-being Awareness Day","Mental Health"],[3,28,"Maternal Health Awareness Day","Reproductive & Maternal Health"],[3,29,"Child Nutrition Awareness Day","Child Health"],[3,30,"Adolescent Health Awareness Day","Adolescent Health"],[3,31,"Senior Citizen Wellness Day","Healthy Ageing"],[4,1,"Road Safety Awareness Day","Safety & Injury Prevention"],[4,2,"World Autism Awareness Day","Health & Inclusion"],[4,3,"Mosquito-Borne Disease Prevention Day","Vector-Borne Disease"],[4,4,"Dengue Prevention Awareness Day","Vector-Borne Disease"],[4,5,"National Maritime Day","National"],[4,6,"Malaria Prevention Awareness Day","Vector-Borne Disease"],[4,7,"World Health Day","Health"],[4,8,"Tuberculosis Prevention Awareness Day","Communicable Disease"],[4,9,"Vaccination Awareness Day","Immunization"],[4,10,"World Homeopathy Day","Health"],[4,11,"National Safe Motherhood Day / World Parkinson's Day","Health"],[4,12,"Anaemia Prevention Awareness Day","Nutrition"],[4,13,"Women's Health Awareness Day","Women's Health"],[4,14,"Dr. B. R. Ambedkar Jayanti","National"],[4,15,"Men's Health Awareness Day","Men's Health"],[4,16,"Eye Health Awareness Day","Health"],[4,17,"World Haemophilia Day","Health"],[4,18,"World Heritage Day","Culture"],[4,19,"Hearing Health Awareness Day","Health"],[4,20,"Kidney Health Awareness Day","Health"],[4,21,"Liver Health Awareness Day","Health"],[4,22,"Earth Day","Environment"],[4,23,"Respiratory Health Awareness Day","Health"],[4,24,"National Panchayati Raj Day","National"],[4,25,"World Malaria Day","Health"],[4,26,"Food Safety Awareness Day","Public Health"],[4,27,"Sanitation Awareness Day","Public Health"],[4,28,"World Day for Safety and Health at Work","Occupational Health"],[4,29,"Occupational Health Awareness Day","Occupational Health"],[4,30,"First Aid Awareness Day","Emergency Preparedness"],[5,1,"International Labour Day","National & Labour"],[5,2,"Organ Donation Awareness Day","Health"],[5,3,"World Press Freedom Day","Media"],[5,4,"Blood Donation Awareness Day","Health"],[5,5,"World Hand Hygiene Day","Health"],[5,6,"Antimicrobial Resistance Awareness Day","Public Health"],[5,7,"Zoonotic Disease Prevention Day","Public Health"],[5,8,"World Red Cross and Red Crescent Day","Health & Humanitarian"],[5,9,"One Health Awareness Day","Public Health"],[5,10,"Mother's Day","Family & Social"],[5,11,"National Technology Day","National & Science"],[5,12,"International Nurses Day","Health"],[5,13,"Climate and Health Awareness Day","Health & Environment"],[5,14,"Balanced Diet Awareness Day","Health & Nutrition"],[5,15,"International Day of Families","Social"],[5,16,"Daily Walking Awareness Day","Physical Activity"],[5,17,"World Hypertension Day","Health"],[5,18,"World AIDS Vaccine Day","Health"],[5,19,"Safe Drinking Water Awareness Day","Public Health"],[5,20,"World Bee Day","Environment"],[5,21,"International Tea Day","Agriculture"],[5,22,"International Day for Biological Diversity","Environment"],[5,23,"Sleep Health Awareness Day","Mental & Physical Health"],[5,24,"Oral Hygiene Awareness Day","Health"],[5,25,"Handwashing Practice Day","Public Health"],[5,26,"Healthy Heart Habits Day","Health"],[5,27,"Diabetes Prevention Awareness Day","Health"],[5,28,"Menstrual Hygiene Day","Health"],[5,29,"Blood Pressure Check Awareness Day","Health"],[5,30,"Cancer Prevention Awareness Day","Health"],[5,31,"World No Tobacco Day","Health"],[6,1,"Global Day of Parents","Social"],[6,2,"Tobacco-Free Living Day","Health"],[6,3,"World Bicycle Day","Health & Environment"],[6,4,"Mental Well-being Awareness Day","Mental Health"],[6,5,"World Environment Day","Environment"],[6,6,"Maternal Health Awareness Day","Reproductive & Maternal Health"],[6,7,"World Food Safety Day","Health & Nutrition"],[6,8,"World Oceans Day","Environment"],[6,9,"Child Nutrition Awareness Day","Child Health"],[6,10,"Adolescent Health Awareness Day","Adolescent Health"],[6,11,"Senior Citizen Wellness Day","Healthy Ageing"],[6,12,"World Day Against Child Labour","Social"],[6,13,"Road Safety Awareness Day","Safety & Injury Prevention"],[6,14,"World Blood Donor Day","Health"],[6,15,"Mosquito-Borne Disease Prevention Day","Vector-Borne Disease"],[6,16,"Dengue Prevention Awareness Day","Vector-Borne Disease"],[6,17,"Malaria Prevention Awareness Day","Vector-Borne Disease"],[6,18,"Tuberculosis Prevention Awareness Day","Communicable Disease"],[6,19,"World Sickle Cell Day","Health"],[6,20,"World Refugee Day","Humanitarian"],[6,21,"Father's Day / International Day of Yoga","Health & Family"],[6,22,"Vaccination Awareness Day","Immunization"],[6,23,"Anaemia Prevention Awareness Day","Nutrition"],[6,24,"Women's Health Awareness Day","Women's Health"],[6,25,"Men's Health Awareness Day","Men's Health"],[6,26,"International Day Against Drug Abuse and Illicit Trafficking","Health & Social"],[6,27,"Eye Health Awareness Day","Health"],[6,28,"Hearing Health Awareness Day","Health"],[6,29,"Kidney Health Awareness Day","Health"],[6,30,"Liver Health Awareness Day","Health"],[7,1,"National Doctors' Day","Health"],[7,2,"Respiratory Health Awareness Day","Health"],[7,3,"Food Safety Awareness Day","Public Health"],[7,4,"Sanitation Awareness Day","Public Health"],[7,5,"Occupational Health Awareness Day","Occupational Health"],[7,6,"World Zoonoses Day","Health"],[7,7,"First Aid Awareness Day","Emergency Preparedness"],[7,8,"Organ Donation Awareness Day","Health"],[7,9,"Blood Donation Awareness Day","Health"],[7,10,"Antimicrobial Resistance Awareness Day","Public Health"],[7,11,"World Population Day","Health & Social"],[7,12,"Zoonotic Disease Prevention Day","Public Health"],[7,13,"One Health Awareness Day","Public Health"],[7,14,"Climate and Health Awareness Day","Health & Environment"],[7,15,"World Youth Skills Day","Education & Skills"],[7,16,"Balanced Diet Awareness Day","Health & Nutrition"],[7,17,"Daily Walking Awareness Day","Physical Activity"],[7,18,"Nelson Mandela International Day","Social"],[7,19,"Safe Drinking Water Awareness Day","Public Health"],[7,20,"Sleep Health Awareness Day","Mental & Physical Health"],[7,21,"Oral Hygiene Awareness Day","Health"],[7,22,"Handwashing Practice Day","Public Health"],[7,23,"Healthy Heart Habits Day","Health"],[7,24,"Diabetes Prevention Awareness Day","Health"],[7,25,"Blood Pressure Check Awareness Day","Health"],[7,26,"Kargil Vijay Diwas","National"],[7,27,"Cancer Prevention Awareness Day","Health"],[7,28,"World Hepatitis Day","Health"],[7,29,"International Tiger Day","Environment"],[7,30,"World Day Against Trafficking in Persons","Social"],[7,31,"Tobacco-Free Living Day","Health"],[8,1,"World Lung Cancer Day","Health"],[8,2,"Friendship Day","Social"],[8,3,"Mental Well-being Awareness Day","Mental Health"],[8,4,"Maternal Health Awareness Day","Reproductive & Maternal Health"],[8,5,"Child Nutrition Awareness Day","Child Health"],[8,6,"Hiroshima Day","Peace"],[8,7,"National Handloom Day","National"],[8,8,"Adolescent Health Awareness Day","Adolescent Health"],[8,9,"Quit India Movement Day","National"],[8,10,"World Biofuel Day","Environment & Energy"],[8,11,"Senior Citizen Wellness Day","Healthy Ageing"],[8,12,"International Youth Day","Social"],[8,13,"Road Safety Awareness Day","Safety & Injury Prevention"],[8,14,"Mosquito-Borne Disease Prevention Day","Vector-Borne Disease"],[8,15,"Independence Day","National"],[8,16,"Dengue Prevention Awareness Day","Vector-Borne Disease"],[8,17,"Malaria Prevention Awareness Day","Vector-Borne Disease"],[8,18,"Tuberculosis Prevention Awareness Day","Communicable Disease"],[8,19,"World Humanitarian Day","Humanitarian"],[8,20,"Sadbhavana Diwas","National & Social"],[8,21,"Vaccination Awareness Day","Immunization"],[8,22,"Anaemia Prevention Awareness Day","Nutrition"],[8,23,"International Day for the Remembrance of the Slave Trade","Social"],[8,24,"Women's Health Awareness Day","Women's Health"],[8,25,"Men's Health Awareness Day","Men's Health"],[8,26,"Eye Health Awareness Day","Health"],[8,27,"Hearing Health Awareness Day","Health"],[8,28,"Kidney Health Awareness Day","Health"],[8,29,"National Sports Day","Health & Sports"],[8,30,"National Small Industry Day","National & Economy"],[8,31,"Liver Health Awareness Day","Health"],[9,1,"Respiratory Health Awareness Day","Health"],[9,2,"Food Safety Awareness Day","Public Health"],[9,3,"Sanitation Awareness Day","Public Health"],[9,4,"Occupational Health Awareness Day","Occupational Health"],[9,5,"Teachers' Day","National & Education"],[9,6,"First Aid Awareness Day","Emergency Preparedness"],[9,7,"Organ Donation Awareness Day","Health"],[9,8,"International Literacy Day","Education"],[9,9,"Blood Donation Awareness Day","Health"],[9,10,"World Suicide Prevention Day","Health"],[9,11,"Antimicrobial Resistance Awareness Day","Public Health"],[9,12,"Zoonotic Disease Prevention Day","Public Health"],[9,13,"One Health Awareness Day","Public Health"],[9,14,"Hindi Diwas","National & Language"],[9,15,"Engineers' Day","National & Science"],[9,16,"World Ozone Day","Environment"],[9,17,"World Patient Safety Day","Health"],[9,18,"Climate and Health Awareness Day","Health & Environment"],[9,19,"Balanced Diet Awareness Day","Health & Nutrition"],[9,20,"Daily Walking Awareness Day","Physical Activity"],[9,21,"World Alzheimer's Day / International Day of Peace","Health & Peace"],[9,22,"Safe Drinking Water Awareness Day","Public Health"],[9,23,"Sleep Health Awareness Day","Mental & Physical Health"],[9,24,"Oral Hygiene Awareness Day","Health"],[9,25,"World Pharmacists Day","Health"],[9,26,"World Environmental Health Day","Health & Environment"],[9,27,"World Rivers Day / World Tourism Day","Environment & Tourism"],[9,28,"World Rabies Day","Health"],[9,29,"World Heart Day","Health"],[9,30,"Handwashing Practice Day","Public Health"],[10,1,"National Voluntary Blood Donation Day / International Day of Older Persons","Health & Social"],[10,2,"Gandhi Jayanti / International Day of Non-Violence","National & Peace"],[10,3,"Healthy Heart Habits Day","Health"],[10,4,"World Animal Day","Environment"],[10,5,"World Teachers' Day","Education"],[10,6,"Diabetes Prevention Awareness Day","Health"],[10,7,"Blood Pressure Check Awareness Day","Health"],[10,8,"Indian Air Force Day","National"],[10,9,"World Post Day","Communication"],[10,10,"World Mental Health Day","Health"],[10,11,"International Day of the Girl Child","Health & Social"],[10,12,"World Arthritis Day","Health"],[10,13,"International Day for Disaster Risk Reduction","Safety"],[10,14,"Cancer Prevention Awareness Day","Health"],[10,15,"Global Handwashing Day","Health"],[10,16,"World Food Day","Health & Nutrition"],[10,17,"Tobacco-Free Living Day","Health"],[10,18,"Mental Well-being Awareness Day","Mental Health"],[10,19,"Maternal Health Awareness Day","Reproductive & Maternal Health"],[10,20,"World Osteoporosis Day","Health"],[10,21,"Child Nutrition Awareness Day","Child Health"],[10,22,"Adolescent Health Awareness Day","Adolescent Health"],[10,23,"Senior Citizen Wellness Day","Healthy Ageing"],[10,24,"United Nations Day / World Polio Day","Health & International"],[10,25,"Road Safety Awareness Day","Safety & Injury Prevention"],[10,26,"Mosquito-Borne Disease Prevention Day","Vector-Borne Disease"],[10,27,"Dengue Prevention Awareness Day","Vector-Borne Disease"],[10,28,"Malaria Prevention Awareness Day","Vector-Borne Disease"],[10,29,"World Stroke Day","Health"],[10,30,"Tuberculosis Prevention Awareness Day","Communicable Disease"],[10,31,"National Unity Day","National"],[11,1,"Vaccination Awareness Day","Immunization"],[11,2,"Anaemia Prevention Awareness Day","Nutrition"],[11,3,"Women's Health Awareness Day","Women's Health"],[11,4,"Men's Health Awareness Day","Men's Health"],[11,5,"World Tsunami Awareness Day","Safety"],[11,6,"Eye Health Awareness Day","Health"],[11,7,"National Cancer Awareness Day","Health"],[11,8,"Hearing Health Awareness Day","Health"],[11,9,"National Legal Services Day","National & Legal"],[11,10,"World Science Day for Peace and Development","Science"],[11,11,"National Education Day","National & Education"],[11,12,"World Pneumonia Day","Health"],[11,13,"Kidney Health Awareness Day","Health"],[11,14,"Children's Day / World Diabetes Day","Health & National"],[11,15,"Liver Health Awareness Day","Health"],[11,16,"National Press Day","National & Media"],[11,17,"World Prematurity Day","Health"],[11,18,"Respiratory Health Awareness Day","Health"],[11,19,"World Toilet Day / International Men's Day","Health & Social"],[11,20,"Universal Children's Day","Social"],[11,21,"World Fisheries Day","Environment & Livelihood"],[11,22,"Food Safety Awareness Day","Public Health"],[11,23,"Sanitation Awareness Day","Public Health"],[11,24,"Occupational Health Awareness Day","Occupational Health"],[11,25,"First Aid Awareness Day","Emergency Preparedness"],[11,26,"Constitution Day","National"],[11,27,"Organ Donation Awareness Day","Health"],[11,28,"Blood Donation Awareness Day","Health"],[11,29,"Antimicrobial Resistance Awareness Day","Public Health"],[11,30,"Zoonotic Disease Prevention Day","Public Health"],[12,1,"World AIDS Day","Health"],[12,2,"National Pollution Control Day","Health & Environment"],[12,3,"International Day of Persons with Disabilities","Health & Inclusion"],[12,4,"Indian Navy Day","National"],[12,5,"World Soil Day","Environment & Agriculture"],[12,6,"One Health Awareness Day","Public Health"],[12,7,"Armed Forces Flag Day","National"],[12,8,"Climate and Health Awareness Day","Health & Environment"],[12,9,"International Anti-Corruption Day","Governance"],[12,10,"Human Rights Day","Rights"],[12,11,"International Mountain Day","Environment"],[12,12,"Balanced Diet Awareness Day","Health & Nutrition"],[12,13,"Daily Walking Awareness Day","Physical Activity"],[12,14,"National Energy Conservation Day","Environment & Energy"],[12,15,"Safe Drinking Water Awareness Day","Public Health"],[12,16,"Sleep Health Awareness Day","Mental & Physical Health"],[12,17,"Oral Hygiene Awareness Day","Health"],[12,18,"International Migrants Day","Social"],[12,19,"Handwashing Practice Day","Public Health"],[12,20,"Healthy Heart Habits Day","Health"],[12,21,"Diabetes Prevention Awareness Day","Health"],[12,22,"National Mathematics Day","National & Education"],[12,23,"Kisan Diwas / National Farmers' Day","National & Agriculture"],[12,24,"National Consumer Day","National & Consumer Affairs"],[12,25,"Good Governance Day","National & Governance"],[12,26,"Blood Pressure Check Awareness Day","Health"],[12,27,"Cancer Prevention Awareness Day","Health"],[12,28,"Tobacco-Free Living Day","Health"],[12,29,"Mental Well-being Awareness Day","Mental Health"],[12,30,"Maternal Health Awareness Day","Reproductive & Maternal Health"],[12,31,"Child Nutrition Awareness Day","Child Health"]];
+
+/* Bucket → colour + icon (compact set the many sheet categories map to) */
+const CATEGORIES = {
+  Health:{color:'#1a9f6e',icon:'heart'}, Nutrition:{color:'#e1a300',icon:'leaf'},
+  Activity:{color:'#16a085',icon:'yoga'}, Mental:{color:'#6c5ce7',icon:'brain'},
+  Environment:{color:'#2e8b57',icon:'leaf'}, Women:{color:'#d6336c',icon:'venus'},
+  Children:{color:'#e67e22',icon:'baby'}, Ageing:{color:'#b8860b',icon:'elder'},
+  National:{color:'#c0392b',icon:'cross'}, Education:{color:'#8e44ad',icon:'flask'},
+  Vector:{color:'#c0651a',icon:'mosquito'}, Immunization:{color:'#0f9d9d',icon:'drop'},
+  Safety:{color:'#d9482b',icon:'hands'}, Occupational:{color:'#7f8c8d',icon:'hands'},
+  Social:{color:'#1668c1',icon:'heart'}
+};
+
+/* Map a sheet category/title to one internal bucket */
+function bucketFor(cat,title){
+  const s=((cat||'')+' '+(title||'')).toLowerCase();
+  if(/nutrition|diet|\bfood\b|breastfeed|anaemia|anemia/.test(s)) return 'Nutrition';
+  if(/vector|malaria|dengue|mosquito|filaria|chikungunya|kala.?azar/.test(s)) return 'Vector';
+  if(/immun|vaccin/.test(s)) return 'Immunization';
+  if(/mental|depress|suicide|stress|psycho/.test(s)) return 'Mental';
+  if(/physical activity|\bwalk|fitness|exercise|\byoga\b|sport/.test(s)) return 'Activity';
+  if(/reproduct|maternal|\bwomen|girl|breast|cervical|menstru/.test(s)) return 'Women';
+  if(/child|adolescent|infant|newborn|paediatr|pediatr/.test(s)) return 'Children';
+  if(/age(ing|d)?\b|elder|older|senior/.test(s)) return 'Ageing';
+  if(/environment|climate|earth|\bwater\b|energy|forest|wildlife|ocean|pollution|tree/.test(s)) return 'Environment';
+  if(/safety|injury|emergency|disaster|road|\bfire\b|drown/.test(s)) return 'Safety';
+  if(/occupational/.test(s)) return 'Occupational';
+  if(/national/.test((cat||'').toLowerCase())) return 'National';
+  if(/education|literacy|skill|science|language|culture|media/.test((cat||'').toLowerCase())) return 'Education';
+  if(/social|inclusion|rights|humanitarian|peace|governance|consumer|disab/.test(s)) return 'Social';
+  return 'Health';
+}
+
+/* Generic, honest content per bucket (English + Gujarati) */
+const TEMPLATES={
+  Health:{ie:'Simple daily habits protect your long-term health.',ig:'સાદી રોજિંદી આદતો તમારા લાંબા ગાળાના આરોગ્યનું રક્ષણ કરે છે.',
+    ke:['Eat balanced, home-cooked meals','Stay active for 30 minutes daily','Drink safe water and wash hands','Get regular health check-ups'],
+    kg:['સંતુલિત, ઘરનું ભોજન લો','રોજ 30 મિનિટ સક્રિય રહો','સ્વચ્છ પાણી પીઓ અને હાથ ધોવો','નિયમિત આરોગ્ય તપાસ કરાવો'],
+    ce:'Take one small step for your health today.',cg:'આજે તમારા આરોગ્ય માટે એક નાનું પગલું ભરો.',tg:['StayHealthy','HealthForAll']},
+  Nutrition:{ie:'Good nutrition is the foundation of a healthy body and mind.',ig:'સારું પોષણ સ્વસ્થ શરીર અને મનનો પાયો છે.',
+    ke:['Eat more fruits and vegetables','Choose whole grains and pulses','Cut down on sugar, salt and oil','Drink enough clean water'],
+    kg:['વધુ ફળ અને શાકભાજી ખાઓ','આખા અનાજ અને કઠોળ પસંદ કરો','ખાંડ, મીઠું અને તેલ ઓછું કરો','પૂરતું સ્વચ્છ પાણી પીઓ'],
+    ce:'Add one healthy food to your plate today.',cg:'આજે તમારી થાળીમાં એક પોષક ખોરાક ઉમેરો.',tg:['Nutrition','EatHealthy']},
+  Activity:{ie:'Staying active keeps your body and mind strong.',ig:'સક્રિય રહેવાથી શરીર અને મન મજબૂત રહે છે.',
+    ke:['Aim for 30 minutes of activity daily','Walking counts — start where you are','Take stairs instead of the lift','Move a little every hour'],
+    kg:['રોજ 30 મિનિટ પ્રવૃત્તિનું લક્ષ્ય રાખો','ચાલવું પણ ગણાય — શરૂ કરો','લિફ્ટ નહીં, દાદરા વાપરો','દર કલાકે થોડું હલો-ચલો'],
+    ce:'Get moving — a short walk today makes a difference.',cg:'ચાલો — આજની ટૂંકી ચાલ ફરક લાવે છે.',tg:['StayActive','FitIndia']},
+  Mental:{ie:'Mental health is health. It is okay to ask for help.',ig:'માનસિક આરોગ્ય પણ આરોગ્ય છે. મદદ માંગવી યોગ્ય છે.',
+    ke:['Talk to someone you trust','Keep a regular sleep routine','Take breaks and breathe','Seek help early, without shame'],
+    kg:['વિશ્વાસુ વ્યક્તિ સાથે વાત કરો','નિયમિત ઊંઘનો સમય રાખો','વિરામ લો અને શ્વાસ લો','શરમ વગર વહેલી મદદ લો'],
+    ce:'Reach out — a conversation can help.',cg:'વાત કરો — એક સંવાદ મદદ કરી શકે.',tg:['MentalHealth','YouMatter']},
+  Environment:{ie:'A clean environment is the foundation of good health.',ig:'સ્વચ્છ પર્યાવરણ સારા આરોગ્યનો પાયો છે.',
+    ke:['Plant and care for trees','Reduce single-use plastic','Save water and electricity','Keep your surroundings clean'],
+    kg:['વૃક્ષ વાવો અને સંભાળો','એક વખત વપરાતું પ્લાસ્ટિક ઘટાડો','પાણી અને વીજળી બચાવો','આસપાસ સ્વચ્છ રાખો'],
+    ce:'Do one green act today for a healthier tomorrow.',cg:'સ્વસ્થ આવતીકાલ માટે આજે એક હરિત કાર્ય કરો.',tg:['SaveEnvironment','GoGreen']},
+  Women:{ie:'Women’s health and wellbeing strengthen every family.',ig:'મહિલા આરોગ્ય અને સુખાકારી દરેક પરિવારને મજબૂત કરે છે.',
+    ke:['Attend regular health check-ups','Eat iron- and calcium-rich food','Do not ignore warning signs','Rest, nutrition and support matter'],
+    kg:['નિયમિત આરોગ્ય તપાસ કરાવો','આયર્ન અને કેલ્શિયમયુક્ત ખોરાક લો','ચેતવણી સંકેતોને અવગણશો નહીં','આરામ, પોષણ અને સાથ જરૂરી'],
+    ce:'Support the women around you — health and respect.',cg:'આસપાસની મહિલાઓને સાથ આપો — આરોગ્ય અને સન્માન.',tg:['WomensHealth','HealthyWomen']},
+  Children:{ie:'Healthy, happy children build a stronger future.',ig:'સ્વસ્થ, ખુશ બાળકો મજબૂત ભવિષ્ય બનાવે છે.',
+    ke:['Complete all childhood vaccines','Give balanced, nutritious food','Encourage play and study','Protect children from harm'],
+    kg:['બાળપણની બધી રસી પૂરી કરાવો','સંતુલિત, પોષક ખોરાક આપો','રમત અને અભ્યાસને પ્રોત્સાહન','બાળકોને નુકસાનથી બચાવો'],
+    ce:'Give every child care, nutrition and love.',cg:'દરેક બાળકને સંભાળ, પોષણ અને પ્રેમ આપો.',tg:['ChildHealth','HealthyChildren']},
+  Ageing:{ie:'Caring for our elders keeps them healthy and happy.',ig:'આપણા વડીલોની સંભાળ તેમને સ્વસ્થ અને ખુશ રાખે છે.',
+    ke:['Ensure regular check-ups','Help them take medicines on time','Encourage light daily activity','Spend time and listen'],
+    kg:['નિયમિત તપાસ કરાવો','સમયસર દવા લે તે જુઓ','હળવી દૈનિક પ્રવૃત્તિ કરાવો','સમય આપો અને સાંભળો'],
+    ce:'Call or visit an elder today — care matters.',cg:'આજે વડીલને મળો કે ફોન કરો — સંભાળ મહત્વની છે.',tg:['ElderCare','HealthyAgeing']},
+  National:{ie:'A day to reflect, remember and move forward together.',ig:'સાથે મળી વિચારવા, યાદ કરવા અને આગળ વધવાનો દિવસ.',
+    ke:['Know the meaning of the day','Honour those we remember','Contribute to your community','Carry the spirit forward'],
+    kg:['દિવસનું મહત્વ જાણો','જેમને યાદ કરીએ તેમનું સન્માન કરો','સમાજ માટે યોગદાન આપો','ભાવના આગળ વધારો'],
+    ce:'Take a moment to mark the day meaningfully.',cg:'દિવસને અર્થપૂર્ણ રીતે ઉજવવા ક્ષણ કાઢો.',tg:['India','ProudIndian']},
+  Education:{ie:'Knowledge and learning open doors for everyone.',ig:'જ્ઞાન અને શિક્ષણ દરેક માટે દ્વાર ખોલે છે.',
+    ke:['Support learning at every age','Encourage reading and curiosity','Share skills with others','Never stop learning'],
+    kg:['દરેક ઉંમરે શિક્ષણને સાથ આપો','વાંચન અને જિજ્ઞાસાને પ્રોત્સાહન','બીજા સાથે કૌશલ્ય વહેંચો','શીખવાનું ક્યારેય બંધ ન કરો'],
+    ce:'Learn or teach something new today.',cg:'આજે કંઈક નવું શીખો કે શીખવો.',tg:['Education','KeepLearning']},
+  Vector:{ie:'Mosquito-borne diseases are preventable with simple steps.',ig:'મચ્છરજન્ય રોગો સાદા પગલાંથી અટકાવી શકાય છે.',
+    ke:['Remove stagnant water weekly','Sleep under a mosquito net','Use repellents in the evening','Fever? Get a blood test early'],
+    kg:['દર અઠવાડિયે ભરાયેલું પાણી દૂર કરો','મચ્છરદાની હેઠળ સૂઓ','સાંજે મચ્છર ભગાડનાર વાપરો','તાવ? વહેલી લોહી તપાસ કરાવો'],
+    ce:'Check your home for mosquito breeding this week.',cg:'આ અઠવાડિયે ઘરમાં મચ્છર ઉત્પત્તિ તપાસો.',tg:['StopMosquito','FightDengue']},
+  Immunization:{ie:'Vaccines are a safe, proven way to prevent disease.',ig:'રસી રોગ અટકાવવાનો સલામત, સાબિત ઉપાય છે.',
+    ke:['Follow the vaccination schedule','Vaccinate children on time','Keep vaccination records safe','Ask your health worker for advice'],
+    kg:['રસીકરણ સમયપત્રક અનુસરો','બાળકોને સમયસર રસી અપાવો','રસીકરણ રેકોર્ડ સાચવો','આરોગ્ય કાર્યકરની સલાહ લો'],
+    ce:'Check that your family’s vaccines are up to date.',cg:'તમારા પરિવારની રસી અદ્યતન છે તે તપાસો.',tg:['Vaccinate','Immunization']},
+  Safety:{ie:'A few precautions can prevent serious injury.',ig:'થોડી સાવચેતી ગંભીર ઈજા અટકાવી શકે છે.',
+    ke:['Follow road and fire safety rules','Wear helmets and seatbelts','Keep emergency numbers handy','Know basic first aid'],
+    kg:['માર્ગ અને અગ્નિ સલામતી નિયમો પાળો','હેલ્મેટ અને સીટબેલ્ટ પહેરો','કટોકટી નંબર તૈયાર રાખો','પ્રાથમિક સારવાર જાણો'],
+    ce:'Stay alert — safety protects you and others.',cg:'સાવધ રહો — સલામતી તમને અને બીજાને બચાવે.',tg:['StaySafe','SafetyFirst']},
+  Occupational:{ie:'A safe, healthy workplace protects every worker.',ig:'સલામત, સ્વસ્થ કાર્યસ્થળ દરેક કામદારને બચાવે છે.',
+    ke:['Use protective equipment','Take regular breaks','Report hazards early','Maintain good posture'],
+    kg:['રક્ષણાત્મક સાધનો વાપરો','નિયમિત વિરામ લો','જોખમો વહેલા જણાવો','સારી મુદ્રા જાળવો'],
+    ce:'Make your workplace safer today.',cg:'આજે તમારા કાર્યસ્થળને વધુ સલામત બનાવો.',tg:['WorkplaceSafety','SafeAtWork']},
+  Social:{ie:'Compassion and inclusion make a healthier society.',ig:'કરુણા અને સમાવેશ સ્વસ્થ સમાજ બનાવે છે.',
+    ke:['Respect and include everyone','Support those in need','Stand against discrimination','Small kindness goes far'],
+    kg:['દરેકને સન્માન અને સમાવો','જરૂરિયાતમંદને સાથ આપો','ભેદભાવ સામે ઊભા રહો','નાની દયા દૂર સુધી પહોંચે'],
+    ce:'Do one kind, inclusive act today.',cg:'આજે એક દયાળુ, સમાવેશી કાર્ય કરો.',tg:['Kindness','Inclusion']}
+};
+
+/* Build override map (rich curated content) keyed by normalized observance name */
+function normTitle(s){return String(s).toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();}
+const OVERRIDES={};
+AWARENESS.forEach(a=>{OVERRIDES[normTitle(a.title_en)]=a;});
+const OVERRIDE_ALIASES={ // sheet wording → my override title
+  'world tuberculosis day':'world tb day',
+  'international day against drug abuse and illicit trafficking':'anti drug abuse day',
+  'world leprosy day':'world leprosy day','anti leprosy day':'world leprosy day'
+};
+function findOverride(sheetTitle){
+  // sheet titles may combine two observances with " / "
+  const parts=String(sheetTitle).split('/').map(p=>normTitle(p));
+  for(const p of parts){
+    if(OVERRIDES[p]) return OVERRIDES[p];
+    const al=OVERRIDE_ALIASES[p]; if(al&&OVERRIDES[al]) return OVERRIDES[al];
+  }
+  return null;
+}
+
+/* Index the 365-day calendar by month-day */
+const CALENDAR={};
+CAL_ROWS.forEach(r=>{CALENDAR[r[0]+'-'+r[1]]={month:r[0],day:r[1],title:r[2],sheetCat:r[3]};});
+
+function deriveTags(title,seed){
+  const words=String(title).replace(/[^A-Za-z0-9 ]/g,'').split(/\s+/).filter(Boolean).slice(0,4);
+  const first=words.map(w=>w[0].toUpperCase()+w.slice(1)).join('');
+  const t=[first];(seed||[]).forEach(s=>{if(!t.includes(s))t.push(s);});
+  return t.slice(0,3);
+}
+
+/* Resolve full topic object for any date (365-day coverage, overrides + templates) */
+function topicForDate(d){
+  const key=(d.getMonth()+1)+'-'+d.getDate();
+  const row=CALENDAR[key]||{title:'Daily Health Awareness',sheetCat:'Health'};
+  const bucket=bucketFor(row.sheetCat,row.title);
+  const tmpl=TEMPLATES[bucket]||TEMPLATES.Health;
+  const ov=findOverride(row.title);
+  return {
+    month:d.getMonth()+1, day:d.getDate(),
+    title_en: row.title,
+    title_gu: ov? ov.title_gu : row.title,
+    category: bucket,
+    sheetCategory: row.sheetCat,
+    importance_en: ov? ov.importance_en : tmpl.ie,
+    importance_gu: ov? ov.importance_gu : tmpl.ig,
+    keyPoints_en: ov? ov.keyPoints_en : tmpl.ke,
+    keyPoints_gu: ov? ov.keyPoints_gu : tmpl.kg,
+    cta_en: ov? ov.cta_en : tmpl.ce,
+    cta_gu: ov? ov.cta_gu : tmpl.cg,
+    hashtags: ov? ov.hashtags : deriveTags(row.title,tmpl.tg),
+    icon: ov? ov.icon : (CATEGORIES[bucket]?tmpl.icon:'cross')
+  };
+}
+
 
 const SIZES = [
   {key:'Story', w:1080, h:1920, label:'Story 9:16 (WhatsApp/IG)'},
@@ -496,15 +633,7 @@ function addLog(entry){const l=getLog();l.unshift(Object.assign({ts:Date.now()},
    ===================================================================== */
 function pad(n){return String(n).padStart(2,'0');}
 function ymd(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
-function topicForDate(d){
-  const m=d.getMonth()+1, day=d.getDate();
-  const hit=AWARENESS.find(t=>t.month===m && t.day===day);
-  if(hit) return hit;
-  // deterministic fallback by day-of-year
-  const start=new Date(d.getFullYear(),0,0);
-  const doy=Math.floor((d-start)/86400000);
-  return FALLBACKS[doy%FALLBACKS.length];
-}
+/* topicForDate is defined in the calendar engine above */
 function fmtLongDate(d){
   return d.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 }
@@ -847,7 +976,7 @@ async function pageHome(){
 /* -------- CALENDAR -------- */
 let calState={year:new Date().getFullYear(),month:new Date().getMonth(),filter:'',search:''};
 function pageCalendar(){
-  const cats=['','Health','National','Environment','Education','Women','Children','International','Nutrition','Yoga'];
+  const cats=[''].concat(Object.keys(CATEGORIES));
   main.innerHTML=topbar('Awareness Calendar','Yearly public-health calendar',
     `<div class="searchbox"><span>🔍</span><input id="calSearch" placeholder="Search topic…" value="${esc(calState.search)}"></div>`);
   const controls=el(`<div class="card" style="margin-bottom:16px"><div class="btnrow" style="justify-content:space-between;align-items:center">
@@ -875,7 +1004,7 @@ function pageCalendar(){
     const todayStr=ymd(new Date());
     for(let d=1;d<=days;d++){
       const dObj=new Date(y,m,d);const t=topicForDate(dObj);
-      const isReal=AWARENESS.some(a=>a.month===m+1&&a.day===d);
+      const isReal=true;
       const matchF=!calState.filter||(isReal&&t.category===calState.filter);
       const matchS=!calState.search||(isReal&&t.title_en.toLowerCase().includes(calState.search.toLowerCase()));
       const dim=(calState.filter||calState.search)&&!(matchF&&matchS);

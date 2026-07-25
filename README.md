@@ -7,6 +7,8 @@ posters (English + Gujarati) for personal use — no backend, no build step, no 
 modern browser.
 
 - Works fully offline. Posters and settings are stored on your device (IndexedDB + LocalStorage).
+- Covers a full **365-day 2026 observance calendar** (imported from the supplied
+  spreadsheet), so every date has a real awareness topic.
 - Each day it auto-picks the awareness topic and can generate 6 posters
   (English + Gujarati × Story / Feed / Square) from one template design.
 - Sections: Home, Calendar, Poster Generator, Poster Library, Captions, Downloads,

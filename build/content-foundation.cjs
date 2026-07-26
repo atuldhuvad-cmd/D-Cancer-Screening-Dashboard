@@ -928,8 +928,238 @@ const OFFICIAL_MIXED_CONTENT = {
 };
 Object.assign(TOPIC_CONTENT, OFFICIAL_MIXED_CONTENT);
 
+// ---- Content library (BATCH 4: national + international observances) ----
+const OFFICIAL_CIVIC_CONTENT = {
+  'pravasi-bharatiya-divas': {
+    title_en:'Pravasi Bharatiya Divas', title_gu:'પ્રવાસી ભારતીય દિવસ',
+    importance_en:'India honours the contribution of its overseas community to the nation.',
+    importance_gu:'ભારત તેના વિદેશવાસી સમુદાયના રાષ્ટ્ર પ્રત્યેના યોગદાનને સન્માન આપે છે.',
+    points_en:['Value the diaspora’s contribution','Stay connected to your roots','Support development back home','Share knowledge across borders'],
+    points_gu:['ડાયસ્પોરાના યોગદાનની કદર કરો','તમારા મૂળ સાથે જોડાયેલા રહો','વતનમાં વિકાસને ટેકો આપો','સરહદો પાર જ્ઞાન વહેંચો'],
+    cta_en:'Honour the global Indian family.', cta_gu:'વૈશ્વિક ભારતીય પરિવારને સન્માન આપો.',
+    hashtags:['PravasiBharatiyaDivas','Diaspora','ProudIndian'], icon:'globe', category:'National'
+  },
+  'national-youth-day': {
+    title_en:'National Youth Day', title_gu:'રાષ્ટ્રીય યુવા દિવસ',
+    importance_en:'Marked on Swami Vivekananda’s birthday to inspire the energy and ideals of youth.',
+    importance_gu:'યુવાનોની ઊર્જા અને આદર્શોને પ્રેરિત કરવા સ્વામી વિવેકાનંદના જન્મદિને ઉજવાય છે.',
+    points_en:['Set goals and keep learning','Serve your community','Stay physically and mentally fit','Lead with confidence and values'],
+    points_gu:['લક્ષ્યો નક્કી કરો અને શીખતા રહો','તમારા સમુદાયની સેવા કરો','શારીરિક અને માનસિક રીતે તંદુરસ્ત રહો','આત્મવિશ્વાસ અને મૂલ્યો સાથે નેતૃત્વ કરો'],
+    cta_en:'Arise, awake — youth power builds the nation.', cta_gu:'ઊઠો, જાગો — યુવા શક્તિ રાષ્ટ્ર ઘડે છે.',
+    hashtags:['NationalYouthDay','YouthPower','Vivekananda'], icon:'teen', category:'National'
+  },
+  'national-girl-child-day': {
+    title_en:'National Girl Child Day', title_gu:'રાષ્ટ્રીય બાળિકા દિવસ',
+    importance_en:'India promotes the rights, health and education of the girl child.',
+    importance_gu:'ભારત બાળિકાના અધિકારો, આરોગ્ય અને શિક્ષણને પ્રોત્સાહન આપે છે.',
+    points_en:['Ensure girls go to school','Protect girls’ health and nutrition','Say no to gender discrimination','Support girls’ dreams and safety'],
+    points_gu:['બાળિકાઓ શાળાએ જાય તે સુનિશ્ચિત કરો','બાળિકાઓના આરોગ્ય અને પોષણનું રક્ષણ કરો','લિંગ ભેદભાવને ના કહો','બાળિકાઓના સપના અને સલામતીને ટેકો આપો'],
+    cta_en:'Empower every girl child.', cta_gu:'દરેક બાળિકાને સશક્ત બનાવો.',
+    hashtags:['NationalGirlChildDay','BetiBachaoBetiPadhao','GirlPower'], icon:'child', category:'Health & Social'
+  },
+  'national-voters-day': {
+    title_en:"National Voters' Day", title_gu:'રાષ્ટ્રીય મતદાતા દિવસ',
+    importance_en:'India encourages every eligible citizen to register and vote.',
+    importance_gu:'ભારત દરેક પાત્ર નાગરિકને નોંધણી કરાવવા અને મત આપવા પ્રોત્સાહિત કરે છે.',
+    points_en:['Register as a voter','Vote in every election','Make an informed choice','Encourage others to vote'],
+    points_gu:['મતદાતા તરીકે નોંધણી કરાવો','દરેક ચૂંટણીમાં મત આપો','જાણકાર પસંદગી કરો','અન્યને મત આપવા પ્રોત્સાહિત કરો'],
+    cta_en:'Your vote, your voice — use it.', cta_gu:'તમારો મત, તમારો અવાજ — તેનો ઉપયોગ કરો.',
+    hashtags:['NationalVotersDay','MyVoteMyRight','Democracy'], icon:'building', category:'National'
+  },
+  'national-science-day': {
+    title_en:'National Science Day', title_gu:'રાષ્ટ્રીય વિજ્ઞાન દિવસ',
+    importance_en:'India celebrates science and the spirit of curiosity and discovery.',
+    importance_gu:'ભારત વિજ્ઞાન અને જિજ્ઞાસા તથા શોધની ભાવનાની ઉજવણી કરે છે.',
+    points_en:['Ask questions and seek evidence','Encourage scientific thinking','Support students in science','Use science for everyday problems'],
+    points_gu:['પ્રશ્નો પૂછો અને પુરાવો શોધો','વૈજ્ઞાનિક વિચારને પ્રોત્સાહન આપો','વિજ્ઞાનમાં વિદ્યાર્થીઓને ટેકો આપો','રોજિંદી સમસ્યાઓ માટે વિજ્ઞાન વાપરો'],
+    cta_en:'Think scientifically — question and discover.', cta_gu:'વૈજ્ઞાનિક રીતે વિચારો — પ્રશ્ન કરો અને શોધો.',
+    hashtags:['NationalScienceDay','ScienceForAll','Curiosity'], icon:'atom', category:'National & Science'
+  },
+  'ambedkar-jayanti': {
+    title_en:'Dr. B. R. Ambedkar Jayanti', title_gu:'ડૉ. બી. આર. આંબેડકર જયંતિ',
+    importance_en:'India honours the architect of its Constitution and champion of equality.',
+    importance_gu:'ભારત તેના બંધારણના શિલ્પી અને સમાનતાના પ્રણેતાને સન્માન આપે છે.',
+    points_en:['Uphold equality and justice','Value education as empowerment','Reject caste and discrimination','Know your constitutional rights'],
+    points_gu:['સમાનતા અને ન્યાય જાળવો','શિક્ષણને સશક્તિકરણ તરીકે મૂલવો','જાતિ અને ભેદભાવને નકારો','તમારા બંધારણીય અધિકારો જાણો'],
+    cta_en:'Educate, agitate, organise — for equality.', cta_gu:'શિક્ષિત બનો, સંગઠિત થાઓ — સમાનતા માટે.',
+    hashtags:['AmbedkarJayanti','Equality','Constitution'], icon:'scales', category:'National'
+  },
+  'teachers-day': {
+    title_en:"Teachers' Day", title_gu:'શિક્ષક દિવસ',
+    importance_en:'India honours teachers on Dr. Radhakrishnan’s birthday for shaping minds and futures.',
+    importance_gu:'ભારત મન અને ભવિષ્ય ઘડવા બદલ ડૉ. રાધાકૃષ્ણનના જન્મદિને શિક્ષકોને સન્માન આપે છે.',
+    points_en:['Thank your teachers','Value lifelong learning','Support quality education for all','Respect those who guide us'],
+    points_gu:['તમારા શિક્ષકોનો આભાર માનો','જીવનભરના શિક્ષણને મૂલવો','બધા માટે ગુણવત્તાયુક્ત શિક્ષણને ટેકો આપો','આપણને માર્ગદર્શન આપનારાઓનું સન્માન કરો'],
+    cta_en:'Thank a teacher who shaped your life.', cta_gu:'તમારું જીવન ઘડનાર શિક્ષકનો આભાર માનો.',
+    hashtags:['TeachersDay','ThankYouTeacher','Education'], icon:'cap', category:'National & Education'
+  },
+  'hindi-diwas': {
+    title_en:'Hindi Diwas', title_gu:'હિન્દી દિવસ',
+    importance_en:'India celebrates the Hindi language and its role in national life.',
+    importance_gu:'ભારત હિન્દી ભાષા અને રાષ્ટ્રીય જીવનમાં તેની ભૂમિકાની ઉજવણી કરે છે.',
+    points_en:['Take pride in your languages','Read and write in Hindi','Respect India’s many languages','Pass language to the next generation'],
+    points_gu:['તમારી ભાષાઓ પર ગર્વ કરો','હિન્દીમાં વાંચો અને લખો','ભારતની અનેક ભાષાઓનું સન્માન કરો','ભાષા આવનારી પેઢીને આપો'],
+    cta_en:'Celebrate language — read and write with pride.', cta_gu:'ભાષાની ઉજવણી કરો — ગર્વથી વાંચો અને લખો.',
+    hashtags:['HindiDiwas','Language','ProudIndian'], icon:'book', category:'National & Language'
+  },
+  'engineers-day': {
+    title_en:"Engineers' Day", title_gu:'ઇજનેર દિવસ',
+    importance_en:'India honours engineers on Sir M. Visvesvaraya’s birthday for building the nation.',
+    importance_gu:'ભારત રાષ્ટ્ર નિર્માણ બદલ સર એમ. વિશ્વેશ્વરૈયાના જન્મદિને ઇજનેરોને સન્માન આપે છે.',
+    points_en:['Value innovation and problem-solving','Build safe and sustainable solutions','Encourage youth in engineering','Respect the makers behind progress'],
+    points_gu:['નવીનતા અને સમસ્યા-ઉકેલને મૂલવો','સલામત અને ટકાઉ ઉકેલો બનાવો','યુવાનોને ઇજનેરીમાં પ્રોત્સાહિત કરો','પ્રગતિ પાછળના નિર્માતાઓનું સન્માન કરો'],
+    cta_en:'Celebrate engineers who build our world.', cta_gu:'આપણી દુનિયા ઘડનાર ઇજનેરોની ઉજવણી કરો.',
+    hashtags:['EngineersDay','Innovation','Visvesvaraya'], icon:'atom', category:'National & Science'
+  },
+  'national-unity-day': {
+    title_en:'National Unity Day', title_gu:'રાષ્ટ્રીય એકતા દિવસ',
+    importance_en:'Marks Sardar Patel’s birthday and the value of a united India.',
+    importance_gu:'સરદાર પટેલના જન્મદિન અને એકજૂટ ભારતના મૂલ્યની યાદ અપાવે છે.',
+    points_en:['Stand for national unity','Respect all communities','Resolve differences peacefully','Serve the country together'],
+    points_gu:['રાષ્ટ્રીય એકતા માટે ઊભા રહો','બધા સમુદાયોનું સન્માન કરો','મતભેદો શાંતિપૂર્ણ રીતે ઉકેલો','સાથે મળી દેશની સેવા કરો'],
+    cta_en:'United we stand — strengthen the nation.', cta_gu:'એકતામાં આપણી શક્તિ — રાષ્ટ્રને મજબૂત કરો.',
+    hashtags:['NationalUnityDay','EkBharat','Unity'], icon:'flag', category:'National'
+  },
+  'constitution-day': {
+    title_en:'Constitution Day', title_gu:'બંધારણ દિવસ',
+    importance_en:'India marks the adoption of its Constitution and the values it upholds.',
+    importance_gu:'ભારત તેના બંધારણ સ્વીકાર અને તે જાળવતા મૂલ્યોની યાદ કરે છે.',
+    points_en:['Know your rights and duties','Uphold justice and equality','Respect the rule of law','Participate in democracy'],
+    points_gu:['તમારા અધિકારો અને ફરજો જાણો','ન્યાય અને સમાનતા જાળવો','કાયદાના શાસનનું સન્માન કરો','લોકશાહીમાં ભાગ લો'],
+    cta_en:'Know and honour your Constitution.', cta_gu:'તમારા બંધારણને જાણો અને સન્માન આપો.',
+    hashtags:['ConstitutionDay','SamvidhanDivas','Democracy'], icon:'scales', category:'National'
+  },
+  'national-mathematics-day': {
+    title_en:'National Mathematics Day', title_gu:'રાષ્ટ્રીય ગણિત દિવસ',
+    importance_en:'Marks Srinivasa Ramanujan’s birthday and the beauty of mathematics.',
+    importance_gu:'શ્રીનિવાસ રામાનુજનના જન્મદિન અને ગણિતના સૌંદર્યની યાદ અપાવે છે.',
+    points_en:['Enjoy solving problems','Build strong number skills','Encourage students in maths','Use maths in daily life'],
+    points_gu:['સમસ્યાઓ ઉકેલવાનો આનંદ લો','મજબૂત ગણન કૌશલ્ય બનાવો','વિદ્યાર્થીઓને ગણિતમાં પ્રોત્સાહિત કરો','રોજિંદા જીવનમાં ગણિત વાપરો'],
+    cta_en:'Celebrate the joy of mathematics.', cta_gu:'ગણિતના આનંદની ઉજવણી કરો.',
+    hashtags:['NationalMathematicsDay','Ramanujan','MathsForAll'], icon:'atom', category:'National & Education'
+  },
+  'kisan-diwas': {
+    title_en:"Kisan Diwas / National Farmers' Day", title_gu:'કિસાન દિવસ / રાષ્ટ્રીય ખેડૂત દિવસ',
+    importance_en:'India honours farmers who feed the nation and sustain rural life.',
+    importance_gu:'ભારત રાષ્ટ્રને અન્ન આપતા અને ગ્રામીણ જીવન ટકાવતા ખેડૂતોને સન્માન આપે છે.',
+    points_en:['Respect and support farmers','Reduce food waste','Choose local, seasonal produce','Promote sustainable farming'],
+    points_gu:['ખેડૂતોનું સન્માન કરો અને ટેકો આપો','ખોરાકનો બગાડ ઘટાડો','સ્થાનિક, મોસમી ઉપજ પસંદ કરો','ટકાઉ ખેતીને પ્રોત્સાહન આપો'],
+    cta_en:'Honour farmers — respect the hands that feed us.', cta_gu:'ખેડૂતોને સન્માન આપો — આપણને પોષતા હાથોનું સન્માન કરો.',
+    hashtags:['KisanDiwas','FarmersDay','Agriculture'], icon:'plant', category:'National & Agriculture'
+  },
+  'national-consumer-day': {
+    title_en:'National Consumer Day', title_gu:'રાષ્ટ્રીય ઉપભોક્તા દિવસ',
+    importance_en:'India promotes consumer rights and protection against unfair trade.',
+    importance_gu:'ભારત ઉપભોક્તા અધિકારો અને અન્યાયી વેપાર સામે રક્ષણને પ્રોત્સાહન આપે છે.',
+    points_en:['Know your consumer rights','Check labels, prices and dates','Keep bills and warranties','Report unfair practices'],
+    points_gu:['તમારા ઉપભોક્તા અધિકારો જાણો','લેબલ, ભાવ અને તારીખ તપાસો','બિલ અને વોરંટી રાખો','અન્યાયી પ્રથાઓની જાણ કરો'],
+    cta_en:'Be a smart consumer — know your rights.', cta_gu:'સ્માર્ટ ઉપભોક્તા બનો — તમારા અધિકારો જાણો.',
+    hashtags:['ConsumerDay','ConsumerRights','JagoGrahakJago'], icon:'cart', category:'National & Consumer Affairs'
+  },
+  'national-energy-conservation-day': {
+    title_en:'National Energy Conservation Day', title_gu:'રાષ્ટ્રીય ઊર્જા સંરક્ષણ દિવસ',
+    importance_en:'India promotes saving energy for a cleaner, more secure future.',
+    importance_gu:'ભારત સ્વચ્છ, વધુ સુરક્ષિત ભવિષ્ય માટે ઊર્જા બચતને પ્રોત્સાહન આપે છે.',
+    points_en:['Switch off unused lights and devices','Use energy-efficient appliances','Prefer public or shared transport','Support clean, renewable energy'],
+    points_gu:['ન વપરાતી લાઇટ અને ઉપકરણો બંધ કરો','ઊર્જા-કાર્યક્ષમ ઉપકરણો વાપરો','જાહેર કે સહિયારા પરિવહનને પ્રાધાન્ય આપો','સ્વચ્છ, નવીનીકરણીય ઊર્જાને ટેકો આપો'],
+    cta_en:'Save energy — power a cleaner future.', cta_gu:'ઊર્જા બચાવો — સ્વચ્છ ભવિષ્યને શક્તિ આપો.',
+    hashtags:['EnergyConservation','SaveEnergy','CleanEnergy'], icon:'sun', category:'Environment & Energy'
+  },
+  'world-braille-day': {
+    title_en:'World Braille Day', title_gu:'વિશ્વ બ્રેઇલ દિવસ',
+    importance_en:'A UN day recognising braille as vital for the rights and inclusion of blind people.',
+    importance_gu:'અંધ લોકોના અધિકારો અને સમાવેશ માટે બ્રેઇલને મહત્વપૂર્ણ ગણતો UN દિવસ.',
+    points_en:['Support access to braille materials','Make information accessible to all','Include people with vision loss','Respect independence and dignity'],
+    points_gu:['બ્રેઇલ સામગ્રીની ઉપલબ્ધતાને ટેકો આપો','માહિતી બધા માટે સુલભ બનાવો','દૃષ્ટિહીન લોકોને સામેલ કરો','સ્વતંત્રતા અને ગૌરવનું સન્માન કરો'],
+    cta_en:'Make the world accessible — support braille.', cta_gu:'દુનિયાને સુલભ બનાવો — બ્રેઇલને ટેકો આપો.',
+    hashtags:['WorldBrailleDay','Accessibility','Inclusion'], icon:'book', category:'Health & Inclusion'
+  },
+  'international-mother-language-day': {
+    title_en:'International Mother Language Day', title_gu:'આંતરરાષ્ટ્રીય માતૃભાષા દિવસ',
+    importance_en:'A UNESCO day celebrating linguistic diversity and mother tongues.',
+    importance_gu:'ભાષાકીય વિવિધતા અને માતૃભાષાઓની ઉજવણી કરતો UNESCO દિવસ.',
+    points_en:['Speak and cherish your mother tongue','Pass language to children','Respect all languages','Support multilingual learning'],
+    points_gu:['તમારી માતૃભાષા બોલો અને જાળવો','ભાષા બાળકોને આપો','બધી ભાષાઓનું સન્માન કરો','બહુભાષી શિક્ષણને ટેકો આપો'],
+    cta_en:'Cherish your mother tongue.', cta_gu:'તમારી માતૃભાષાને જાળવો.',
+    hashtags:['MotherLanguageDay','LinguisticDiversity','Language'], icon:'language', category:'Language & Culture'
+  },
+  'zero-discrimination-day': {
+    title_en:'Zero Discrimination Day', title_gu:'શૂન્ય ભેદભાવ દિવસ',
+    importance_en:'A UN day for the right of everyone to live with dignity, free of discrimination.',
+    importance_gu:'દરેકના ગૌરવ સાથે, ભેદભાવ વગર જીવવાના અધિકાર માટેનો UN દિવસ.',
+    points_en:['Treat everyone with respect','Challenge stigma and bias','Support equal access to care','Stand up for those excluded'],
+    points_gu:['દરેકને આદરથી વર્તો','કલંક અને પક્ષપાતને પડકારો','સંભાળની સમાન ઉપલબ્ધતાને ટેકો આપો','બાકાત રખાયેલા માટે ઊભા રહો'],
+    cta_en:'Zero discrimination — dignity for all.', cta_gu:'શૂન્ય ભેદભાવ — બધા માટે ગૌરવ.',
+    hashtags:['ZeroDiscriminationDay','Equality','Dignity'], icon:'heart', category:'Health & Rights'
+  },
+  'world-consumer-rights-day': {
+    title_en:'World Consumer Rights Day', title_gu:'વિશ્વ ઉપભોક્તા અધિકાર દિવસ',
+    importance_en:'A global day for fair, safe and honest treatment of consumers.',
+    importance_gu:'ઉપભોક્તાઓ સાથે ન્યાયી, સલામત અને પ્રામાણિક વર્તન માટેનો વૈશ્વિક દિવસ.',
+    points_en:['Know your rights as a consumer','Demand safe products and services','Read terms before you buy','Report fraud and unfair practices'],
+    points_gu:['ઉપભોક્તા તરીકે તમારા અધિકારો જાણો','સલામત ઉત્પાદનો અને સેવાઓની માંગ કરો','ખરીદતાં પહેલાં શરતો વાંચો','છેતરપિંડી અને અન્યાયી પ્રથાઓની જાણ કરો'],
+    cta_en:'Know your rights — shop safe and smart.', cta_gu:'તમારા અધિકારો જાણો — સલામત અને સ્માર્ટ ખરીદો.',
+    hashtags:['ConsumerRightsDay','ConsumerRights','ShopSmart'], icon:'cart', category:'Consumer Affairs'
+  },
+  'world-press-freedom-day': {
+    title_en:'World Press Freedom Day', title_gu:'વિશ્વ પ્રેસ સ્વતંત્રતા દિવસ',
+    importance_en:'A UN day defending a free press and the public’s right to know.',
+    importance_gu:'સ્વતંત્ર પ્રેસ અને જનતાના જાણવાના અધિકારના બચાવ માટેનો UN દિવસ.',
+    points_en:['Support independent journalism','Check facts before sharing','Reject misinformation','Protect journalists’ safety'],
+    points_gu:['સ્વતંત્ર પત્રકારત્વને ટેકો આપો','શેર કરતાં પહેલાં હકીકતો તપાસો','ખોટી માહિતીને નકારો','પત્રકારોની સલામતીનું રક્ષણ કરો'],
+    cta_en:'Defend a free press — value the truth.', cta_gu:'સ્વતંત્ર પ્રેસનો બચાવ કરો — સત્યની કદર કરો.',
+    hashtags:['PressFreedom','FreePress','Journalism'], icon:'news', category:'Media'
+  },
+  'red-cross-day': {
+    title_en:'World Red Cross and Red Crescent Day', title_gu:'વિશ્વ રેડ ક્રોસ અને રેડ ક્રેસન્ટ દિવસ',
+    importance_en:'Honours humanitarian volunteers who help people in crisis worldwide.',
+    importance_gu:'સંકટમાં લોકોને મદદ કરતા માનવતાવાદી સ્વયંસેવકોને સન્માન આપે છે.',
+    points_en:['Support humanitarian work','Volunteer and donate blood','Learn basic first aid','Help those in need without bias'],
+    points_gu:['માનવતાવાદી કાર્યને ટેકો આપો','સ્વયંસેવક બનો અને રક્તદાન કરો','પ્રાથમિક સારવાર શીખો','પક્ષપાત વગર જરૂરિયાતમંદોને મદદ કરો'],
+    cta_en:'Be humanity in action — help those in need.', cta_gu:'ક્રિયામાં માનવતા બનો — જરૂરિયાતમંદોને મદદ કરો.',
+    hashtags:['RedCrossDay','Humanity','Volunteer'], icon:'cross', category:'Health & Humanitarian'
+  },
+  'world-bee-day': {
+    title_en:'World Bee Day', title_gu:'વિશ્વ મધમાખી દિવસ',
+    importance_en:'A UN day recognising bees and pollinators as vital for food and nature.',
+    importance_gu:'મધમાખી અને પરાગનયનકારોને ખોરાક અને પ્રકૃતિ માટે મહત્વપૂર્ણ ગણતો UN દિવસ.',
+    points_en:['Plant flowers that feed pollinators','Avoid harmful pesticides','Protect natural habitats','Support local beekeepers'],
+    points_gu:['પરાગનયનકારોને પોષતાં ફૂલ રોપો','હાનિકારક જંતુનાશક ટાળો','કુદરતી આવાસનું રક્ષણ કરો','સ્થાનિક મધમાખી ઉછેરનારાઓને ટેકો આપો'],
+    cta_en:'Protect bees — protect our food.', cta_gu:'મધમાખીનું રક્ષણ કરો — આપણા ખોરાકનું રક્ષણ કરો.',
+    hashtags:['WorldBeeDay','SaveTheBees','Pollinators'], icon:'leaf', category:'Environment'
+  },
+  'world-refugee-day': {
+    title_en:'World Refugee Day', title_gu:'વિશ્વ શરણાર્થી દિવસ',
+    importance_en:'A UN day honouring refugees and their courage, rights and dignity.',
+    importance_gu:'શરણાર્થીઓ અને તેમની હિંમત, અધિકારો અને ગૌરવને સન્માન આપતો UN દિવસ.',
+    points_en:['Show empathy to displaced people','Support refugees’ access to care','Reject prejudice and fear','Welcome and include newcomers'],
+    points_gu:['વિસ્થાપિત લોકો પ્રત્યે સહાનુભૂતિ દર્શાવો','શરણાર્થીઓની સંભાળ ઉપલબ્ધતાને ટેકો આપો','પૂર્વગ્રહ અને ભયને નકારો','નવા આવનારાઓને આવકારો અને સામેલ કરો'],
+    cta_en:'Stand with refugees — with dignity and hope.', cta_gu:'શરણાર્થીઓ સાથે ઊભા રહો — ગૌરવ અને આશા સાથે.',
+    hashtags:['WorldRefugeeDay','WithRefugees','Humanity'], icon:'help', category:'Humanitarian'
+  },
+  'international-literacy-day': {
+    title_en:'International Literacy Day', title_gu:'આંતરરાષ્ટ્રીય સાક્ષરતા દિવસ',
+    importance_en:'A UNESCO day promoting literacy as a right and a foundation for a better life.',
+    importance_gu:'સાક્ષરતાને અધિકાર અને સારા જીવનના પાયા તરીકે પ્રોત્સાહન આપતો UNESCO દિવસ.',
+    points_en:['Support reading for children and adults','Help someone learn to read','Value libraries and learning','Promote education for all'],
+    points_gu:['બાળકો અને પુખ્તો માટે વાંચનને ટેકો આપો','કોઈને વાંચતાં શીખવામાં મદદ કરો','પુસ્તકાલય અને શિક્ષણને મૂલવો','બધા માટે શિક્ષણને પ્રોત્સાહન આપો'],
+    cta_en:'Literacy for all — open doors with reading.', cta_gu:'બધા માટે સાક્ષરતા — વાંચનથી દરવાજા ખોલો.',
+    hashtags:['LiteracyDay','ReadingForAll','Education'], icon:'book', category:'Education'
+  },
+  'world-ozone-day': {
+    title_en:'World Ozone Day', title_gu:'વિશ્વ ઓઝોન દિવસ',
+    importance_en:'A UN day for protecting the ozone layer that shields life from harmful rays.',
+    importance_gu:'હાનિકારક કિરણોથી જીવનનું રક્ષણ કરતા ઓઝોન સ્તરના રક્ષણ માટેનો UN દિવસ.',
+    points_en:['Avoid ozone-harming products','Maintain cooling appliances properly','Support climate-friendly choices','Spread awareness of ozone protection'],
+    points_gu:['ઓઝોનને નુકસાન કરતાં ઉત્પાદનો ટાળો','ઠંડક ઉપકરણો યોગ્ય રીતે જાળવો','આબોહવા-મૈત્રીપૂર્ણ પસંદગીઓને ટેકો આપો','ઓઝોન રક્ષણની જાગૃતિ ફેલાવો'],
+    cta_en:'Protect the ozone — protect life on Earth.', cta_gu:'ઓઝોનનું રક્ષણ કરો — પૃથ્વી પરના જીવનનું રક્ષણ કરો.',
+    hashtags:['WorldOzoneDay','SaveOzone','ClimateAction'], icon:'sun', category:'Environment'
+  }
+};
+Object.assign(TOPIC_CONTENT, OFFICIAL_CIVIC_CONTENT);
+
 // Studio themes cycle to fill non-observance days.
-const NON_STUDIO = Object.assign({}, OFFICIAL_HEALTH_CONTENT, MOVABLE_CONTENT, OFFICIAL_MIXED_CONTENT);
+const NON_STUDIO = Object.assign({}, OFFICIAL_HEALTH_CONTENT, MOVABLE_CONTENT, OFFICIAL_MIXED_CONTENT, OFFICIAL_CIVIC_CONTENT);
 const STUDIO_THEME_IDS = Object.keys(TOPIC_CONTENT).filter(k => !NON_STUDIO[k]);
 
 // ---- Movable observance rules (year-aware) ----

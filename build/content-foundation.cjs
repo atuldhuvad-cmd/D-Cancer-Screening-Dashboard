@@ -1158,8 +1158,301 @@ const OFFICIAL_CIVIC_CONTENT = {
 };
 Object.assign(TOPIC_CONTENT, OFFICIAL_CIVIC_CONTENT);
 
+// ---- Content library (BATCH 5: remaining national + international) ----
+const OFFICIAL_CIVIC2_CONTENT = {
+  'indian-army-day': {
+    title_en:'Indian Army Day', title_gu:'ભારતીય સેના દિવસ',
+    importance_en:'India honours its Army for its service, courage and sacrifice in defending the nation.',
+    importance_gu:'ભારત તેની સેનાની રાષ્ટ્રરક્ષામાં સેવા, હિંમત અને બલિદાન બદલ સન્માન કરે છે.',
+    points_en:['Respect and thank our soldiers','Remember those who sacrificed','Support veterans and their families','Serve the nation in your own way'],
+    points_gu:['આપણા સૈનિકોનું સન્માન કરો અને આભાર માનો','બલિદાન આપનારાઓને યાદ કરો','પૂર્વ સૈનિકો અને તેમના પરિવારોને ટેકો આપો','તમારી રીતે રાષ્ટ્રની સેવા કરો'],
+    cta_en:'Salute our soldiers — proud of the Army.', cta_gu:'આપણા સૈનિકોને સલામ — સેના પર ગર્વ.',
+    hashtags:['ArmyDay','JaiHind','SaluteSoldiers'], icon:'flag', category:'National'
+  },
+  'parakram-diwas': {
+    title_en:'Parakram Diwas', title_gu:'પરાક્રમ દિવસ',
+    importance_en:'Marks Netaji Subhas Chandra Bose’s birthday and the spirit of courage and patriotism.',
+    importance_gu:'નેતાજી સુભાષ ચંદ્ર બોઝના જન્મદિન અને હિંમત તથા દેશભક્તિની ભાવનાની યાદ અપાવે છે.',
+    points_en:['Draw inspiration from Netaji','Show courage in daily life','Serve the nation selflessly','Stand up for what is right'],
+    points_gu:['નેતાજીમાંથી પ્રેરણા લો','રોજિંદા જીવનમાં હિંમત દર્શાવો','નિઃસ્વાર્થપણે રાષ્ટ્રની સેવા કરો','જે સાચું છે તેના માટે ઊભા રહો'],
+    cta_en:'Courage and patriotism — the Netaji spirit.', cta_gu:'હિંમત અને દેશભક્તિ — નેતાજીની ભાવના.',
+    hashtags:['ParakramDiwas','Netaji','ProudIndian'], icon:'flag', category:'National'
+  },
+  'martyrs-day': {
+    title_en:"Martyrs' Day / Anti-Leprosy Day", title_gu:'શહીદ દિવસ / રક્તપિત્ત વિરોધી દિવસ',
+    importance_en:'India remembers its martyrs and also raises awareness that leprosy is curable.',
+    importance_gu:'ભારત તેના શહીદોને યાદ કરે છે અને રક્તપિત્ત સાજો થઈ શકે છે તેની જાગૃતિ પણ લાવે છે.',
+    points_en:['Honour those who gave their lives','Promote peace and non-violence','Know that leprosy is curable','End stigma against those affected'],
+    points_gu:['જીવ આપનારાઓને સન્માન આપો','શાંતિ અને અહિંસાને પ્રોત્સાહન આપો','જાણો કે રક્તપિત્ત સાજો થાય છે','પ્રભાવિતો સામેનું કલંક દૂર કરો'],
+    cta_en:'Remember martyrs — spread peace and awareness.', cta_gu:'શહીદોને યાદ કરો — શાંતિ અને જાગૃતિ ફેલાવો.',
+    hashtags:['MartyrsDay','AntiLeprosyDay','Peace'], icon:'peace', category:'National & Health'
+  },
+  'shaheed-diwas': {
+    title_en:'Shaheed Diwas', title_gu:'શહીદ દિવસ',
+    importance_en:'India remembers freedom fighters Bhagat Singh, Rajguru and Sukhdev and their sacrifice.',
+    importance_gu:'ભારત સ્વાતંત્ર્ય સેનાની ભગત સિંહ, રાજગુરુ અને સુખદેવ અને તેમના બલિદાનને યાદ કરે છે.',
+    points_en:['Honour the freedom fighters','Value the freedom you enjoy','Serve society with courage','Keep patriotism alive'],
+    points_gu:['સ્વાતંત્ર્ય સેનાનીઓને સન્માન આપો','તમે માણો છો તે સ્વતંત્રતાની કદર કરો','હિંમતથી સમાજની સેવા કરો','દેશભક્તિ જીવંત રાખો'],
+    cta_en:'Remember the martyrs of freedom.', cta_gu:'સ્વતંત્રતાના શહીદોને યાદ કરો.',
+    hashtags:['ShaheedDiwas','BhagatSingh','Freedom'], icon:'flag', category:'National'
+  },
+  'national-maritime-day': {
+    title_en:'National Maritime Day', title_gu:'રાષ્ટ્રીય દરિયાઈ દિવસ',
+    importance_en:'India recognises the role of shipping and seafarers in trade and the economy.',
+    importance_gu:'ભારત વેપાર અને અર્થતંત્રમાં જહાજ અને દરિયાખેડુઓની ભૂમિકાને માન્યતા આપે છે.',
+    points_en:['Appreciate seafarers’ hard work','Support safe maritime practices','Protect the marine environment','Value ocean-based trade'],
+    points_gu:['દરિયાખેડુઓની મહેનતની કદર કરો','સલામત દરિયાઈ પ્રથાઓને ટેકો આપો','દરિયાઈ પર્યાવરણનું રક્ષણ કરો','સમુદ્ર-આધારિત વેપારને મૂલવો'],
+    cta_en:'Honour seafarers who keep trade moving.', cta_gu:'વેપાર ચાલુ રાખતા દરિયાખેડુઓને સન્માન આપો.',
+    hashtags:['MaritimeDay','Seafarers','Shipping'], icon:'water', category:'National'
+  },
+  'national-panchayati-raj-day': {
+    title_en:'National Panchayati Raj Day', title_gu:'રાષ્ટ્રીય પંચાયતી રાજ દિવસ',
+    importance_en:'India celebrates local self-government that brings democracy to the grassroots.',
+    importance_gu:'ભારત લોકશાહીને પાયાના સ્તરે લાવતા સ્થાનિક સ્વરાજની ઉજવણી કરે છે.',
+    points_en:['Take part in local governance','Attend gram sabha meetings','Hold local leaders accountable','Work for village development'],
+    points_gu:['સ્થાનિક શાસનમાં ભાગ લો','ગ્રામ સભાની બેઠકોમાં હાજર રહો','સ્થાનિક નેતાઓને જવાબદાર ઠેરવો','ગામના વિકાસ માટે કામ કરો'],
+    cta_en:'Strengthen democracy at the grassroots.', cta_gu:'પાયાના સ્તરે લોકશાહી મજબૂત કરો.',
+    hashtags:['PanchayatiRajDay','LocalGovernance','Democracy'], icon:'building', category:'National'
+  },
+  'labour-day': {
+    title_en:'International Labour Day', title_gu:'આંતરરાષ્ટ્રીય મજૂર દિવસ',
+    importance_en:'A day honouring workers and the value of fair, safe and dignified work.',
+    importance_gu:'કામદારો અને ન્યાયી, સલામત તથા ગૌરવપૂર્ણ કામના મૂલ્યને સન્માન આપતો દિવસ.',
+    points_en:['Respect all kinds of work','Support fair wages and safety','Know your rights as a worker','Value the people who serve us'],
+    points_gu:['દરેક પ્રકારના કામનું સન્માન કરો','ન્યાયી વેતન અને સલામતીને ટેકો આપો','કામદાર તરીકે તમારા અધિકારો જાણો','આપણી સેવા કરતા લોકોને મૂલવો'],
+    cta_en:'Honour workers — dignity for all labour.', cta_gu:'કામદારોને સન્માન આપો — દરેક શ્રમ માટે ગૌરવ.',
+    hashtags:['LabourDay','WorkersDay','MayDay'], icon:'helmet', category:'National & Labour'
+  },
+  'national-technology-day': {
+    title_en:'National Technology Day', title_gu:'રાષ્ટ્રીય ટેકનોલોજી દિવસ',
+    importance_en:'India celebrates its scientific and technological achievements.',
+    importance_gu:'ભારત તેની વૈજ્ઞાનિક અને તકનીકી સિદ્ધિઓની ઉજવણી કરે છે.',
+    points_en:['Embrace useful technology','Support research and innovation','Use technology responsibly','Encourage students in STEM'],
+    points_gu:['ઉપયોગી ટેકનોલોજી અપનાવો','સંશોધન અને નવીનતાને ટેકો આપો','ટેકનોલોજી જવાબદારીપૂર્વક વાપરો','વિદ્યાર્થીઓને STEMમાં પ્રોત્સાહિત કરો'],
+    cta_en:'Celebrate technology that serves people.', cta_gu:'લોકોની સેવા કરતી ટેકનોલોજીની ઉજવણી કરો.',
+    hashtags:['NationalTechnologyDay','Innovation','MakeInIndia'], icon:'atom', category:'National & Science'
+  },
+  'national-handloom-day': {
+    title_en:'National Handloom Day', title_gu:'રાષ્ટ્રીય હાથવણાટ દિવસ',
+    importance_en:'India honours handloom weavers and the heritage of Indian textiles.',
+    importance_gu:'ભારત હાથવણાટ કારીગરો અને ભારતીય કાપડના વારસાને સન્માન આપે છે.',
+    points_en:['Buy and value handloom products','Support local weavers','Preserve traditional crafts','Take pride in Indian textiles'],
+    points_gu:['હાથવણાટ ઉત્પાદનો ખરીદો અને મૂલવો','સ્થાનિક વણકરોને ટેકો આપો','પરંપરાગત કારીગરીનું જતન કરો','ભારતીય કાપડ પર ગર્વ કરો'],
+    cta_en:'Support handloom — wear our heritage.', cta_gu:'હાથવણાટને ટેકો આપો — આપણો વારસો પહેરો.',
+    hashtags:['HandloomDay','VocalForLocal','Heritage'], icon:'book', category:'National'
+  },
+  'quit-india-day': {
+    title_en:'Quit India Movement Day', title_gu:'ભારત છોડો આંદોલન દિવસ',
+    importance_en:'India remembers the 1942 call for independence and the courage of the freedom movement.',
+    importance_gu:'ભારત 1942ના સ્વતંત્રતાના આહ્વાન અને સ્વાતંત્ર્ય આંદોલનની હિંમતને યાદ કરે છે.',
+    points_en:['Remember the freedom struggle','Value unity and determination','Serve the nation today','Uphold democratic ideals'],
+    points_gu:['સ્વાતંત્ર્ય સંગ્રામને યાદ કરો','એકતા અને દૃઢતાને મૂલવો','આજે રાષ્ટ્રની સેવા કરો','લોકશાહી આદર્શો જાળવો'],
+    cta_en:'Remember the spirit of Quit India.', cta_gu:'ભારત છોડોની ભાવનાને યાદ કરો.',
+    hashtags:['QuitIndiaDay','AugustKranti','Freedom'], icon:'flag', category:'National'
+  },
+  'world-biofuel-day': {
+    title_en:'World Biofuel Day', title_gu:'વિશ્વ જૈવઇંધણ દિવસ',
+    importance_en:'Observed in India to promote cleaner biofuels and reduce dependence on fossil fuels.',
+    importance_gu:'સ્વચ્છ જૈવઇંધણને પ્રોત્સાહન આપવા અને અશ્મિભૂત ઇંધણ પરની નિર્ભરતા ઘટાડવા ભારતમાં ઉજવાય છે.',
+    points_en:['Support cleaner fuel choices','Reduce fuel waste','Recycle used cooking oil safely','Back renewable energy'],
+    points_gu:['સ્વચ્છ ઇંધણ પસંદગીઓને ટેકો આપો','ઇંધણનો બગાડ ઘટાડો','વપરાયેલ રસોઈ તેલ સલામત રીતે રિસાયકલ કરો','નવીનીકરણીય ઊર્જાને ટેકો આપો'],
+    cta_en:'Choose cleaner fuels for a greener future.', cta_gu:'હરિયાળા ભવિષ્ય માટે સ્વચ્છ ઇંધણ પસંદ કરો.',
+    hashtags:['WorldBiofuelDay','CleanEnergy','Sustainability'], icon:'sun', category:'Environment & Energy'
+  },
+  'sadbhavana-diwas': {
+    title_en:'Sadbhavana Diwas', title_gu:'સદ્ભાવના દિવસ',
+    importance_en:'A day promoting national integration, peace and harmony among all communities.',
+    importance_gu:'બધા સમુદાયો વચ્ચે રાષ્ટ્રીય એકતા, શાંતિ અને સૌહાર્દને પ્રોત્સાહન આપતો દિવસ.',
+    points_en:['Promote harmony and goodwill','Respect all faiths and cultures','Resolve conflicts peacefully','Build bridges in your community'],
+    points_gu:['સૌહાર્દ અને સદ્ભાવનાને પ્રોત્સાહન આપો','બધા ધર્મો અને સંસ્કૃતિઓનું સન્માન કરો','સંઘર્ષ શાંતિપૂર્ણ રીતે ઉકેલો','તમારા સમુદાયમાં સેતુ બાંધો'],
+    cta_en:'Spread goodwill — live in harmony.', cta_gu:'સદ્ભાવના ફેલાવો — સૌહાર્દથી જીવો.',
+    hashtags:['SadbhavanaDiwas','Harmony','Unity'], icon:'peace', category:'National & Social'
+  },
+  'national-sports-day': {
+    title_en:'National Sports Day', title_gu:'રાષ્ટ્રીય રમત દિવસ',
+    importance_en:'Marks hockey legend Major Dhyan Chand’s birthday and the value of sport and fitness.',
+    importance_gu:'હોકી દિગ્ગજ મેજર ધ્યાનચંદના જન્મદિન અને રમત તથા તંદુરસ્તીના મૂલ્યની યાદ અપાવે છે.',
+    points_en:['Play a sport you enjoy','Stay active every day','Encourage children to play','Value fitness and teamwork'],
+    points_gu:['તમને ગમતી રમત રમો','દરરોજ સક્રિય રહો','બાળકોને રમવા પ્રોત્સાહિત કરો','તંદુરસ્તી અને ટીમવર્કને મૂલવો'],
+    cta_en:'Play, move, stay fit — for life.', cta_gu:'રમો, ચાલો, તંદુરસ્ત રહો — જીવનભર.',
+    hashtags:['NationalSportsDay','FitIndia','PlayMore'], icon:'sport', category:'Health & Sports'
+  },
+  'national-small-industry-day': {
+    title_en:'National Small Industry Day', title_gu:'રાષ્ટ્રીય લઘુ ઉદ્યોગ દિવસ',
+    importance_en:'India recognises small industries for jobs, innovation and economic growth.',
+    importance_gu:'ભારત નોકરી, નવીનતા અને આર્થિક વૃદ્ધિ માટે લઘુ ઉદ્યોગોને માન્યતા આપે છે.',
+    points_en:['Support small and local businesses','Value entrepreneurship','Buy local products','Encourage skill and enterprise'],
+    points_gu:['નાના અને સ્થાનિક વ્યવસાયોને ટેકો આપો','ઉદ્યોગસાહસિકતાને મૂલવો','સ્થાનિક ઉત્પાદનો ખરીદો','કૌશલ્ય અને સાહસને પ્રોત્સાહન આપો'],
+    cta_en:'Back small business — power local growth.', cta_gu:'લઘુ ઉદ્યોગને ટેકો આપો — સ્થાનિક વૃદ્ધિને શક્તિ આપો.',
+    hashtags:['SmallIndustryDay','VocalForLocal','MSME'], icon:'money', category:'National & Economy'
+  },
+  'kargil-vijay-diwas': {
+    title_en:'Kargil Vijay Diwas', title_gu:'કારગિલ વિજય દિવસ',
+    importance_en:'India honours the soldiers of the 1999 Kargil war and their supreme sacrifice.',
+    importance_gu:'ભારત 1999ના કારગિલ યુદ્ધના સૈનિકો અને તેમના સર્વોચ્ચ બલિદાનને સન્માન આપે છે.',
+    points_en:['Remember the Kargil heroes','Honour soldiers’ sacrifice','Support armed forces families','Take pride in the nation'],
+    points_gu:['કારગિલના વીરોને યાદ કરો','સૈનિકોના બલિદાનને સન્માન આપો','સશસ્ત્ર દળોના પરિવારોને ટેકો આપો','રાષ્ટ્ર પર ગર્વ કરો'],
+    cta_en:'Salute the heroes of Kargil.', cta_gu:'કારગિલના વીરોને સલામ.',
+    hashtags:['KargilVijayDiwas','JaiHind','SaluteSoldiers'], icon:'flag', category:'National'
+  },
+  'indian-air-force-day': {
+    title_en:'Indian Air Force Day', title_gu:'ભારતીય વાયુસેના દિવસ',
+    importance_en:'India honours the Air Force for guarding the skies and serving the nation.',
+    importance_gu:'ભારત આકાશની રક્ષા અને રાષ્ટ્રસેવા બદલ વાયુસેનાને સન્માન આપે છે.',
+    points_en:['Respect our air warriors','Remember their service','Support veterans','Inspire youth to serve'],
+    points_gu:['આપણા વાયુ યોદ્ધાઓનું સન્માન કરો','તેમની સેવાને યાદ કરો','પૂર્વ સૈનિકોને ટેકો આપો','યુવાનોને સેવા માટે પ્રેરિત કરો'],
+    cta_en:'Salute the Indian Air Force.', cta_gu:'ભારતીય વાયુસેનાને સલામ.',
+    hashtags:['AirForceDay','IndianAirForce','JaiHind'], icon:'flag', category:'National'
+  },
+  'national-education-day': {
+    title_en:'National Education Day', title_gu:'રાષ્ટ્રીય શિક્ષણ દિવસ',
+    importance_en:'India celebrates education and the vision of Maulana Abul Kalam Azad.',
+    importance_gu:'ભારત શિક્ષણ અને મૌલાના અબુલ કલામ આઝાદની દૂરંદેશીની ઉજવણી કરે છે.',
+    points_en:['Value education for all','Support children’s schooling','Keep learning throughout life','Reduce barriers to education'],
+    points_gu:['બધા માટે શિક્ષણને મૂલવો','બાળકોના શાળા શિક્ષણને ટેકો આપો','જીવનભર શીખતા રહો','શિક્ષણના અવરોધો ઘટાડો'],
+    cta_en:'Education for all — the key to progress.', cta_gu:'બધા માટે શિક્ષણ — પ્રગતિની ચાવી.',
+    hashtags:['NationalEducationDay','EducationForAll','Learning'], icon:'cap', category:'National & Education'
+  },
+  'national-press-day': {
+    title_en:'National Press Day', title_gu:'રાષ્ટ્રીય પ્રેસ દિવસ',
+    importance_en:'India marks the value of a free and responsible press in a democracy.',
+    importance_gu:'ભારત લોકશાહીમાં સ્વતંત્ર અને જવાબદાર પ્રેસના મૂલ્યની યાદ કરે છે.',
+    points_en:['Value a free, responsible press','Verify news before sharing','Support ethical journalism','Reject misinformation'],
+    points_gu:['સ્વતંત્ર, જવાબદાર પ્રેસને મૂલવો','શેર કરતાં પહેલાં સમાચાર ચકાસો','નૈતિક પત્રકારત્વને ટેકો આપો','ખોટી માહિતીને નકારો'],
+    cta_en:'Value a free and fair press.', cta_gu:'સ્વતંત્ર અને ન્યાયી પ્રેસને મૂલવો.',
+    hashtags:['NationalPressDay','FreePress','Journalism'], icon:'news', category:'National & Media'
+  },
+  'national-pollution-control-day': {
+    title_en:'National Pollution Control Day', title_gu:'રાષ્ટ્રીય પ્રદૂષણ નિયંત્રણ દિવસ',
+    importance_en:'India raises awareness of pollution’s harm and the need to protect air, water and land.',
+    importance_gu:'ભારત પ્રદૂષણના નુકસાન અને હવા, પાણી તથા જમીનના રક્ષણની જરૂરિયાત વિશે જાગૃતિ લાવે છે.',
+    points_en:['Reduce, reuse and recycle','Avoid burning waste','Use cleaner transport','Support pollution control efforts'],
+    points_gu:['ઘટાડો, પુનઃવાપરો અને રિસાયકલ કરો','કચરો બાળવાનું ટાળો','સ્વચ્છ પરિવહન વાપરો','પ્રદૂષણ નિયંત્રણ પ્રયાસોને ટેકો આપો'],
+    cta_en:'Control pollution — protect air, water and land.', cta_gu:'પ્રદૂષણ નિયંત્રિત કરો — હવા, પાણી અને જમીનનું રક્ષણ કરો.',
+    hashtags:['PollutionControlDay','BeatPollution','CleanAir'], icon:'leaf', category:'Health & Environment'
+  },
+  'indian-navy-day': {
+    title_en:'Indian Navy Day', title_gu:'ભારતીય નૌકાદળ દિવસ',
+    importance_en:'India honours the Navy for protecting its seas and maritime interests.',
+    importance_gu:'ભારત તેના સમુદ્રો અને દરિયાઈ હિતોના રક્ષણ બદલ નૌકાદળને સન્માન આપે છે.',
+    points_en:['Respect our naval forces','Remember their service and valour','Support veterans and families','Take pride in the nation'],
+    points_gu:['આપણા નૌકાદળનું સન્માન કરો','તેમની સેવા અને શૌર્યને યાદ કરો','પૂર્વ સૈનિકો અને પરિવારોને ટેકો આપો','રાષ્ટ્ર પર ગર્વ કરો'],
+    cta_en:'Salute the Indian Navy.', cta_gu:'ભારતીય નૌકાદળને સલામ.',
+    hashtags:['NavyDay','IndianNavy','JaiHind'], icon:'water', category:'National'
+  },
+  'armed-forces-flag-day': {
+    title_en:'Armed Forces Flag Day', title_gu:'સશસ્ત્ર દળ ધ્વજ દિવસ',
+    importance_en:'A day to honour soldiers and support the welfare of veterans and their families.',
+    importance_gu:'સૈનિકોને સન્માન આપવા અને પૂર્વ સૈનિકો તથા તેમના પરિવારોના કલ્યાણને ટેકો આપવાનો દિવસ.',
+    points_en:['Honour serving and retired soldiers','Contribute to the welfare fund','Support veterans and their families','Express gratitude for their service'],
+    points_gu:['સેવારત અને નિવૃત્ત સૈનિકોને સન્માન આપો','કલ્યાણ નિધિમાં યોગદાન આપો','પૂર્વ સૈનિકો અને પરિવારોને ટેકો આપો','તેમની સેવા બદલ કૃતજ્ઞતા વ્યક્ત કરો'],
+    cta_en:'Honour our forces — support their welfare.', cta_gu:'આપણા દળોને સન્માન આપો — તેમના કલ્યાણને ટેકો આપો.',
+    hashtags:['FlagDay','SupportSoldiers','JaiHind'], icon:'flag', category:'National'
+  },
+  'good-governance-day': {
+    title_en:'Good Governance Day', title_gu:'સુશાસન દિવસ',
+    importance_en:'India promotes accountable, transparent and citizen-friendly governance.',
+    importance_gu:'ભારત જવાબદાર, પારદર્શક અને નાગરિક-મૈત્રીપૂર્ણ શાસનને પ્રોત્સાહન આપે છે.',
+    points_en:['Demand transparency and accountability','Use citizen services and rights','Participate in governance','Report corruption'],
+    points_gu:['પારદર્શિતા અને જવાબદારીની માંગ કરો','નાગરિક સેવાઓ અને અધિકારો વાપરો','શાસનમાં ભાગ લો','ભ્રષ્ટાચારની જાણ કરો'],
+    cta_en:'Support good governance — stay engaged.', cta_gu:'સુશાસનને ટેકો આપો — સંલગ્ન રહો.',
+    hashtags:['GoodGovernanceDay','Transparency','Governance'], icon:'building', category:'National & Governance'
+  },
+  'world-hindi-day': {
+    title_en:'World Hindi Day', title_gu:'વિશ્વ હિન્દી દિવસ',
+    importance_en:'A day promoting the Hindi language on the global stage.',
+    importance_gu:'વૈશ્વિક મંચ પર હિન્દી ભાષાને પ્રોત્સાહન આપતો દિવસ.',
+    points_en:['Take pride in your language','Read and share in Hindi','Respect all languages','Connect cultures through language'],
+    points_gu:['તમારી ભાષા પર ગર્વ કરો','હિન્દીમાં વાંચો અને શેર કરો','બધી ભાષાઓનું સન્માન કરો','ભાષા દ્વારા સંસ્કૃતિઓને જોડો'],
+    cta_en:'Celebrate Hindi around the world.', cta_gu:'વિશ્વભરમાં હિન્દીની ઉજવણી કરો.',
+    hashtags:['WorldHindiDay','Language','Culture'], icon:'language', category:'Language & Culture'
+  },
+  'zero-tolerance-fgm': {
+    title_en:'International Day of Zero Tolerance for FGM', title_gu:'FGM સામે શૂન્ય સહનશીલતાનો આંતરરાષ્ટ્રીય દિવસ',
+    importance_en:'A UN day to end female genital mutilation and protect the health and rights of girls.',
+    importance_gu:'સ્ત્રી જનનાંગ વિચ્છેદન નાબૂદ કરવા અને બાળિકાઓના આરોગ્ય તથા અધિકારોના રક્ષણ માટેનો UN દિવસ.',
+    points_en:['Protect girls from harmful practices','Support survivors’ health and rights','Raise awareness in communities','Uphold every girl’s dignity'],
+    points_gu:['બાળિકાઓને હાનિકારક પ્રથાઓથી બચાવો','પીડિતોના આરોગ્ય અને અધિકારોને ટેકો આપો','સમુદાયોમાં જાગૃતિ લાવો','દરેક બાળિકાનું ગૌરવ જાળવો'],
+    cta_en:'End FGM — protect girls’ health and rights.', cta_gu:'FGM નાબૂદ કરો — બાળિકાઓના આરોગ્ય અને અધિકારોનું રક્ષણ કરો.',
+    hashtags:['EndFGM','GirlsRights','ZeroTolerance'], icon:'woman', category:'Health & Rights'
+  },
+  'women-girls-in-science': {
+    title_en:'International Day of Women and Girls in Science', title_gu:'વિજ્ઞાનમાં મહિલા અને બાળિકા આંતરરાષ્ટ્રીય દિવસ',
+    importance_en:'A UN day to promote equal access for women and girls in science.',
+    importance_gu:'વિજ્ઞાનમાં મહિલા અને બાળિકાઓ માટે સમાન તકને પ્રોત્સાહન આપતો UN દિવસ.',
+    points_en:['Encourage girls in science','Break gender stereotypes','Support women scientists','Provide equal opportunities'],
+    points_gu:['બાળિકાઓને વિજ્ઞાનમાં પ્રોત્સાહિત કરો','લિંગ રૂઢિઓ તોડો','મહિલા વૈજ્ઞાનિકોને ટેકો આપો','સમાન તકો પૂરી પાડો'],
+    cta_en:'Empower women and girls in science.', cta_gu:'વિજ્ઞાનમાં મહિલા અને બાળિકાઓને સશક્ત બનાવો.',
+    hashtags:['WomenInScience','GirlsInSTEM','Equality'], icon:'microscope', category:'Science & Inclusion'
+  },
+  'world-radio-day': {
+    title_en:'World Radio Day', title_gu:'વિશ્વ રેડિયો દિવસ',
+    importance_en:'A UNESCO day celebrating radio’s power to inform, educate and connect people.',
+    importance_gu:'લોકોને માહિતગાર કરવા, શિક્ષિત કરવા અને જોડવાની રેડિયોની શક્તિની ઉજવણી કરતો UNESCO દિવસ.',
+    points_en:['Value radio as a public service','Use radio for reliable information','Support community broadcasting','Appreciate accessible media'],
+    points_gu:['રેડિયોને જાહેર સેવા તરીકે મૂલવો','વિશ્વસનીય માહિતી માટે રેડિયો વાપરો','સામુદાયિક પ્રસારણને ટેકો આપો','સુલભ મીડિયાની કદર કરો'],
+    cta_en:'Celebrate radio — informing and connecting all.', cta_gu:'રેડિયોની ઉજવણી કરો — બધાને માહિતગાર અને જોડતું.',
+    hashtags:['WorldRadioDay','Radio','Media'], icon:'news', category:'Communication'
+  },
+  'world-day-social-justice': {
+    title_en:'World Day of Social Justice', title_gu:'વિશ્વ સામાજિક ન્યાય દિવસ',
+    importance_en:'A UN day for fairness, equality and opportunity for all in society.',
+    importance_gu:'સમાજમાં બધા માટે ન્યાયીપણું, સમાનતા અને તક માટેનો UN દિવસ.',
+    points_en:['Support fair opportunity for all','Stand against discrimination','Promote decent work','Help reduce inequality'],
+    points_gu:['બધા માટે ન્યાયી તકને ટેકો આપો','ભેદભાવ સામે ઊભા રહો','યોગ્ય કામને પ્રોત્સાહન આપો','અસમાનતા ઘટાડવામાં મદદ કરો'],
+    cta_en:'Build a fair society — social justice for all.', cta_gu:'ન્યાયી સમાજ બનાવો — બધા માટે સામાજિક ન્યાય.',
+    hashtags:['SocialJusticeDay','Equality','Fairness'], icon:'scales', category:'Social'
+  },
+  'world-ngo-day': {
+    title_en:'World NGO Day', title_gu:'વિશ્વ NGO દિવસ',
+    importance_en:'A day recognising non-governmental organisations and volunteers who serve communities.',
+    importance_gu:'સમુદાયોની સેવા કરતી બિનસરકારી સંસ્થાઓ અને સ્વયંસેવકોને માન્યતા આપતો દિવસ.',
+    points_en:['Support causes you believe in','Volunteer your time or skills','Recognise community workers','Give responsibly to trusted groups'],
+    points_gu:['તમે માનો છો તે હેતુઓને ટેકો આપો','તમારો સમય કે કૌશલ્ય સ્વયંસેવક તરીકે આપો','સામુદાયિક કાર્યકરોને માન્યતા આપો','વિશ્વસનીય જૂથોને જવાબદારીપૂર્વક દાન કરો'],
+    cta_en:'Support those who serve — celebrate NGOs.', cta_gu:'સેવા કરનારાઓને ટેકો આપો — NGOની ઉજવણી કરો.',
+    hashtags:['WorldNGODay','Volunteer','Community'], icon:'handshake', category:'Social'
+  },
+  'world-heritage-day': {
+    title_en:'World Heritage Day', title_gu:'વિશ્વ વારસો દિવસ',
+    importance_en:'A day to celebrate and protect cultural heritage and historic monuments.',
+    importance_gu:'સાંસ્કૃતિક વારસો અને ઐતિહાસિક સ્મારકોની ઉજવણી અને રક્ષણ માટેનો દિવસ.',
+    points_en:['Respect and protect monuments','Learn local history','Support heritage conservation','Travel responsibly to heritage sites'],
+    points_gu:['સ્મારકોનું સન્માન કરો અને રક્ષણ કરો','સ્થાનિક ઇતિહાસ જાણો','વારસો સંરક્ષણને ટેકો આપો','વારસો સ્થળોએ જવાબદારીપૂર્વક મુસાફરી કરો'],
+    cta_en:'Protect our heritage for the future.', cta_gu:'ભવિષ્ય માટે આપણા વારસાનું રક્ષણ કરો.',
+    hashtags:['WorldHeritageDay','Heritage','Conservation'], icon:'book', category:'Culture'
+  },
+  'safety-health-at-work': {
+    title_en:'World Day for Safety and Health at Work', title_gu:'કાર્યસ્થળ સલામતી અને આરોગ્ય વિશ્વ દિવસ',
+    importance_en:'An ILO day promoting safe, healthy workplaces and preventing work injuries.',
+    importance_gu:'સલામત, સ્વસ્થ કાર્યસ્થળોને પ્રોત્સાહન આપતો અને કામની ઈજાઓ અટકાવતો ILO દિવસ.',
+    points_en:['Follow workplace safety rules','Use protective equipment','Report hazards promptly','Support workers’ health and rest'],
+    points_gu:['કાર્યસ્થળ સલામતી નિયમોનું પાલન કરો','રક્ષણાત્મક સાધનો વાપરો','જોખમોની તરત જાણ કરો','કામદારોના આરોગ્ય અને આરામને ટેકો આપો'],
+    cta_en:'Make every workplace safe and healthy.', cta_gu:'દરેક કાર્યસ્થળ સલામત અને સ્વસ્થ બનાવો.',
+    hashtags:['SafeDay','WorkplaceSafety','OSH'], icon:'helmet', category:'Occupational Health'
+  },
+  'international-day-families': {
+    title_en:'International Day of Families', title_gu:'આંતરરાષ્ટ્રીય પરિવાર દિવસ',
+    importance_en:'A UN day celebrating families and their role in wellbeing and society.',
+    importance_gu:'પરિવારો અને સુખાકારી તથા સમાજમાં તેમની ભૂમિકાની ઉજવણી કરતો UN દિવસ.',
+    points_en:['Spend quality time together','Support each other’s health','Communicate with care','Share responsibilities fairly'],
+    points_gu:['સાથે ગુણવત્તાયુક્ત સમય વિતાવો','એકબીજાના આરોગ્યને ટેકો આપો','કાળજીથી વાતચીત કરો','જવાબદારીઓ ન્યાયપૂર્વક વહેંચો'],
+    cta_en:'Strong families, healthy communities.', cta_gu:'મજબૂત પરિવારો, સ્વસ્થ સમુદાયો.',
+    hashtags:['DayOfFamilies','FamilyMatters','Wellbeing'], icon:'family', category:'Social'
+  },
+  'world-aids-vaccine-day': {
+    title_en:'World AIDS Vaccine Day', title_gu:'વિશ્વ એઇડ્સ રસી દિવસ',
+    importance_en:'Also called HIV Vaccine Awareness Day, it thanks researchers and volunteers working towards an HIV vaccine.',
+    importance_gu:'એચઆઈવી રસી માટે કામ કરતા સંશોધકો અને સ્વયંસેવકોનો આભાર માનતો દિવસ, જેને એચઆઈવી રસી જાગૃતિ દિવસ પણ કહે છે.',
+    points_en:['Support HIV prevention research','Get tested and know your status','Reject HIV-related stigma','Practise safe prevention methods'],
+    points_gu:['એચઆઈવી નિવારણ સંશોધનને ટેકો આપો','તપાસ કરાવો અને તમારી સ્થિતિ જાણો','એચઆઈવી સંબંધિત કલંકને નકારો','સલામત નિવારણ પદ્ધતિઓ અપનાવો'],
+    cta_en:'Support the search for an HIV vaccine.', cta_gu:'એચઆઈવી રસીની શોધને ટેકો આપો.',
+    hashtags:['HIVVaccineAwareness','EndHIV','Research'], icon:'syringe', category:'Health'
+  }
+};
+Object.assign(TOPIC_CONTENT, OFFICIAL_CIVIC2_CONTENT);
+
 // Studio themes cycle to fill non-observance days.
-const NON_STUDIO = Object.assign({}, OFFICIAL_HEALTH_CONTENT, MOVABLE_CONTENT, OFFICIAL_MIXED_CONTENT, OFFICIAL_CIVIC_CONTENT);
+const NON_STUDIO = Object.assign({}, OFFICIAL_HEALTH_CONTENT, MOVABLE_CONTENT, OFFICIAL_MIXED_CONTENT, OFFICIAL_CIVIC_CONTENT, OFFICIAL_CIVIC2_CONTENT);
 const STUDIO_THEME_IDS = Object.keys(TOPIC_CONTENT).filter(k => !NON_STUDIO[k]);
 
 // ---- Movable observance rules (year-aware) ----

@@ -1,0 +1,27 @@
+<style>
+/* v5.2 additions */
+.obs-label { display:inline-block; font-size:11px; font-weight:700; padding:2px 8px; border-radius:6px; letter-spacing:.02em; }
+.obs-official-international { background:var(--blue-soft); color:var(--blue); }
+.obs-official-national { background:#fdf1e0; color:var(--warn); }
+.obs-recognised-health { background:var(--green-soft); color:var(--green-dark); }
+.obs-studio-theme { background:#eef2f5; color:var(--muted); }
+.test-row { display:flex; justify-content:space-between; gap:10px; padding:7px 10px; border-bottom:1px solid var(--line); font-size:13px; align-items:center; }
+.test-row .st { font-weight:800; }
+.test-row.pass .st { color:var(--green-dark); }
+.test-row.fail .st { color:var(--danger); }
+.test-summary { display:flex; gap:14px; margin-bottom:12px; }
+.test-summary .box { flex:1; text-align:center; padding:14px; border-radius:12px; border:1px solid var(--line); }
+.test-summary .box .n { font-size:26px; font-weight:800; }
+.test-summary .box.p .n { color:var(--green-dark); }
+.test-summary .box.f .n { color:var(--danger); }
+.ver-badge { font-size:11px; color:var(--muted); }
+.errbanner { position:fixed; top:0; left:0; right:0; background:var(--danger); color:#fff; padding:8px 14px; font-size:13px; z-index:10000; display:none; }
+.errbanner.show { display:block; }
+.errbanner button { background:rgba(255,255,255,.25); color:#fff; border:0; border-radius:6px; padding:2px 8px; margin-left:10px; cursor:pointer; }
+.mono { font-family:ui-monospace, Consolas, monospace; font-size:12px; }
+.ver-list { max-height:220px; overflow:auto; border:1px solid var(--line); border-radius:8px; }
+.ver-item { display:flex; justify-content:space-between; align-items:center; gap:8px; padding:6px 10px; border-bottom:1px solid var(--line); font-size:12.5px; }
+.ver-item.active { background:var(--green-soft); }
+.pill.tiny { font-size:10px; padding:2px 7px; }
+.poster-meta-line { font-size:11px; color:var(--muted); margin-top:4px; }
+</style>

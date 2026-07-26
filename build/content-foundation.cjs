@@ -1451,8 +1451,346 @@ const OFFICIAL_CIVIC2_CONTENT = {
 };
 Object.assign(TOPIC_CONTENT, OFFICIAL_CIVIC2_CONTENT);
 
+// ---- Content library (BATCH 6: remaining + combined-title observances) ----
+const OFFICIAL_REST_CONTENT = {
+  'world-hearing-wildlife-day': {
+    title_en:'World Hearing Day / World Wildlife Day', title_gu:'વિશ્વ શ્રવણ દિવસ / વિશ્વ વન્યજીવ દિવસ',
+    importance_en:'Two observances on one day: protecting our hearing and protecting wildlife and nature.',
+    importance_gu:'એક જ દિવસે બે ઉજવણી: આપણા શ્રવણનું રક્ષણ અને વન્યજીવન તથા પ્રકૃતિનું રક્ષણ.',
+    points_en:['Protect ears from loud noise','Get hearing checked when needed','Protect wildlife and habitats','Never buy or harm endangered species'],
+    points_gu:['મોટા અવાજથી કાનનું રક્ષણ કરો','જરૂર પડે ત્યારે શ્રવણ તપાસાવો','વન્યજીવન અને આવાસનું રક્ષણ કરો','લુપ્તપ્રાય પ્રજાતિ ક્યારેય ન ખરીદો કે નુકસાન ન કરો'],
+    cta_en:'Protect your hearing and protect wildlife.', cta_gu:'તમારા શ્રવણ અને વન્યજીવનનું રક્ષણ કરો.',
+    hashtags:['WorldHearingDay','WorldWildlifeDay','ProtectNature'], icon:'leaf', category:'Health & Environment'
+  },
+  'cisf-raising-day': {
+    title_en:'CISF Raising Day', title_gu:'CISF સ્થાપના દિવસ',
+    importance_en:'India honours the Central Industrial Security Force for protecting key installations.',
+    importance_gu:'ભારત મુખ્ય સ્થાપનોના રક્ષણ બદલ કેન્દ્રીય ઔદ્યોગિક સુરક્ષા દળને સન્માન આપે છે.',
+    points_en:['Respect our security forces','Cooperate with safety checks','Stay alert in public places','Support those who protect us'],
+    points_gu:['આપણા સુરક્ષા દળોનું સન્માન કરો','સલામતી તપાસમાં સહકાર આપો','જાહેર સ્થળોએ સતર્ક રહો','આપણું રક્ષણ કરનારાઓને ટેકો આપો'],
+    cta_en:'Salute the CISF — guardians of security.', cta_gu:'CISFને સલામ — સુરક્ષાના રક્ષક.',
+    hashtags:['CISFRaisingDay','Security','JaiHind'], icon:'shield', category:'National'
+  },
+  'world-down-syndrome-forests-day': {
+    title_en:'World Down Syndrome Day / International Day of Forests', title_gu:'વિશ્વ ડાઉન સિન્ડ્રોમ દિવસ / આંતરરાષ્ટ્રીય જંગલ દિવસ',
+    importance_en:'Two observances: inclusion for people with Down syndrome and the value of forests.',
+    importance_gu:'બે ઉજવણી: ડાઉન સિન્ડ્રોમ ધરાવતા લોકોનો સમાવેશ અને જંગલોનું મૂલ્ય.',
+    points_en:['Include people with Down syndrome','Respect diverse abilities','Protect and plant forests','Value trees for clean air'],
+    points_gu:['ડાઉન સિન્ડ્રોમ ધરાવતા લોકોને સામેલ કરો','વિવિધ ક્ષમતાઓનું સન્માન કરો','જંગલોનું રક્ષણ કરો અને રોપો','સ્વચ્છ હવા માટે વૃક્ષોને મૂલવો'],
+    cta_en:'Include everyone and protect our forests.', cta_gu:'દરેકને સામેલ કરો અને આપણા જંગલોનું રક્ષણ કરો.',
+    hashtags:['WorldDownSyndromeDay','IntlForestDay','Inclusion'], icon:'tree', category:'Health & Environment'
+  },
+  'safe-motherhood-parkinsons-day': {
+    title_en:"National Safe Motherhood Day / World Parkinson's Day", title_gu:'રાષ્ટ્રીય સુરક્ષિત માતૃત્વ દિવસ / વિશ્વ પાર્કિન્સન દિવસ',
+    importance_en:'Two observances: safe pregnancy and childbirth, and awareness of Parkinson’s disease.',
+    importance_gu:'બે ઉજવણી: સુરક્ષિત ગર્ભાવસ્થા અને પ્રસૂતિ, અને પાર્કિન્સન રોગ વિશે જાગૃતિ.',
+    points_en:['Ensure safe antenatal and delivery care','Watch for pregnancy danger signs','Notice early tremor or stiffness','Support people living with Parkinson’s'],
+    points_gu:['સુરક્ષિત પ્રસૂતિ-પૂર્વ અને પ્રસૂતિ સંભાળ સુનિશ્ચિત કરો','ગર્ભાવસ્થાના ભયના ચિહ્નો પર ધ્યાન રાખો','વહેલા ધ્રુજારી કે અકડાઈને ઓળખો','પાર્કિન્સન સાથે જીવતા લોકોને ટેકો આપો'],
+    cta_en:'Safe motherhood and support for Parkinson’s.', cta_gu:'સુરક્ષિત માતૃત્વ અને પાર્કિન્સન માટે સહારો.',
+    hashtags:['SafeMotherhoodDay','WorldParkinsonsDay','Health'], icon:'mom', category:'Health'
+  },
+  'international-tea-day': {
+    title_en:'International Tea Day', title_gu:'આંતરરાષ્ટ્રીય ચા દિવસ',
+    importance_en:'A UN day recognising tea’s cultural value and the livelihoods it supports.',
+    importance_gu:'ચાના સાંસ્કૃતિક મૂલ્ય અને તે ટકાવતી આજીવિકાને માન્યતા આપતો UN દિવસ.',
+    points_en:['Support fair conditions for tea workers','Choose sustainable produce','Enjoy tea in moderation','Value farming livelihoods'],
+    points_gu:['ચા કામદારો માટે ન્યાયી પરિસ્થિતિને ટેકો આપો','ટકાઉ ઉપજ પસંદ કરો','ચા મર્યાદામાં માણો','ખેતી આજીવિકાને મૂલવો'],
+    cta_en:'Sip responsibly — support tea communities.', cta_gu:'જવાબદારીપૂર્વક પીઓ — ચા સમુદાયોને ટેકો આપો.',
+    hashtags:['InternationalTeaDay','Tea','FairTrade'], icon:'leaf', category:'Agriculture'
+  },
+  'biological-diversity-day': {
+    title_en:'International Day for Biological Diversity', title_gu:'આંતરરાષ્ટ્રીય જૈવવિવિધતા દિવસ',
+    importance_en:'A UN day to protect the variety of life that keeps ecosystems and people healthy.',
+    importance_gu:'ઇકોસિસ્ટમ અને લોકોને સ્વસ્થ રાખતી જીવનની વિવિધતાના રક્ષણ માટેનો UN દિવસ.',
+    points_en:['Protect plants, animals and habitats','Avoid harming natural areas','Support native species','Reduce pollution and waste'],
+    points_gu:['વનસ્પતિ, પ્રાણી અને આવાસનું રક્ષણ કરો','કુદરતી વિસ્તારોને નુકસાન કરવાનું ટાળો','સ્થાનિક પ્રજાતિઓને ટેકો આપો','પ્રદૂષણ અને કચરો ઘટાડો'],
+    cta_en:'Protect biodiversity — life depends on it.', cta_gu:'જૈવવિવિધતાનું રક્ષણ કરો — જીવન તેના પર નિર્ભર છે.',
+    hashtags:['BiodiversityDay','ForNature','Biodiversity'], icon:'leaf', category:'Environment'
+  },
+  'global-day-of-parents': {
+    title_en:'Global Day of Parents', title_gu:'વૈશ્વિક માતાપિતા દિવસ',
+    importance_en:'A UN day honouring parents for their commitment to their children.',
+    importance_gu:'બાળકો પ્રત્યેની પ્રતિબદ્ધતા બદલ માતાપિતાને સન્માન આપતો UN દિવસ.',
+    points_en:['Appreciate your parents','Support parents’ wellbeing','Spend time with family','Care across generations'],
+    points_gu:['તમારા માતાપિતાની કદર કરો','માતાપિતાની સુખાકારીને ટેકો આપો','પરિવાર સાથે સમય વિતાવો','પેઢીઓ વચ્ચે સંભાળ રાખો'],
+    cta_en:'Honour parents — the heart of the family.', cta_gu:'માતાપિતાને સન્માન આપો — પરિવારનું હૃદય.',
+    hashtags:['GlobalDayOfParents','FamilyCare','ThankYou'], icon:'family', category:'Social'
+  },
+  'world-bicycle-day': {
+    title_en:'World Bicycle Day', title_gu:'વિશ્વ સાયકલ દિવસ',
+    importance_en:'A UN day promoting cycling as healthy, clean and affordable transport.',
+    importance_gu:'સાયકલિંગને સ્વસ્થ, સ્વચ્છ અને પરવડે તેવા પરિવહન તરીકે પ્રોત્સાહન આપતો UN દિવસ.',
+    points_en:['Cycle for short trips','Wear a helmet and ride safely','Enjoy exercise while commuting','Support cycle-friendly roads'],
+    points_gu:['ટૂંકી મુસાફરી માટે સાયકલ ચલાવો','હેલ્મેટ પહેરો અને સલામત ચલાવો','અવરજવર દરમિયાન કસરતનો આનંદ લો','સાયકલ-મૈત્રીપૂર્ણ રસ્તાઓને ટેકો આપો'],
+    cta_en:'Ride a bicycle — good for you and the planet.', cta_gu:'સાયકલ ચલાવો — તમારા અને ધરતી માટે સારું.',
+    hashtags:['WorldBicycleDay','Cycling','StayActive'], icon:'walk', category:'Physical Activity'
+  },
+  'world-day-against-child-labour': {
+    title_en:'World Day Against Child Labour', title_gu:'બાળ મજૂરી વિરોધી વિશ્વ દિવસ',
+    importance_en:'An ILO day to end child labour and protect children’s right to learn and grow.',
+    importance_gu:'બાળ મજૂરી નાબૂદ કરવા અને બાળકોના શીખવા-વધવાના અધિકારના રક્ષણ માટેનો ILO દિવસ.',
+    points_en:['Keep children in school','Say no to child labour','Report exploitation of children','Support families in need'],
+    points_gu:['બાળકોને શાળામાં રાખો','બાળ મજૂરીને ના કહો','બાળકોના શોષણની જાણ કરો','જરૂરિયાતમંદ પરિવારોને ટેકો આપો'],
+    cta_en:'End child labour — let children learn.', cta_gu:'બાળ મજૂરી નાબૂદ કરો — બાળકોને શીખવા દો.',
+    hashtags:['EndChildLabour','ChildRights','Education'], icon:'child', category:'Social'
+  },
+  'drug-abuse-day': {
+    title_en:'International Day Against Drug Abuse', title_gu:'નશા વિરોધી આંતરરાષ્ટ્રીય દિવસ',
+    importance_en:'A UN day to prevent drug abuse and support treatment and recovery.',
+    importance_gu:'નશાનો દુરુપયોગ અટકાવવા અને સારવાર તથા સાજા થવાને ટેકો આપવા માટેનો UN દિવસ.',
+    points_en:['Say no to drugs','Seek help for addiction early','Support recovery without stigma','Guide youth to healthy choices'],
+    points_gu:['નશાને ના કહો','વ્યસન માટે વહેલી મદદ લો','કલંક વગર સાજા થવાને ટેકો આપો','યુવાનોને સ્વસ્થ પસંદગી તરફ દોરો'],
+    cta_en:'Say no to drugs — support recovery.', cta_gu:'નશાને ના કહો — સાજા થવાને ટેકો આપો.',
+    hashtags:['AgainstDrugAbuse','SayNoToDrugs','Recovery'], icon:'shield', category:'Health & Social'
+  },
+  'world-youth-skills-day': {
+    title_en:'World Youth Skills Day', title_gu:'વિશ્વ યુવા કૌશલ્ય દિવસ',
+    importance_en:'A UN day highlighting the skills young people need for work and life.',
+    importance_gu:'યુવાનોને કામ અને જીવન માટે જરૂરી કૌશલ્યો દર્શાવતો UN દિવસ.',
+    points_en:['Keep learning new skills','Seek training and mentorship','Value practical, vocational skills','Adapt to a changing world'],
+    points_gu:['નવા કૌશલ્યો શીખતા રહો','તાલીમ અને માર્ગદર્શન લો','વ્યવહારુ, વ્યાવસાયિક કૌશલ્યોને મૂલવો','બદલાતી દુનિયા સાથે અનુકૂલન કરો'],
+    cta_en:'Build skills — build your future.', cta_gu:'કૌશલ્ય બનાવો — તમારું ભવિષ્ય બનાવો.',
+    hashtags:['WorldYouthSkillsDay','SkillIndia','Learning'], icon:'graduation', category:'Education & Skills'
+  },
+  'mandela-day': {
+    title_en:'Nelson Mandela International Day', title_gu:'નેલ્સન મંડેલા આંતરરાષ્ટ્રીય દિવસ',
+    importance_en:'A UN day inspiring people to serve their communities in Mandela’s spirit.',
+    importance_gu:'લોકોને મંડેલાની ભાવનામાં તેમના સમુદાયોની સેવા કરવા પ્રેરિત કરતો UN દિવસ.',
+    points_en:['Give time to help others','Stand for justice and equality','Promote peace and forgiveness','Make a difference in your community'],
+    points_gu:['અન્યને મદદ કરવા સમય આપો','ન્યાય અને સમાનતા માટે ઊભા રહો','શાંતિ અને ક્ષમાને પ્રોત્સાહન આપો','તમારા સમુદાયમાં ફરક લાવો'],
+    cta_en:'Take action — serve your community.', cta_gu:'પગલાં લો — તમારા સમુદાયની સેવા કરો.',
+    hashtags:['MandelaDay','TakeAction','Service'], icon:'peace', category:'Social'
+  },
+  'international-tiger-day': {
+    title_en:'International Tiger Day', title_gu:'આંતરરાષ્ટ્રીય વાઘ દિવસ',
+    importance_en:'A day to protect tigers and the forests they need to survive.',
+    importance_gu:'વાઘ અને તેમને ટકવા માટે જરૂરી જંગલોના રક્ષણ માટેનો દિવસ.',
+    points_en:['Support tiger conservation','Protect forests and habitats','Say no to wildlife trade','Respect protected areas'],
+    points_gu:['વાઘ સંરક્ષણને ટેકો આપો','જંગલો અને આવાસનું રક્ષણ કરો','વન્યજીવ વેપારને ના કહો','સંરક્ષિત વિસ્તારોનું સન્માન કરો'],
+    cta_en:'Save the tiger — protect our forests.', cta_gu:'વાઘને બચાવો — આપણા જંગલોનું રક્ષણ કરો.',
+    hashtags:['InternationalTigerDay','SaveTheTiger','Conservation'], icon:'leaf', category:'Environment'
+  },
+  'trafficking-persons-day': {
+    title_en:'World Day Against Trafficking in Persons', title_gu:'વ્યક્તિ તસ્કરી વિરોધી વિશ્વ દિવસ',
+    importance_en:'A UN day to end human trafficking and support survivors.',
+    importance_gu:'માનવ તસ્કરી નાબૂદ કરવા અને પીડિતોને ટેકો આપવા માટેનો UN દિવસ.',
+    points_en:['Learn the signs of trafficking','Report suspected trafficking','Support survivors with dignity','Protect vulnerable people'],
+    points_gu:['તસ્કરીના ચિહ્નો જાણો','શંકાસ્પદ તસ્કરીની જાણ કરો','પીડિતોને ગૌરવ સાથે ટેકો આપો','સંવેદનશીલ લોકોનું રક્ષણ કરો'],
+    cta_en:'End trafficking — protect the vulnerable.', cta_gu:'તસ્કરી નાબૂદ કરો — સંવેદનશીલોનું રક્ષણ કરો.',
+    hashtags:['EndHumanTrafficking','BlueHeart','HumanRights'], icon:'help', category:'Social'
+  },
+  'hiroshima-day': {
+    title_en:'Hiroshima Day', title_gu:'હિરોશિમા દિવસ',
+    importance_en:'A day of remembrance and a call for peace and a world free of nuclear weapons.',
+    importance_gu:'સ્મરણનો દિવસ અને શાંતિ તથા પરમાણુ શસ્ત્રમુક્ત વિશ્વ માટેની હાકલ.',
+    points_en:['Remember the cost of war','Promote peace and disarmament','Resolve conflicts without violence','Value human life'],
+    points_gu:['યુદ્ધની કિંમતને યાદ કરો','શાંતિ અને નિઃશસ્ત્રીકરણને પ્રોત્સાહન આપો','હિંસા વગર સંઘર્ષ ઉકેલો','માનવ જીવનને મૂલવો'],
+    cta_en:'Remember Hiroshima — choose peace.', cta_gu:'હિરોશિમાને યાદ કરો — શાંતિ પસંદ કરો.',
+    hashtags:['HiroshimaDay','Peace','NoNukes'], icon:'peace', category:'Peace'
+  },
+  'international-youth-day': {
+    title_en:'International Youth Day', title_gu:'આંતરરાષ્ટ્રીય યુવા દિવસ',
+    importance_en:'A UN day recognising young people’s role in building a better world.',
+    importance_gu:'સારી દુનિયા બનાવવામાં યુવાનોની ભૂમિકાને માન્યતા આપતો UN દિવસ.',
+    points_en:['Give youth a voice','Support education and jobs','Encourage youth leadership','Invest in young people’s health'],
+    points_gu:['યુવાનોને અવાજ આપો','શિક્ષણ અને નોકરીને ટેકો આપો','યુવા નેતૃત્વને પ્રોત્સાહન આપો','યુવાનોના આરોગ્યમાં રોકાણ કરો'],
+    cta_en:'Empower youth — shape a better future.', cta_gu:'યુવાનોને સશક્ત બનાવો — સારું ભવિષ્ય ઘડો.',
+    hashtags:['InternationalYouthDay','YouthPower','Future'], icon:'teen', category:'Social'
+  },
+  'world-humanitarian-day': {
+    title_en:'World Humanitarian Day', title_gu:'વિશ્વ માનવતાવાદી દિવસ',
+    importance_en:'A UN day honouring aid workers who help people in crisis, often at great risk.',
+    importance_gu:'સંકટમાં લોકોને મદદ કરતા, ઘણી વાર મોટા જોખમે, સહાય કાર્યકરોને સન્માન આપતો UN દિવસ.',
+    points_en:['Respect humanitarian workers','Support relief and aid efforts','Help neighbours in crisis','Show compassion to all'],
+    points_gu:['માનવતાવાદી કાર્યકરોનું સન્માન કરો','રાહત અને સહાય પ્રયાસોને ટેકો આપો','સંકટમાં પડોશીઓને મદદ કરો','બધા પ્રત્યે કરુણા દર્શાવો'],
+    cta_en:'Honour humanitarians — be kind in crisis.', cta_gu:'માનવતાવાદીઓને સન્માન આપો — સંકટમાં દયાળુ બનો.',
+    hashtags:['WorldHumanitarianDay','Humanity','AidWorkers'], icon:'help', category:'Humanitarian'
+  },
+  'slave-trade-remembrance-day': {
+    title_en:'International Day for the Remembrance of the Slave Trade', title_gu:'ગુલામ વેપાર સ્મરણ આંતરરાષ્ટ્રીય દિવસ',
+    importance_en:'A UNESCO day to remember the victims of slavery and stand against modern exploitation.',
+    importance_gu:'ગુલામીના પીડિતોને યાદ કરવા અને આધુનિક શોષણ સામે ઊભા રહેવા માટેનો UNESCO દિવસ.',
+    points_en:['Remember the history of slavery','Stand against all exploitation','Promote equality and dignity','Learn from the past'],
+    points_gu:['ગુલામીના ઇતિહાસને યાદ કરો','દરેક શોષણ સામે ઊભા રહો','સમાનતા અને ગૌરવને પ્રોત્સાહન આપો','ભૂતકાળમાંથી શીખો'],
+    cta_en:'Remember, and stand against exploitation.', cta_gu:'યાદ કરો, અને શોષણ સામે ઊભા રહો.',
+    hashtags:['SlaveTradeRemembrance','HumanRights','NeverForget'], icon:'scales', category:'Social'
+  },
+  'alzheimers-peace-day': {
+    title_en:"World Alzheimer's Day / International Day of Peace", title_gu:'વિશ્વ અલ્ઝાઈમર દિવસ / આંતરરાષ્ટ્રીય શાંતિ દિવસ',
+    importance_en:'Two observances: awareness of dementia and a global call for peace.',
+    importance_gu:'બે ઉજવણી: ડિમેન્શિયા વિશે જાગૃતિ અને શાંતિ માટે વૈશ્વિક હાકલ.',
+    points_en:['Notice early memory changes','Support people living with dementia','Promote peace in daily life','Resolve conflicts kindly'],
+    points_gu:['વહેલા યાદશક્તિ ફેરફારને ઓળખો','ડિમેન્શિયા સાથે જીવતા લોકોને ટેકો આપો','રોજિંદા જીવનમાં શાંતિને પ્રોત્સાહન આપો','સંઘર્ષ દયાથી ઉકેલો'],
+    cta_en:'Support memory care and choose peace.', cta_gu:'સ્મૃતિ સંભાળને ટેકો આપો અને શાંતિ પસંદ કરો.',
+    hashtags:['WorldAlzheimersDay','DayOfPeace','DementiaAwareness'], icon:'brain', category:'Health & Peace'
+  },
+  'rivers-tourism-day': {
+    title_en:'World Rivers Day / World Tourism Day', title_gu:'વિશ્વ નદી દિવસ / વિશ્વ પ્રવાસન દિવસ',
+    importance_en:'Two observances: caring for our rivers and promoting responsible tourism.',
+    importance_gu:'બે ઉજવણી: આપણી નદીઓની સંભાળ અને જવાબદાર પ્રવાસનને પ્રોત્સાહન.',
+    points_en:['Keep rivers clean','Do not dump waste in water','Travel responsibly and respectfully','Support local communities'],
+    points_gu:['નદીઓ સ્વચ્છ રાખો','પાણીમાં કચરો ન નાખો','જવાબદારી અને આદરથી મુસાફરી કરો','સ્થાનિક સમુદાયોને ટેકો આપો'],
+    cta_en:'Protect rivers and travel responsibly.', cta_gu:'નદીઓનું રક્ષણ કરો અને જવાબદારીપૂર્વક મુસાફરી કરો.',
+    hashtags:['WorldRiversDay','WorldTourismDay','Sustainability'], icon:'water', category:'Environment & Tourism'
+  },
+  'older-persons-blood-donation-day': {
+    title_en:'National Voluntary Blood Donation Day / International Day of Older Persons', title_gu:'રાષ્ટ્રીય સ્વૈચ્છિક રક્તદાન દિવસ / આંતરરાષ્ટ્રીય વૃદ્ધજન દિવસ',
+    importance_en:'Two observances: encouraging voluntary blood donation and honouring older persons.',
+    importance_gu:'બે ઉજવણી: સ્વૈચ્છિક રક્તદાનને પ્રોત્સાહન અને વૃદ્ધજનોને સન્માન.',
+    points_en:['Donate blood voluntarily','Respect and care for elders','Support older persons’ health','Value their wisdom and dignity'],
+    points_gu:['સ્વૈચ્છિક રક્તદાન કરો','વડીલોનું સન્માન કરો અને સંભાળ લો','વૃદ્ધજનોના આરોગ્યને ટેકો આપો','તેમના જ્ઞાન અને ગૌરવને મૂલવો'],
+    cta_en:'Donate blood and honour our elders.', cta_gu:'રક્તદાન કરો અને આપણા વડીલોને સન્માન આપો.',
+    hashtags:['BloodDonation','OlderPersonsDay','Care'], icon:'elder', category:'Health & Social'
+  },
+  'world-animal-day': {
+    title_en:'World Animal Day', title_gu:'વિશ્વ પ્રાણી દિવસ',
+    importance_en:'A day to promote animal welfare and kindness to all creatures.',
+    importance_gu:'પ્રાણી કલ્યાણ અને બધા જીવો પ્રત્યે દયાને પ્રોત્સાહન આપતો દિવસ.',
+    points_en:['Treat animals with kindness','Care for pets responsibly','Protect wildlife and strays','Report animal cruelty'],
+    points_gu:['પ્રાણીઓ સાથે દયાથી વર્તો','પાળતુ પ્રાણીઓની જવાબદારીપૂર્વક સંભાળ લો','વન્યજીવન અને રખડતા પ્રાણીઓનું રક્ષણ કરો','પ્રાણી ક્રૂરતાની જાણ કરો'],
+    cta_en:'Be kind to animals — every life matters.', cta_gu:'પ્રાણીઓ પ્રત્યે દયાળુ બનો — દરેક જીવન મહત્વનું છે.',
+    hashtags:['WorldAnimalDay','AnimalWelfare','BeKind'], icon:'leaf', category:'Environment'
+  },
+  'world-teachers-day': {
+    title_en:"World Teachers' Day", title_gu:'વિશ્વ શિક્ષક દિવસ',
+    importance_en:'A UNESCO day celebrating teachers worldwide for shaping learners and society.',
+    importance_gu:'વિદ્યાર્થીઓ અને સમાજ ઘડવા બદલ વિશ્વભરના શિક્ષકોની ઉજવણી કરતો UNESCO દિવસ.',
+    points_en:['Appreciate teachers everywhere','Support quality education','Value learning for life','Respect the teaching profession'],
+    points_gu:['દરેક જગ્યાના શિક્ષકોની કદર કરો','ગુણવત્તાયુક્ત શિક્ષણને ટેકો આપો','જીવનભરના શિક્ષણને મૂલવો','શિક્ષણ વ્યવસાયનું સન્માન કરો'],
+    cta_en:'Celebrate teachers who shape our future.', cta_gu:'આપણું ભવિષ્ય ઘડનાર શિક્ષકોની ઉજવણી કરો.',
+    hashtags:['WorldTeachersDay','ThankATeacher','Education'], icon:'cap', category:'Education'
+  },
+  'world-post-day': {
+    title_en:'World Post Day', title_gu:'વિશ્વ ટપાલ દિવસ',
+    importance_en:'A UN day recognising the postal service’s role in connecting people and communities.',
+    importance_gu:'લોકો અને સમુદાયોને જોડવામાં ટપાલ સેવાની ભૂમિકાને માન્યતા આપતો UN દિવસ.',
+    points_en:['Value reliable postal services','Support access in remote areas','Appreciate postal workers','Use official services safely'],
+    points_gu:['વિશ્વસનીય ટપાલ સેવાઓને મૂલવો','દૂરના વિસ્તારોમાં પહોંચને ટેકો આપો','ટપાલ કર્મચારીઓની કદર કરો','સત્તાવાર સેવાઓ સલામત રીતે વાપરો'],
+    cta_en:'Connecting people — value the post.', cta_gu:'લોકોને જોડતું — ટપાલને મૂલવો.',
+    hashtags:['WorldPostDay','PostalService','Connect'], icon:'news', category:'Communication'
+  },
+  'girl-child-day-intl': {
+    title_en:'International Day of the Girl Child', title_gu:'આંતરરાષ્ટ્રીય બાળિકા દિવસ',
+    importance_en:'A UN day for the rights, education, health and empowerment of girls.',
+    importance_gu:'બાળિકાઓના અધિકારો, શિક્ષણ, આરોગ્ય અને સશક્તિકરણ માટેનો UN દિવસ.',
+    points_en:['Support girls’ education','Protect girls from harm','Promote girls’ health','Believe in girls’ potential'],
+    points_gu:['બાળિકાઓના શિક્ષણને ટેકો આપો','બાળિકાઓને નુકસાનથી બચાવો','બાળિકાઓના આરોગ્યને પ્રોત્સાહન આપો','બાળિકાઓની ક્ષમતામાં વિશ્વાસ રાખો'],
+    cta_en:'Empower girls — invest in their future.', cta_gu:'બાળિકાઓને સશક્ત બનાવો — તેમના ભવિષ્યમાં રોકાણ કરો.',
+    hashtags:['DayOfTheGirl','GirlPower','GirlsRights'], icon:'child', category:'Health & Social'
+  },
+  'disaster-risk-reduction-day': {
+    title_en:'International Day for Disaster Risk Reduction', title_gu:'આપત્તિ જોખમ ઘટાડા આંતરરાષ્ટ્રીય દિવસ',
+    importance_en:'A UN day to build awareness and preparedness that reduces the impact of disasters.',
+    importance_gu:'આપત્તિઓની અસર ઘટાડતી જાગૃતિ અને તૈયારી બનાવવા માટેનો UN દિવસ.',
+    points_en:['Know your local risks','Keep an emergency kit ready','Learn evacuation routes','Follow official warnings'],
+    points_gu:['તમારા સ્થાનિક જોખમો જાણો','કટોકટી કીટ તૈયાર રાખો','ખાલી કરાવવાના માર્ગો શીખો','સત્તાવાર ચેતવણીઓનું પાલન કરો'],
+    cta_en:'Be prepared — reduce disaster risk.', cta_gu:'તૈયાર રહો — આપત્તિ જોખમ ઘટાડો.',
+    hashtags:['DRRDay','BeReady','Preparedness'], icon:'shield', category:'Safety'
+  },
+  'polio-un-day': {
+    title_en:'United Nations Day / World Polio Day', title_gu:'સંયુક્ત રાષ્ટ્ર દિવસ / વિશ્વ પોલિયો દિવસ',
+    importance_en:'Two observances: the founding of the UN and the global effort to end polio.',
+    importance_gu:'બે ઉજવણી: સંયુક્ત રાષ્ટ્રની સ્થાપના અને પોલિયો નાબૂદીનો વૈશ્વિક પ્રયાસ.',
+    points_en:['Support global cooperation','Vaccinate children against polio','Complete all polio doses','Help keep the world polio-free'],
+    points_gu:['વૈશ્વિક સહકારને ટેકો આપો','બાળકોને પોલિયો સામે રસી અપાવો','બધા પોલિયો ડોઝ પૂર્ણ કરો','દુનિયાને પોલિયોમુક્ત રાખવામાં મદદ કરો'],
+    cta_en:'End polio — vaccinate every child.', cta_gu:'પોલિયો નાબૂદ કરો — દરેક બાળકને રસી અપાવો.',
+    hashtags:['UNDay','WorldPolioDay','EndPolio'], icon:'syringe', category:'Health & International'
+  },
+  'tsunami-awareness-day': {
+    title_en:'World Tsunami Awareness Day', title_gu:'વિશ્વ સુનામી જાગૃતિ દિવસ',
+    importance_en:'A UN day to raise awareness and preparedness for tsunamis in coastal areas.',
+    importance_gu:'દરિયાકાંઠાના વિસ્તારોમાં સુનામી માટે જાગૃતિ અને તૈયારી લાવવા માટેનો UN દિવસ.',
+    points_en:['Know tsunami warning signs','Move to higher ground quickly','Follow official alerts','Have a family evacuation plan'],
+    points_gu:['સુનામી ચેતવણી ચિહ્નો જાણો','ઝડપથી ઊંચી જગ્યાએ જાઓ','સત્તાવાર ચેતવણીઓનું પાલન કરો','પરિવારની ખાલી કરાવવાની યોજના રાખો'],
+    cta_en:'Be tsunami-ready — know and act.', cta_gu:'સુનામી માટે તૈયાર રહો — જાણો અને પગલાં લો.',
+    hashtags:['TsunamiAwarenessDay','BeReady','Safety'], icon:'water', category:'Safety'
+  },
+  'science-for-peace-day': {
+    title_en:'World Science Day for Peace and Development', title_gu:'શાંતિ અને વિકાસ માટે વિશ્વ વિજ્ઞાન દિવસ',
+    importance_en:'A UNESCO day highlighting science’s role in society, peace and development.',
+    importance_gu:'સમાજ, શાંતિ અને વિકાસમાં વિજ્ઞાનની ભૂમિકા દર્શાવતો UNESCO દિવસ.',
+    points_en:['Value science for society','Support evidence-based decisions','Encourage science education','Use science responsibly'],
+    points_gu:['સમાજ માટે વિજ્ઞાનને મૂલવો','પુરાવા-આધારિત નિર્ણયોને ટેકો આપો','વિજ્ઞાન શિક્ષણને પ્રોત્સાહન આપો','વિજ્ઞાનનો જવાબદારીપૂર્વક ઉપયોગ કરો'],
+    cta_en:'Science for peace and a better world.', cta_gu:'શાંતિ અને સારી દુનિયા માટે વિજ્ઞાન.',
+    hashtags:['ScienceDay','ScienceForPeace','Development'], icon:'atom', category:'Science'
+  },
+  'children-diabetes-day': {
+    title_en:"Children's Day / World Diabetes Day", title_gu:'બાળ દિવસ / વિશ્વ ડાયાબિટીસ દિવસ',
+    importance_en:'Two observances: celebrating children (Nehru’s birthday in India) and diabetes awareness.',
+    importance_gu:'બે ઉજવણી: બાળકોની ઉજવણી (ભારતમાં નહેરુનો જન્મદિન) અને ડાયાબિટીસ જાગૃતિ.',
+    points_en:['Nurture children’s health and joy','Encourage active, balanced habits','Know the signs of diabetes','Support prevention and care'],
+    points_gu:['બાળકોના આરોગ્ય અને આનંદને પોષો','સક્રિય, સંતુલિત આદતોને પ્રોત્સાહન આપો','ડાયાબિટીસના ચિહ્નો જાણો','નિવારણ અને સંભાળને ટેકો આપો'],
+    cta_en:'Healthy, happy children — and diabetes awareness.', cta_gu:'સ્વસ્થ, ખુશ બાળકો — અને ડાયાબિટીસ જાગૃતિ.',
+    hashtags:['ChildrensDay','WorldDiabetesDay','HealthForAll'], icon:'child', category:'Health & National'
+  },
+  'toilet-mens-day': {
+    title_en:"World Toilet Day / International Men's Day", title_gu:'વિશ્વ શૌચાલય દિવસ / આંતરરાષ્ટ્રીય પુરુષ દિવસ',
+    importance_en:'Two observances: safe sanitation for all and the health and wellbeing of men and boys.',
+    importance_gu:'બે ઉજવણી: બધા માટે સલામત સ્વચ્છતા અને પુરુષો તથા છોકરાઓનું આરોગ્ય અને સુખાકારી.',
+    points_en:['Use and maintain safe toilets','Support sanitation for everyone','Encourage men to seek health care','Talk about men’s mental health'],
+    points_gu:['સલામત શૌચાલય વાપરો અને જાળવો','દરેક માટે સ્વચ્છતાને ટેકો આપો','પુરુષોને આરોગ્ય સંભાળ લેવા પ્રોત્સાહિત કરો','પુરુષોના માનસિક આરોગ્ય વિશે વાત કરો'],
+    cta_en:'Safe sanitation for all, healthy men and boys.', cta_gu:'બધા માટે સલામત સ્વચ્છતા, સ્વસ્થ પુરુષો અને છોકરાઓ.',
+    hashtags:['WorldToiletDay','MensDay','Sanitation'], icon:'shield', category:'Health & Social'
+  },
+  'universal-childrens-day': {
+    title_en:"Universal Children's Day", title_gu:'વિશ્વવ્યાપી બાળ દિવસ',
+    importance_en:'A UN day promoting the rights, welfare and wellbeing of every child.',
+    importance_gu:'દરેક બાળકના અધિકારો, કલ્યાણ અને સુખાકારીને પ્રોત્સાહન આપતો UN દિવસ.',
+    points_en:['Protect every child’s rights','Ensure education and health','Listen to children’s voices','Keep children safe from harm'],
+    points_gu:['દરેક બાળકના અધિકારોનું રક્ષણ કરો','શિક્ષણ અને આરોગ્ય સુનિશ્ચિત કરો','બાળકોના અવાજ સાંભળો','બાળકોને નુકસાનથી સલામત રાખો'],
+    cta_en:'Every child, every right.', cta_gu:'દરેક બાળક, દરેક અધિકાર.',
+    hashtags:['ChildrensDay','ChildRights','ForEveryChild'], icon:'child', category:'Social'
+  },
+  'world-fisheries-day': {
+    title_en:'World Fisheries Day', title_gu:'વિશ્વ મત્સ્યઉદ્યોગ દિવસ',
+    importance_en:'A day highlighting healthy fisheries and the livelihoods of fishing communities.',
+    importance_gu:'સ્વસ્થ મત્સ્યઉદ્યોગ અને માછીમાર સમુદાયોની આજીવિકા દર્શાવતો દિવસ.',
+    points_en:['Support sustainable fishing','Protect rivers, lakes and seas','Respect fishing communities','Avoid overfishing and waste'],
+    points_gu:['ટકાઉ માછીમારીને ટેકો આપો','નદીઓ, તળાવો અને દરિયાનું રક્ષણ કરો','માછીમાર સમુદાયોનું સન્માન કરો','અતિમાછીમારી અને બગાડ ટાળો'],
+    cta_en:'Sustain our waters — support fisheries.', cta_gu:'આપણા જળનું જતન કરો — મત્સ્યઉદ્યોગને ટેકો આપો.',
+    hashtags:['WorldFisheriesDay','Sustainable','BlueEconomy'], icon:'water', category:'Environment & Livelihood'
+  },
+  'anti-corruption-day': {
+    title_en:'International Anti-Corruption Day', title_gu:'આંતરરાષ્ટ્રીય ભ્રષ્ટાચાર વિરોધી દિવસ',
+    importance_en:'A UN day to fight corruption and promote honesty, transparency and accountability.',
+    importance_gu:'ભ્રષ્ટાચાર સામે લડવા અને પ્રામાણિકતા, પારદર્શિતા તથા જવાબદારીને પ્રોત્સાહન આપવા માટેનો UN દિવસ.',
+    points_en:['Refuse to give or take bribes','Report corruption','Demand transparency','Support honest institutions'],
+    points_gu:['લાંચ આપવા કે લેવાનો ઇનકાર કરો','ભ્રષ્ટાચારની જાણ કરો','પારદર્શિતાની માંગ કરો','પ્રામાણિક સંસ્થાઓને ટેકો આપો'],
+    cta_en:'Say no to corruption — choose integrity.', cta_gu:'ભ્રષ્ટાચારને ના કહો — પ્રામાણિકતા પસંદ કરો.',
+    hashtags:['AntiCorruptionDay','Integrity','Transparency'], icon:'scales', category:'Governance'
+  },
+  'human-rights-day': {
+    title_en:'Human Rights Day', title_gu:'માનવ અધિકાર દિવસ',
+    importance_en:'A UN day upholding the rights and dignity that belong to every person.',
+    importance_gu:'દરેક વ્યક્તિના અધિકારો અને ગૌરવ જાળવતો UN દિવસ.',
+    points_en:['Respect the rights of all','Stand against injustice','Promote equality and dignity','Know and defend your rights'],
+    points_gu:['બધાના અધિકારોનું સન્માન કરો','અન્યાય સામે ઊભા રહો','સમાનતા અને ગૌરવને પ્રોત્સાહન આપો','તમારા અધિકારો જાણો અને બચાવો'],
+    cta_en:'Dignity and rights for all.', cta_gu:'બધા માટે ગૌરવ અને અધિકાર.',
+    hashtags:['HumanRightsDay','StandUp4HumanRights','Dignity'], icon:'scales', category:'Rights'
+  },
+  'international-mountain-day': {
+    title_en:'International Mountain Day', title_gu:'આંતરરાષ્ટ્રીય પર્વત દિવસ',
+    importance_en:'A UN day recognising mountains for water, biodiversity and the communities they support.',
+    importance_gu:'પાણી, જૈવવિવિધતા અને તે ટકાવતા સમુદાયો માટે પર્વતોને માન્યતા આપતો UN દિવસ.',
+    points_en:['Protect mountain ecosystems','Support mountain communities','Reduce pollution and waste','Travel responsibly in hills'],
+    points_gu:['પર્વતીય ઇકોસિસ્ટમનું રક્ષણ કરો','પર્વતીય સમુદાયોને ટેકો આપો','પ્રદૂષણ અને કચરો ઘટાડો','પહાડોમાં જવાબદારીપૂર્વક મુસાફરી કરો'],
+    cta_en:'Protect mountains — they sustain life.', cta_gu:'પર્વતોનું રક્ષણ કરો — તે જીવન ટકાવે છે.',
+    hashtags:['MountainDay','ProtectMountains','Nature'], icon:'tree', category:'Environment'
+  },
+  'international-migrants-day': {
+    title_en:'International Migrants Day', title_gu:'આંતરરાષ્ટ્રીય સ્થળાંતરિત દિવસ',
+    importance_en:'A UN day recognising the rights and contributions of migrants everywhere.',
+    importance_gu:'દરેક જગ્યાના સ્થળાંતરિતોના અધિકારો અને યોગદાનને માન્યતા આપતો UN દિવસ.',
+    points_en:['Respect the dignity of migrants','Reject prejudice and exploitation','Value their contributions','Support safe, fair migration'],
+    points_gu:['સ્થળાંતરિતોના ગૌરવનું સન્માન કરો','પૂર્વગ્રહ અને શોષણને નકારો','તેમના યોગદાનને મૂલવો','સલામત, ન્યાયી સ્થળાંતરને ટેકો આપો'],
+    cta_en:'Respect and support migrants everywhere.', cta_gu:'દરેક જગ્યાના સ્થળાંતરિતોનું સન્માન કરો અને ટેકો આપો.',
+    hashtags:['MigrantsDay','MigrationWithDignity','HumanRights'], icon:'globe', category:'Social'
+  }
+};
+Object.assign(TOPIC_CONTENT, OFFICIAL_REST_CONTENT);
+
 // Studio themes cycle to fill non-observance days.
-const NON_STUDIO = Object.assign({}, OFFICIAL_HEALTH_CONTENT, MOVABLE_CONTENT, OFFICIAL_MIXED_CONTENT, OFFICIAL_CIVIC_CONTENT, OFFICIAL_CIVIC2_CONTENT);
+const NON_STUDIO = Object.assign({}, OFFICIAL_HEALTH_CONTENT, MOVABLE_CONTENT, OFFICIAL_MIXED_CONTENT, OFFICIAL_CIVIC_CONTENT, OFFICIAL_CIVIC2_CONTENT, OFFICIAL_REST_CONTENT);
 const STUDIO_THEME_IDS = Object.keys(TOPIC_CONTENT).filter(k => !NON_STUDIO[k]);
 
 // ---- Movable observance rules (year-aware) ----

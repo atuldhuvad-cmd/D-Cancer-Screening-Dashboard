@@ -1839,8 +1839,203 @@ function validateContentCoverage(calendar) {
   return failures;
 }
 
+// ---- Fixed observance mapping (C: classification) ----
+// MM-DD -> { topicId, observanceType, authorities }
+// observanceType: official-international | official-national | recognised-health | studio-theme
+// Authorities are only asserted where verifiable; federation-led health days use
+// 'recognised-health' with no institutional attribution (neutral, not inflated).
+const FIXED_OBSERVANCES = {
+  '01-04':{topicId:'world-braille-day',observanceType:'official-international',authorities:['UN']},
+  '01-09':{topicId:'pravasi-bharatiya-divas',observanceType:'official-national',authorities:['Government of India']},
+  '01-10':{topicId:'world-hindi-day',observanceType:'official-international',authorities:[]},
+  '01-12':{topicId:'national-youth-day',observanceType:'official-national',authorities:['Government of India']},
+  '01-15':{topicId:'indian-army-day',observanceType:'official-national',authorities:['Government of India']},
+  '01-23':{topicId:'parakram-diwas',observanceType:'official-national',authorities:['Government of India']},
+  '01-24':{topicId:'national-girl-child-day',observanceType:'official-national',authorities:['Government of India']},
+  '01-25':{topicId:'national-voters-day',observanceType:'official-national',authorities:['Government of India']},
+  '01-26':{topicId:'republic-day',observanceType:'official-national',authorities:['Government of India']},
+  '01-30':{topicId:'martyrs-day',observanceType:'official-national',authorities:['Government of India']},
+  '02-02':{topicId:'world-wetlands-day',observanceType:'official-international',authorities:['UN']},
+  '02-04':{topicId:'world-cancer-day',observanceType:'recognised-health',authorities:[]},
+  '02-06':{topicId:'zero-tolerance-fgm',observanceType:'official-international',authorities:['UN']},
+  '02-10':{topicId:'national-deworming-day',observanceType:'official-national',authorities:['Government of India']},
+  '02-11':{topicId:'women-girls-in-science',observanceType:'official-international',authorities:['UN']},
+  '02-13':{topicId:'world-radio-day',observanceType:'official-international',authorities:['UNESCO']},
+  '02-15':{topicId:'childhood-cancer-day',observanceType:'recognised-health',authorities:[]},
+  '02-20':{topicId:'world-day-social-justice',observanceType:'official-international',authorities:['UN']},
+  '02-21':{topicId:'international-mother-language-day',observanceType:'official-international',authorities:['UNESCO']},
+  '02-27':{topicId:'world-ngo-day',observanceType:'official-international',authorities:[]},
+  '02-28':{topicId:'national-science-day',observanceType:'official-national',authorities:['Government of India']},
+  '03-01':{topicId:'zero-discrimination-day',observanceType:'official-international',authorities:['UN']},
+  '03-03':{topicId:'world-hearing-wildlife-day',observanceType:'official-international',authorities:['UN']},
+  '03-04':{topicId:'world-obesity-day',observanceType:'recognised-health',authorities:[]},
+  '03-08':{topicId:'international-womens-day',observanceType:'official-international',authorities:['UN']},
+  '03-10':{topicId:'cisf-raising-day',observanceType:'official-national',authorities:['Government of India']},
+  '03-15':{topicId:'world-consumer-rights-day',observanceType:'official-international',authorities:[]},
+  '03-16':{topicId:'national-vaccination-day',observanceType:'official-national',authorities:['Government of India']},
+  '03-20':{topicId:'world-oral-health-day',observanceType:'recognised-health',authorities:[]},
+  '03-21':{topicId:'world-down-syndrome-forests-day',observanceType:'official-international',authorities:['UN']},
+  '03-22':{topicId:'world-water-day',observanceType:'official-international',authorities:['UN']},
+  '03-23':{topicId:'shaheed-diwas',observanceType:'official-national',authorities:['Government of India']},
+  '03-24':{topicId:'world-tb-day',observanceType:'official-international',authorities:['WHO']},
+  '04-02':{topicId:'world-autism-awareness-day',observanceType:'official-international',authorities:['UN']},
+  '04-05':{topicId:'national-maritime-day',observanceType:'official-national',authorities:['Government of India']},
+  '04-07':{topicId:'world-health-day',observanceType:'official-international',authorities:['WHO']},
+  '04-10':{topicId:'world-homeopathy-day',observanceType:'official-national',authorities:['Government of India']},
+  '04-11':{topicId:'safe-motherhood-parkinsons-day',observanceType:'recognised-health',authorities:[]},
+  '04-14':{topicId:'ambedkar-jayanti',observanceType:'official-national',authorities:['Government of India']},
+  '04-17':{topicId:'world-haemophilia-day',observanceType:'recognised-health',authorities:[]},
+  '04-18':{topicId:'world-heritage-day',observanceType:'official-international',authorities:['UNESCO']},
+  '04-22':{topicId:'earth-day',observanceType:'official-international',authorities:['UN']},
+  '04-24':{topicId:'national-panchayati-raj-day',observanceType:'official-national',authorities:['Government of India']},
+  '04-25':{topicId:'world-malaria-day',observanceType:'official-international',authorities:['WHO']},
+  '04-28':{topicId:'safety-health-at-work',observanceType:'official-international',authorities:['ILO']},
+  '05-01':{topicId:'labour-day',observanceType:'official-national',authorities:['Government of India']},
+  '05-03':{topicId:'world-press-freedom-day',observanceType:'official-international',authorities:['UN']},
+  '05-05':{topicId:'world-hand-hygiene-day',observanceType:'official-international',authorities:['WHO']},
+  '05-08':{topicId:'red-cross-day',observanceType:'official-international',authorities:['ICRC']},
+  '05-11':{topicId:'national-technology-day',observanceType:'official-national',authorities:['Government of India']},
+  '05-12':{topicId:'international-nurses-day',observanceType:'recognised-health',authorities:[]},
+  '05-15':{topicId:'international-day-families',observanceType:'official-international',authorities:['UN']},
+  '05-17':{topicId:'world-hypertension-day',observanceType:'recognised-health',authorities:[]},
+  '05-18':{topicId:'world-aids-vaccine-day',observanceType:'recognised-health',authorities:[]},
+  '05-20':{topicId:'world-bee-day',observanceType:'official-international',authorities:['UN']},
+  '05-21':{topicId:'international-tea-day',observanceType:'official-international',authorities:['UN']},
+  '05-22':{topicId:'biological-diversity-day',observanceType:'official-international',authorities:['UN']},
+  '05-28':{topicId:'menstrual-hygiene-day',observanceType:'recognised-health',authorities:[]},
+  '05-31':{topicId:'world-no-tobacco-day',observanceType:'official-international',authorities:['WHO']},
+  '06-01':{topicId:'global-day-of-parents',observanceType:'official-international',authorities:['UN']},
+  '06-03':{topicId:'world-bicycle-day',observanceType:'official-international',authorities:['UN']},
+  '06-05':{topicId:'world-environment-day',observanceType:'official-international',authorities:['UN']},
+  '06-07':{topicId:'world-food-safety-day',observanceType:'official-international',authorities:['UN','WHO']},
+  '06-08':{topicId:'world-oceans-day',observanceType:'official-international',authorities:['UN']},
+  '06-12':{topicId:'world-day-against-child-labour',observanceType:'official-international',authorities:['ILO']},
+  '06-14':{topicId:'world-blood-donor-day',observanceType:'official-international',authorities:['WHO']},
+  '06-19':{topicId:'world-sickle-cell-day',observanceType:'official-international',authorities:['UN']},
+  '06-20':{topicId:'world-refugee-day',observanceType:'official-international',authorities:['UN']},
+  '06-21':{topicId:'international-yoga-day',observanceType:'official-international',authorities:['UN']},
+  '06-26':{topicId:'drug-abuse-day',observanceType:'official-international',authorities:['UN']},
+  '07-01':{topicId:'national-doctors-day',observanceType:'official-national',authorities:['Government of India']},
+  '07-06':{topicId:'world-zoonoses-day',observanceType:'recognised-health',authorities:[]},
+  '07-11':{topicId:'world-population-day',observanceType:'official-international',authorities:['UN']},
+  '07-15':{topicId:'world-youth-skills-day',observanceType:'official-international',authorities:['UN']},
+  '07-18':{topicId:'mandela-day',observanceType:'official-international',authorities:['UN']},
+  '07-25':{topicId:'world-drowning-prevention-day',observanceType:'official-international',authorities:['WHO']},
+  '07-26':{topicId:'kargil-vijay-diwas',observanceType:'official-national',authorities:['Government of India']},
+  '07-28':{topicId:'world-hepatitis-day',observanceType:'official-international',authorities:['WHO']},
+  '07-29':{topicId:'international-tiger-day',observanceType:'official-international',authorities:[]},
+  '07-30':{topicId:'trafficking-persons-day',observanceType:'official-international',authorities:['UN']},
+  '08-01':{topicId:'world-lung-cancer-day',observanceType:'recognised-health',authorities:[]},
+  '08-06':{topicId:'hiroshima-day',observanceType:'official-international',authorities:['UN']},
+  '08-07':{topicId:'national-handloom-day',observanceType:'official-national',authorities:['Government of India']},
+  '08-09':{topicId:'quit-india-day',observanceType:'official-national',authorities:['Government of India']},
+  '08-10':{topicId:'world-biofuel-day',observanceType:'official-national',authorities:['Government of India']},
+  '08-12':{topicId:'international-youth-day',observanceType:'official-international',authorities:['UN']},
+  '08-15':{topicId:'independence-day',observanceType:'official-national',authorities:['Government of India']},
+  '08-19':{topicId:'world-humanitarian-day',observanceType:'official-international',authorities:['UN']},
+  '08-20':{topicId:'sadbhavana-diwas',observanceType:'official-national',authorities:['Government of India']},
+  '08-23':{topicId:'slave-trade-remembrance-day',observanceType:'official-international',authorities:['UNESCO']},
+  '08-29':{topicId:'national-sports-day',observanceType:'official-national',authorities:['Government of India']},
+  '08-30':{topicId:'national-small-industry-day',observanceType:'official-national',authorities:['Government of India']},
+  '09-05':{topicId:'teachers-day',observanceType:'official-national',authorities:['Government of India']},
+  '09-08':{topicId:'international-literacy-day',observanceType:'official-international',authorities:['UNESCO']},
+  '09-10':{topicId:'world-suicide-prevention-day',observanceType:'recognised-health',authorities:[]},
+  '09-14':{topicId:'hindi-diwas',observanceType:'official-national',authorities:['Government of India']},
+  '09-15':{topicId:'engineers-day',observanceType:'official-national',authorities:['Government of India']},
+  '09-16':{topicId:'world-ozone-day',observanceType:'official-international',authorities:['UN']},
+  '09-17':{topicId:'world-patient-safety-day',observanceType:'official-international',authorities:['WHO']},
+  '09-21':{topicId:'alzheimers-peace-day',observanceType:'official-international',authorities:['UN']},
+  '09-25':{topicId:'world-pharmacists-day',observanceType:'recognised-health',authorities:[]},
+  '09-26':{topicId:'world-environmental-health-day',observanceType:'recognised-health',authorities:[]},
+  '09-27':{topicId:'rivers-tourism-day',observanceType:'official-international',authorities:['UN']},
+  '09-28':{topicId:'world-rabies-day',observanceType:'recognised-health',authorities:[]},
+  '09-29':{topicId:'world-heart-day',observanceType:'recognised-health',authorities:[]},
+  '10-01':{topicId:'older-persons-blood-donation-day',observanceType:'official-international',authorities:['UN']},
+  '10-02':{topicId:'gandhi-jayanti',observanceType:'official-national',authorities:['Government of India','UN']},
+  '10-04':{topicId:'world-animal-day',observanceType:'official-international',authorities:[]},
+  '10-05':{topicId:'world-teachers-day',observanceType:'official-international',authorities:['UNESCO']},
+  '10-08':{topicId:'indian-air-force-day',observanceType:'official-national',authorities:['Government of India']},
+  '10-09':{topicId:'world-post-day',observanceType:'official-international',authorities:['UN']},
+  '10-10':{topicId:'world-mental-health-day',observanceType:'recognised-health',authorities:[]},
+  '10-11':{topicId:'girl-child-day-intl',observanceType:'official-international',authorities:['UN']},
+  '10-12':{topicId:'world-arthritis-day',observanceType:'recognised-health',authorities:[]},
+  '10-13':{topicId:'disaster-risk-reduction-day',observanceType:'official-international',authorities:['UN']},
+  '10-15':{topicId:'global-handwashing-day',observanceType:'recognised-health',authorities:[]},
+  '10-16':{topicId:'world-food-day',observanceType:'official-international',authorities:['UN']},
+  '10-20':{topicId:'world-osteoporosis-day',observanceType:'recognised-health',authorities:[]},
+  '10-24':{topicId:'polio-un-day',observanceType:'official-international',authorities:['UN']},
+  '10-29':{topicId:'world-stroke-day',observanceType:'recognised-health',authorities:[]},
+  '10-31':{topicId:'national-unity-day',observanceType:'official-national',authorities:['Government of India']},
+  '11-05':{topicId:'tsunami-awareness-day',observanceType:'official-international',authorities:['UN']},
+  '11-07':{topicId:'national-cancer-awareness-day',observanceType:'official-national',authorities:['Government of India']},
+  '11-10':{topicId:'science-for-peace-day',observanceType:'official-international',authorities:['UNESCO']},
+  '11-11':{topicId:'national-education-day',observanceType:'official-national',authorities:['Government of India']},
+  '11-12':{topicId:'world-pneumonia-day',observanceType:'recognised-health',authorities:[]},
+  '11-14':{topicId:'children-diabetes-day',observanceType:'official-national',authorities:['Government of India']},
+  '11-16':{topicId:'national-press-day',observanceType:'official-national',authorities:['Government of India']},
+  '11-17':{topicId:'world-prematurity-day',observanceType:'recognised-health',authorities:[]},
+  '11-19':{topicId:'toilet-mens-day',observanceType:'official-international',authorities:['UN']},
+  '11-20':{topicId:'universal-childrens-day',observanceType:'official-international',authorities:['UN']},
+  '11-21':{topicId:'world-fisheries-day',observanceType:'official-international',authorities:[]},
+  '11-26':{topicId:'constitution-day',observanceType:'official-national',authorities:['Government of India']},
+  '12-01':{topicId:'world-aids-day',observanceType:'official-international',authorities:['WHO','UN']},
+  '12-02':{topicId:'national-pollution-control-day',observanceType:'official-national',authorities:['Government of India']},
+  '12-03':{topicId:'international-day-persons-disabilities',observanceType:'official-international',authorities:['UN']},
+  '12-04':{topicId:'indian-navy-day',observanceType:'official-national',authorities:['Government of India']},
+  '12-05':{topicId:'world-soil-day',observanceType:'official-international',authorities:['UN']},
+  '12-07':{topicId:'armed-forces-flag-day',observanceType:'official-national',authorities:['Government of India']},
+  '12-09':{topicId:'anti-corruption-day',observanceType:'official-international',authorities:['UN']},
+  '12-10':{topicId:'human-rights-day',observanceType:'official-international',authorities:['UN']},
+  '12-11':{topicId:'international-mountain-day',observanceType:'official-international',authorities:['UN']},
+  '12-14':{topicId:'national-energy-conservation-day',observanceType:'official-national',authorities:['Government of India']},
+  '12-18':{topicId:'international-migrants-day',observanceType:'official-international',authorities:['UN']},
+  '12-22':{topicId:'national-mathematics-day',observanceType:'official-national',authorities:['Government of India']},
+  '12-23':{topicId:'kisan-diwas',observanceType:'official-national',authorities:['Government of India']},
+  '12-24':{topicId:'national-consumer-day',observanceType:'official-national',authorities:['Government of India']},
+  '12-25':{topicId:'good-governance-day',observanceType:'official-national',authorities:['Government of India']}
+};
+
+const OBSERVANCE_LABELS = {
+  'official-international':'International observance',
+  'official-national':'National observance',
+  'recognised-health':'Recognised health campaign',
+  'studio-theme':'Daily studio awareness theme'
+};
+
+// ---- Year-aware calendar builder (D + C) ----
+// Precedence: fixed observance > movable observance > studio theme fill.
+function buildCalendar(year) {
+  const movable = resolveMovable(year);
+  const cal = [];
+  const start = Date.UTC(year, 0, 1), end = Date.UTC(year, 11, 31);
+  let studioIdx = 0;
+  for (let t = start; t <= end; t += 86400000) {
+    const iso = new Date(t).toISOString().slice(0, 10);
+    const mmdd = iso.slice(5);
+    let topicId, observanceType, authorities;
+    if (FIXED_OBSERVANCES[mmdd]) {
+      const f = FIXED_OBSERVANCES[mmdd];
+      topicId = f.topicId; observanceType = f.observanceType; authorities = f.authorities || [];
+    } else if (movable[iso]) {
+      const m = movable[iso];
+      topicId = m.topicId; observanceType = m.observanceType; authorities = m.authorities || [];
+    } else {
+      topicId = STUDIO_THEME_IDS[studioIdx % STUDIO_THEME_IDS.length];
+      studioIdx++;
+      observanceType = 'studio-theme'; authorities = [];
+    }
+    cal.push({
+      date: iso, topicId, observanceType,
+      observanceLabel: OBSERVANCE_LABELS[observanceType],
+      authorities, content: TOPIC_CONTENT[topicId] || null
+    });
+  }
+  return cal;
+}
+
 module.exports = {
   nthWeekdayOfMonth, lastWeekdayOfMonth, slugify,
   TOPIC_CONTENT, STUDIO_THEME_IDS, MOVABLE_OBSERVANCES, resolveMovable,
+  FIXED_OBSERVANCES, OBSERVANCE_LABELS, buildCalendar,
   validateContentCoverage
 };

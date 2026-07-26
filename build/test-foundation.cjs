@@ -47,5 +47,40 @@ eq("negative: detects missing CTA", hasCTA, 'true');
 eq("negative: detects missing hashtags", hasHash, 'true');
 eq("negative: detects missing icon", hasIcon, 'true');
 
+// ---- Full-year calendar coverage (the real test: every day has dedicated content) ----
+for (const [year, expected] of [[2026, 365], [2028, 366]]) {
+  const yc = F.buildCalendar(year);
+  eq(`buildCalendar(${year}) day count`, yc.length, expected);
+  // unique dates
+  const ds = new Set(yc.map(r => r.date));
+  eq(`buildCalendar(${year}) unique dates`, ds.size, expected);
+  // every day classified
+  const unclassified = yc.filter(r => !r.observanceType || !r.observanceLabel).length;
+  eq(`buildCalendar(${year}) all classified`, unclassified, 0);
+  // FULL content coverage for every single day
+  const cf = F.validateContentCoverage(yc);
+  if (cf.length === 0) { pass++; console.log(`  ✓ buildCalendar(${year}): all ${expected} days have complete dedicated content`); }
+  else {
+    fail++; console.log(`  ✗ buildCalendar(${year}) coverage failures:`, cf.length);
+    cf.slice(0, 20).forEach(f => console.log('     -', f.date, f.topic, '::', f.reason));
+  }
+  // classification breakdown
+  const byType = {};
+  yc.forEach(r => { byType[r.observanceType] = (byType[r.observanceType]||0)+1; });
+  console.log(`     ${year} breakdown:`, JSON.stringify(byType));
+}
+
+// Movable correctness inside built calendars
+const c26 = F.buildCalendar(2026);
+eq('2026 has movable Kidney Day on 03-12', !!c26.find(r=>r.date==='2026-03-12' && r.topicId==='world-kidney-day'), 'true');
+eq('2026 has Mother\'s Day on 05-10', !!c26.find(r=>r.date==='2026-05-10' && r.topicId==='mothers-day'), 'true');
+const c27 = F.buildCalendar(2027);
+eq('2027 Kidney Day moves to 03-11', !!c27.find(r=>r.date==='2027-03-11' && r.topicId==='world-kidney-day'), 'true');
+
+// Studio-theme days must NOT be labelled as official observances
+const studioDays = c26.filter(r=>r.observanceType==='studio-theme');
+eq('studio days exist', studioDays.length>0, 'true');
+eq('no studio day claims official label', studioDays.every(r=>r.observanceLabel==='Daily studio awareness theme'), 'true');
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

@@ -675,8 +675,262 @@ const OFFICIAL_HEALTH_CONTENT = {
 };
 Object.assign(TOPIC_CONTENT, OFFICIAL_HEALTH_CONTENT);
 
+// ---- Content library (BATCH 3a: movable-observance topics) ----
+const MOVABLE_CONTENT = {
+  'mothers-day': {
+    title_en:"Mother's Day", title_gu:'માતૃ દિવસ',
+    importance_en:'A day to honour mothers and mother figures for their love, care and sacrifice.',
+    importance_gu:'માતાઓ અને માતૃસમાન વ્યક્તિઓના પ્રેમ, સંભાળ અને બલિદાનને સન્માન આપવાનો દિવસ.',
+    points_en:['Spend quality time with your mother','Support mothers’ health and rest','Share household work fairly','Say thank you and show you care'],
+    points_gu:['તમારી માતા સાથે ગુણવત્તાયુક્ત સમય વિતાવો','માતાઓના આરોગ્ય અને આરામને ટેકો આપો','ઘરકામ સમાનપણે વહેંચો','આભાર કહો અને કાળજી દર્શાવો'],
+    cta_en:'Honour and care for the mothers in your life.', cta_gu:'તમારા જીવનની માતાઓને સન્માન અને સંભાળ આપો.',
+    hashtags:['MothersDay','ThankYouMom','FamilyCare'], icon:'mom', category:'Family & Social'
+  },
+  'fathers-day': {
+    title_en:"Father's Day", title_gu:'પિતૃ દિવસ',
+    importance_en:'A day to appreciate fathers and father figures for their guidance and support.',
+    importance_gu:'પિતાઓ અને પિતૃસમાન વ્યક્તિઓના માર્ગદર્શન અને સહારાની કદર કરવાનો દિવસ.',
+    points_en:['Spend time with your father','Encourage fathers to look after their health','Share feelings and appreciation','Learn from their experience'],
+    points_gu:['તમારા પિતા સાથે સમય વિતાવો','પિતાઓને તેમના આરોગ્યની સંભાળ લેવા પ્રોત્સાહિત કરો','લાગણી અને કદર વહેંચો','તેમના અનુભવમાંથી શીખો'],
+    cta_en:'Celebrate and care for the fathers in your life.', cta_gu:'તમારા જીવનના પિતાઓની ઉજવણી અને સંભાળ કરો.',
+    hashtags:['FathersDay','ThankYouDad','FamilyCare'], icon:'man', category:'Family & Social'
+  },
+  'world-kidney-day': {
+    title_en:'World Kidney Day', title_gu:'વિશ્વ કિડની દિવસ',
+    importance_en:'A global campaign to raise awareness of kidney health and reduce kidney disease.',
+    importance_gu:'કિડની આરોગ્ય વિશે જાગૃતિ લાવવા અને કિડની રોગ ઘટાડવાની વૈશ્વિક ઝુંબેશ.',
+    points_en:['Keep well hydrated','Control blood pressure and blood sugar','Eat less salt and avoid needless painkillers','Get kidney function tested if at risk'],
+    points_gu:['સારી રીતે પાણી પીતા રહો','બ્લડપ્રેશર અને બ્લડ સુગર નિયંત્રિત કરો','ઓછું મીઠું ખાઓ અને બિનજરૂરી પેઈનકિલર ટાળો','જોખમ હોય તો કિડની કાર્ય તપાસાવો'],
+    cta_en:'Keep your kidneys healthy — hydrate and check up.', cta_gu:'તમારી કિડની સ્વસ્થ રાખો — પાણી પીઓ અને તપાસ કરાવો.',
+    hashtags:['WorldKidneyDay','KidneyHealth','KidneysMatter'], icon:'water', category:'Health'
+  },
+  'world-leprosy-day': {
+    title_en:'World Leprosy Day', title_gu:'વિશ્વ રક્તપિત્ત દિવસ',
+    importance_en:'Leprosy is curable with treatment; awareness ends stigma and supports early care.',
+    importance_gu:'રક્તપિત્ત સારવારથી સાજો થાય છે; જાગૃતિ કલંક દૂર કરે છે અને વહેલી સંભાળને ટેકો આપે છે.',
+    points_en:['Know that leprosy is curable','Watch for pale, numb skin patches','Seek free treatment early','Treat affected people with dignity'],
+    points_gu:['જાણો કે રક્તપિત્ત સાજો થઈ શકે છે','ફિક્કા, સુન્ન ત્વચાના ડાઘ પર ધ્યાન આપો','વહેલી મફત સારવાર લો','પ્રભાવિત લોકોને ગૌરવથી વર્તો'],
+    cta_en:'End leprosy stigma — early care cures.', cta_gu:'રક્તપિત્તનું કલંક દૂર કરો — વહેલી સંભાળ સાજો કરે છે.',
+    hashtags:['WorldLeprosyDay','BeatLeprosy','EndStigma'], icon:'shield', category:'Health'
+  }
+};
+Object.assign(TOPIC_CONTENT, MOVABLE_CONTENT);
+
+// ---- Content library (BATCH 3b: remaining health + observance days) ----
+const OFFICIAL_MIXED_CONTENT = {
+  'national-deworming-day': {
+    title_en:'National Deworming Day', title_gu:'રાષ્ટ્રીય કૃમિ નાબૂદી દિવસ',
+    importance_en:'India deworms children to protect them from worm infections that harm growth and learning.',
+    importance_gu:'ભારત બાળકોને કૃમિ ચેપથી બચાવવા કૃમિનાશક આપે છે જે વૃદ્ધિ અને શિક્ષણને નુકસાન કરે છે.',
+    points_en:['Give deworming tablets as advised','Wash hands before eating','Wear footwear outdoors','Use clean toilets and water'],
+    points_gu:['સલાહ મુજબ કૃમિનાશક ગોળી આપો','જમતાં પહેલાં હાથ ધોવો','બહાર જૂતાં પહેરો','સ્વચ્છ શૌચાલય અને પાણી વાપરો'],
+    cta_en:'Deworm on time — help children grow healthy.', cta_gu:'સમયસર કૃમિનાશક આપો — બાળકોને સ્વસ્થ વધવામાં મદદ કરો.',
+    hashtags:['DewormingDay','ChildHealth','WormFree'], icon:'child', category:'Health'
+  },
+  'world-population-day': {
+    title_en:'World Population Day', title_gu:'વિશ્વ વસ્તી દિવસ',
+    importance_en:'A UN day focusing on family planning, reproductive health and the rights of every person.',
+    importance_gu:'કુટુંબ નિયોજન, પ્રજનન આરોગ્ય અને દરેક વ્યક્તિના અધિકારો પર કેન્દ્રિત UN દિવસ.',
+    points_en:['Learn about family planning choices','Support access to reproductive health','Promote girls’ education','Ensure care for mothers and newborns'],
+    points_gu:['કુટુંબ નિયોજનના વિકલ્પો જાણો','પ્રજનન આરોગ્યની ઉપલબ્ધતાને ટેકો આપો','બાળિકાઓના શિક્ષણને પ્રોત્સાહન આપો','માતા અને નવજાત માટે સંભાળ સુનિશ્ચિત કરો'],
+    cta_en:'Empower choices — invest in reproductive health.', cta_gu:'પસંદગીઓને સશક્ત કરો — પ્રજનન આરોગ્યમાં રોકાણ કરો.',
+    hashtags:['WorldPopulationDay','FamilyPlanning','ReproductiveHealth'], icon:'family', category:'Health'
+  },
+  'world-drowning-prevention-day': {
+    title_en:'World Drowning Prevention Day', title_gu:'વિશ્વ ડૂબવા નિવારણ દિવસ',
+    importance_en:'Drowning is preventable; supervision, barriers and rescue skills save lives.',
+    importance_gu:'ડૂબવું અટકાવી શકાય છે; દેખરેખ, અવરોધો અને બચાવ કૌશલ્ય જીવન બચાવે છે.',
+    points_en:['Always supervise children near water','Fence and cover wells and tanks','Learn swimming and rescue skills','Wear life jackets on boats'],
+    points_gu:['પાણી નજીક બાળકો પર હંમેશા દેખરેખ રાખો','કૂવા અને ટાંકા ફેન્સ કરો અને ઢાંકો','તરવું અને બચાવ કૌશલ્ય શીખો','હોડીમાં લાઇફ જેકેટ પહેરો'],
+    cta_en:'Prevent drowning — supervise, barrier, rescue.', cta_gu:'ડૂબવું અટકાવો — દેખરેખ, અવરોધ, બચાવ.',
+    hashtags:['DrowningPrevention','WaterSafety','SaveLives'], icon:'water', category:'Health'
+  },
+  'world-lung-cancer-day': {
+    title_en:'World Lung Cancer Day', title_gu:'વિશ્વ ફેફસાં કેન્સર દિવસ',
+    importance_en:'Lung cancer awareness supports prevention, early detection and better outcomes.',
+    importance_gu:'ફેફસાં કેન્સર જાગૃતિ નિવારણ, વહેલી તપાસ અને સારા પરિણામોને ટેકો આપે છે.',
+    points_en:['Avoid tobacco and second-hand smoke','Reduce exposure to air pollution','Report a persistent cough or blood','Discuss screening if high risk'],
+    points_gu:['તમાકુ અને પરોક્ષ ધુમાડો ટાળો','હવા પ્રદૂષણનો સંપર્ક ઘટાડો','સતત ખાંસી કે લોહી હોય તો જાણ કરો','વધુ જોખમ હોય તો સ્ક્રીનિંગ ચર્ચો'],
+    cta_en:'Protect your lungs — avoid smoke, act on symptoms.', cta_gu:'તમારા ફેફસાંનું રક્ષણ કરો — ધુમાડો ટાળો, લક્ષણો પર પગલાં લો.',
+    hashtags:['LungCancerDay','QuitSmoking','LungHealth'], icon:'leaf', category:'Health'
+  },
+  'world-pharmacists-day': {
+    title_en:'World Pharmacists Day', title_gu:'વિશ્વ ફાર્માસિસ્ટ દિવસ',
+    importance_en:'Pharmacists help people use medicines safely and support community health.',
+    importance_gu:'ફાર્માસિસ્ટ લોકોને દવાઓ સલામત રીતે વાપરવામાં મદદ કરે છે અને સામુદાયિક આરોગ્યને ટેકો આપે છે.',
+    points_en:['Ask your pharmacist about your medicines','Take medicines exactly as directed','Check expiry dates and storage','Never self-prescribe antibiotics'],
+    points_gu:['તમારા ફાર્માસિસ્ટને દવાઓ વિશે પૂછો','દવાઓ સૂચના મુજબ બરાબર લો','સમાપ્તિ તારીખ અને સંગ્રહ તપાસો','એન્ટિબાયોટિક જાતે ક્યારેય ન લો'],
+    cta_en:'Ask your pharmacist — use medicines safely.', cta_gu:'તમારા ફાર્માસિસ્ટને પૂછો — દવાઓ સલામત રીતે વાપરો.',
+    hashtags:['WorldPharmacistsDay','SafeMedicines','Pharmacy'], icon:'cross', category:'Health'
+  },
+  'world-environmental-health-day': {
+    title_en:'World Environmental Health Day', title_gu:'વિશ્વ પર્યાવરણીય આરોગ્ય દિવસ',
+    importance_en:'Clean air, water and surroundings are the foundation of good health.',
+    importance_gu:'સ્વચ્છ હવા, પાણી અને આસપાસ સારા આરોગ્યનો પાયો છે.',
+    points_en:['Reduce pollution and waste','Keep water and food clean','Support clean cooking and air','Protect green and public spaces'],
+    points_gu:['પ્રદૂષણ અને કચરો ઘટાડો','પાણી અને ખોરાક સ્વચ્છ રાખો','સ્વચ્છ રસોઈ અને હવાને ટેકો આપો','લીલી અને જાહેર જગ્યાઓનું રક્ષણ કરો'],
+    cta_en:'Healthy environment, healthy people.', cta_gu:'સ્વસ્થ પર્યાવરણ, સ્વસ્થ લોકો.',
+    hashtags:['EnvironmentalHealth','CleanEnvironment','OneHealth'], icon:'leaf', category:'Health & Environment'
+  },
+  'world-arthritis-day': {
+    title_en:'World Arthritis Day', title_gu:'વિશ્વ સંધિવા દિવસ',
+    importance_en:'Arthritis affects joints and movement; early care keeps people active and independent.',
+    importance_gu:'સંધિવા સાંધા અને હલનચલનને અસર કરે છે; વહેલી સંભાળ લોકોને સક્રિય અને સ્વતંત્ર રાખે છે.',
+    points_en:['Stay active with gentle exercise','Maintain a healthy weight','Seek early care for joint pain','Follow prescribed treatment'],
+    points_gu:['હળવી કસરત સાથે સક્રિય રહો','સ્વસ્થ વજન જાળવો','સાંધાના દુખાવા માટે વહેલી સંભાળ લો','સૂચવેલ સારવાર અનુસરો'],
+    cta_en:'Keep moving — care for your joints.', cta_gu:'હલનચલન ચાલુ રાખો — તમારા સાંધાની સંભાળ લો.',
+    hashtags:['WorldArthritisDay','JointHealth','StayActive'], icon:'heart', category:'Health'
+  },
+  'world-osteoporosis-day': {
+    title_en:'World Osteoporosis Day', title_gu:'વિશ્વ ઓસ્ટિયોપોરોસિસ દિવસ',
+    importance_en:'Osteoporosis weakens bones silently; strong bones prevent fractures later in life.',
+    importance_gu:'ઓસ્ટિયોપોરોસિસ મૌનપણે હાડકાં નબળાં કરે છે; મજબૂત હાડકાં પછીના જીવનમાં ફ્રેક્ચર અટકાવે છે.',
+    points_en:['Eat calcium and vitamin-D rich foods','Get safe sunlight and exercise','Avoid smoking and excess alcohol','Prevent falls at home'],
+    points_gu:['કેલ્શિયમ અને વિટામિન-ડી યુક્ત ખોરાક ખાઓ','સલામત તડકો અને કસરત મેળવો','ધૂમ્રપાન અને વધુ દારૂ ટાળો','ઘરમાં પડી જવાથી બચાવ કરો'],
+    cta_en:'Build strong bones for life.', cta_gu:'જીવનભર માટે મજબૂત હાડકાં બનાવો.',
+    hashtags:['WorldOsteoporosisDay','BoneHealth','StrongBones'], icon:'shield', category:'Health'
+  },
+  'world-autism-awareness-day': {
+    title_en:'World Autism Awareness Day', title_gu:'વિશ્વ ઓટિઝમ જાગૃતિ દિવસ',
+    importance_en:'A UN day promoting acceptance, support and inclusion for autistic people.',
+    importance_gu:'ઓટિસ્ટિક લોકો માટે સ્વીકૃતિ, સહારો અને સમાવેશને પ્રોત્સાહન આપતો UN દિવસ.',
+    points_en:['Learn about autism with an open mind','Support early identification and services','Make schools and spaces inclusive','Respect different ways of communicating'],
+    points_gu:['ખુલ્લા મનથી ઓટિઝમ વિશે જાણો','વહેલી ઓળખ અને સેવાઓને ટેકો આપો','શાળા અને જગ્યાઓ સમાવેશક બનાવો','સંવાદની અલગ રીતોનું સન્માન કરો'],
+    cta_en:'Accept, include and support autistic people.', cta_gu:'ઓટિસ્ટિક લોકોને સ્વીકારો, સામેલ કરો અને સહારો આપો.',
+    hashtags:['WorldAutismDay','Inclusion','Acceptance'], icon:'brain', category:'Health & Inclusion'
+  },
+  'world-homeopathy-day': {
+    title_en:'World Homeopathy Day', title_gu:'વિશ્વ હોમિયોપેથી દિવસ',
+    importance_en:'Observed in India to reflect on homeopathy and safe, informed health choices.',
+    importance_gu:'હોમિયોપેથી અને સલામત, જાણકાર આરોગ્ય પસંદગીઓ પર વિચાર કરવા ભારતમાં ઉજવાય છે.',
+    points_en:['Consult qualified registered practitioners','Do not delay care for serious illness','Keep your doctor informed of all remedies','Rely on evidence for major decisions'],
+    points_gu:['યોગ્ય નોંધાયેલ પ્રેક્ટિશનરની સલાહ લો','ગંભીર બીમારીમાં સંભાળ વિલંબિત ન કરો','બધા ઉપચાર વિશે તમારા ડૉક્ટરને જણાવો','મોટા નિર્ણયો પુરાવા પર આધારિત રાખો'],
+    cta_en:'Make safe, informed health choices.', cta_gu:'સલામત, જાણકાર આરોગ્ય પસંદગીઓ કરો.',
+    hashtags:['WorldHomeopathyDay','InformedChoices','Health'], icon:'cross', category:'Health'
+  },
+  'world-water-day': {
+    title_en:'World Water Day', title_gu:'વિશ્વ જળ દિવસ',
+    importance_en:'A UN day valuing water and the need to use and share it wisely.',
+    importance_gu:'પાણીની કદર કરવા અને તેને સમજદારીથી વાપરવા-વહેંચવાની જરૂરિયાત માટેનો UN દિવસ.',
+    points_en:['Save water in daily activities','Fix leaks and reuse water where safe','Keep water sources clean','Harvest rainwater where possible'],
+    points_gu:['રોજિંદી પ્રવૃત્તિમાં પાણી બચાવો','લીકેજ સુધારો અને સલામત હોય ત્યાં પાણી પુનઃવાપરો','પાણીના સ્રોત સ્વચ્છ રાખો','શક્ય હોય ત્યાં વરસાદી પાણી સંગ્રહો'],
+    cta_en:'Value every drop — save water today.', cta_gu:'દરેક ટીપાની કદર કરો — આજે પાણી બચાવો.',
+    hashtags:['WorldWaterDay','SaveWater','WaterForAll'], icon:'water', category:'Environment'
+  },
+  'world-environment-day': {
+    title_en:'World Environment Day', title_gu:'વિશ્વ પર્યાવરણ દિવસ',
+    importance_en:'The UN’s biggest day for environmental action to protect nature and our future.',
+    importance_gu:'પ્રકૃતિ અને આપણા ભવિષ્યના રક્ષણ માટે પર્યાવરણીય પગલાં માટેનો UNનો સૌથી મોટો દિવસ.',
+    points_en:['Plant and protect trees','Reduce, reuse and recycle','Cut single-use plastic','Save energy and water'],
+    points_gu:['વૃક્ષો રોપો અને રક્ષણ કરો','ઘટાડો, પુનઃવાપરો અને રિસાયકલ કરો','એક-વારના પ્લાસ્ટિકનો ઉપયોગ ઘટાડો','ઊર્જા અને પાણી બચાવો'],
+    cta_en:'Act for nature — protect our only planet.', cta_gu:'પ્રકૃતિ માટે પગલાં લો — આપણી એકમાત્ર ધરતીનું રક્ષણ કરો.',
+    hashtags:['WorldEnvironmentDay','ForNature','BeatPollution'], icon:'leaf', category:'Environment'
+  },
+  'earth-day': {
+    title_en:'Earth Day', title_gu:'પૃથ્વી દિવસ',
+    importance_en:'A global day to support environmental protection and a healthy planet.',
+    importance_gu:'પર્યાવરણ સંરક્ષણ અને સ્વસ્થ ધરતીને ટેકો આપવા માટેનો વૈશ્વિક દિવસ.',
+    points_en:['Reduce your carbon footprint','Choose reusable over disposable','Support clean energy','Join a local clean-up or tree drive'],
+    points_gu:['તમારું કાર્બન ફૂટપ્રિન્ટ ઘટાડો','નિકાલપાત્રને બદલે પુનઃવાપરી શકાય તે પસંદ કરો','સ્વચ્છ ઊર્જાને ટેકો આપો','સ્થાનિક સફાઈ કે વૃક્ષારોપણમાં જોડાઓ'],
+    cta_en:'Invest in our planet — every day is Earth Day.', cta_gu:'આપણી ધરતીમાં રોકાણ કરો — દરેક દિવસ પૃથ્વી દિવસ છે.',
+    hashtags:['EarthDay','ProtectOurPlanet','ClimateAction'], icon:'globe', category:'Environment'
+  },
+  'world-oceans-day': {
+    title_en:'World Oceans Day', title_gu:'વિશ્વ મહાસાગર દિવસ',
+    importance_en:'A UN day celebrating the ocean and our duty to keep it healthy.',
+    importance_gu:'મહાસાગરની ઉજવણી અને તેને સ્વસ્થ રાખવાની આપણી ફરજ માટેનો UN દિવસ.',
+    points_en:['Cut down on plastic use','Dispose of waste responsibly','Support clean rivers and coasts','Choose sustainable seafood'],
+    points_gu:['પ્લાસ્ટિકનો ઉપયોગ ઘટાડો','કચરાનો જવાબદારીપૂર્વક નિકાલ કરો','સ્વચ્છ નદીઓ અને દરિયાકાંઠાને ટેકો આપો','ટકાઉ સીફૂડ પસંદ કરો'],
+    cta_en:'Protect our ocean — it protects us.', cta_gu:'આપણા મહાસાગરનું રક્ષણ કરો — તે આપણું રક્ષણ કરે છે.',
+    hashtags:['WorldOceansDay','SaveOurOcean','CleanSeas'], icon:'water', category:'Environment'
+  },
+  'world-wetlands-day': {
+    title_en:'World Wetlands Day', title_gu:'વિશ્વ ભૂમિપ્રદેશ (વેટલૅન્ડ) દિવસ',
+    importance_en:'Wetlands clean water, prevent floods and support wildlife and livelihoods.',
+    importance_gu:'ભીની ભૂમિ પાણી સાફ કરે છે, પૂર અટકાવે છે અને વન્યજીવન તથા આજીવિકાને ટેકો આપે છે.',
+    points_en:['Protect local ponds and marshes','Avoid dumping waste in water bodies','Support wetland conservation','Value wetlands as natural filters'],
+    points_gu:['સ્થાનિક તળાવ અને કળણનું રક્ષણ કરો','જળાશયોમાં કચરો નાખવાનું ટાળો','ભીની ભૂમિ સંરક્ષણને ટેકો આપો','ભીની ભૂમિને કુદરતી ફિલ્ટર તરીકે મૂલવો'],
+    cta_en:'Protect wetlands — nature’s water guardians.', cta_gu:'ભીની ભૂમિનું રક્ષણ કરો — પ્રકૃતિના જળરક્ષક.',
+    hashtags:['WorldWetlandsDay','SaveWetlands','Nature'], icon:'water', category:'Environment'
+  },
+  'world-soil-day': {
+    title_en:'World Soil Day', title_gu:'વિશ્વ મૃદા દિવસ',
+    importance_en:'Healthy soil grows our food and supports life; caring for it protects future harvests.',
+    importance_gu:'સ્વસ્થ માટી આપણો ખોરાક ઉગાડે છે અને જીવનને ટેકો આપે છે; તેની સંભાળ ભવિષ્યની ફસલોનું રક્ષણ કરે છે.',
+    points_en:['Reduce chemical overuse on farms','Add compost and organic matter','Prevent soil erosion','Support sustainable farming'],
+    points_gu:['ખેતરોમાં રસાયણનો વધુ ઉપયોગ ઘટાડો','કમ્પોસ્ટ અને સેન્દ્રિય પદાર્થ ઉમેરો','માટીનું ધોવાણ અટકાવો','ટકાઉ ખેતીને ટેકો આપો'],
+    cta_en:'Care for the soil that feeds us all.', cta_gu:'આપણને પોષતી માટીની સંભાળ લો.',
+    hashtags:['WorldSoilDay','HealthySoil','Sustainability'], icon:'plant', category:'Environment & Agriculture'
+  },
+  'international-yoga-day': {
+    title_en:'International Day of Yoga', title_gu:'આંતરરાષ્ટ્રીય યોગ દિવસ',
+    importance_en:'A UN day promoting yoga for physical, mental and holistic wellbeing.',
+    importance_gu:'શારીરિક, માનસિક અને સર્વાંગી સુખાકારી માટે યોગને પ્રોત્સાહન આપતો UN દિવસ.',
+    points_en:['Practise yoga a little each day','Breathe slowly and mindfully','Learn correct posture from a teacher','Combine yoga with a balanced life'],
+    points_gu:['દરરોજ થોડો યોગ કરો','ધીમે અને ધ્યાનપૂર્વક શ્વાસ લો','શિક્ષક પાસેથી સાચી મુદ્રા શીખો','યોગને સંતુલિત જીવન સાથે જોડો'],
+    cta_en:'Roll out your mat — practise yoga today.', cta_gu:'તમારી ચટાઈ પાથરો — આજે યોગ કરો.',
+    hashtags:['YogaDay','InternationalYogaDay','YogaForHealth'], icon:'brain', category:'Health'
+  },
+  'republic-day': {
+    title_en:'Republic Day', title_gu:'પ્રજાસત્તાક દિવસ',
+    importance_en:'India marks the day its Constitution came into force in 1950.',
+    importance_gu:'ભારત 1950માં તેનું બંધારણ અમલમાં આવ્યાનો દિવસ ઉજવે છે.',
+    points_en:['Honour the Constitution and its values','Know your rights and duties','Respect diversity and unity','Contribute to the nation’s progress'],
+    points_gu:['બંધારણ અને તેના મૂલ્યોનું સન્માન કરો','તમારા અધિકારો અને ફરજો જાણો','વિવિધતા અને એકતાનું સન્માન કરો','રાષ્ટ્રની પ્રગતિમાં યોગદાન આપો'],
+    cta_en:'Celebrate the Republic — uphold its values.', cta_gu:'પ્રજાસત્તાકની ઉજવણી કરો — તેના મૂલ્યો જાળવો.',
+    hashtags:['RepublicDay','ProudIndian','Constitution'], icon:'flag', category:'National'
+  },
+  'independence-day': {
+    title_en:'Independence Day', title_gu:'સ્વતંત્રતા દિવસ',
+    importance_en:'India celebrates freedom won in 1947 and honours those who made it possible.',
+    importance_gu:'ભારત 1947માં મળેલી સ્વતંત્રતાની ઉજવણી કરે છે અને તેને શક્ય બનાવનારાઓને સન્માન આપે છે.',
+    points_en:['Remember the freedom struggle','Honour the national flag respectfully','Serve your community and country','Uphold unity and responsibility'],
+    points_gu:['સ્વતંત્રતા સંગ્રામને યાદ કરો','રાષ્ટ્રધ્વજને આદરપૂર્વક સન્માન આપો','તમારા સમુદાય અને દેશની સેવા કરો','એકતા અને જવાબદારી જાળવો'],
+    cta_en:'Celebrate freedom — serve the nation.', cta_gu:'સ્વતંત્રતાની ઉજવણી કરો — રાષ્ટ્રની સેવા કરો.',
+    hashtags:['IndependenceDay','ProudIndian','Freedom'], icon:'flag', category:'National'
+  },
+  'gandhi-jayanti': {
+    title_en:'Gandhi Jayanti / International Day of Non-Violence', title_gu:'ગાંધી જયંતિ / આંતરરાષ્ટ્રીય અહિંસા દિવસ',
+    importance_en:'Marks Mahatma Gandhi’s birth and the global message of non-violence.',
+    importance_gu:'મહાત્મા ગાંધીના જન્મ અને અહિંસાના વૈશ્વિક સંદેશની યાદ અપાવે છે.',
+    points_en:['Choose peace over conflict','Practise truth and honesty','Serve others selflessly','Keep your surroundings clean'],
+    points_gu:['સંઘર્ષ કરતાં શાંતિ પસંદ કરો','સત્ય અને પ્રામાણિકતાનો અભ્યાસ કરો','નિઃસ્વાર્થપણે અન્યની સેવા કરો','તમારી આસપાસ સ્વચ્છ રાખો'],
+    cta_en:'Live Gandhi’s values — truth and non-violence.', cta_gu:'ગાંધીના મૂલ્યો જીવો — સત્ય અને અહિંસા.',
+    hashtags:['GandhiJayanti','NonViolence','Peace'], icon:'peace', category:'National & Peace'
+  },
+  'international-womens-day': {
+    title_en:"International Women's Day", title_gu:'આંતરરાષ્ટ્રીય મહિલા દિવસ',
+    importance_en:'A global day celebrating women’s achievements and calling for equality.',
+    importance_gu:'મહિલાઓની સિદ્ધિઓની ઉજવણી કરતો અને સમાનતાની હાકલ કરતો વૈશ્વિક દિવસ.',
+    points_en:['Support equal opportunity for women','Respect women’s health and choices','Challenge bias and discrimination','Encourage girls’ education and leadership'],
+    points_gu:['મહિલાઓ માટે સમાન તકને ટેકો આપો','મહિલાઓના આરોગ્ય અને પસંદગીનું સન્માન કરો','પક્ષપાત અને ભેદભાવને પડકારો','બાળિકાઓના શિક્ષણ અને નેતૃત્વને પ્રોત્સાહન આપો'],
+    cta_en:'Advance equality — support women every day.', cta_gu:'સમાનતાને આગળ વધારો — દરરોજ મહિલાઓને ટેકો આપો.',
+    hashtags:['InternationalWomensDay','GenderEquality','IWD'], icon:'woman', category:'Health & Social'
+  },
+  'world-food-day': {
+    title_en:'World Food Day', title_gu:'વિશ્વ ખાદ્ય દિવસ',
+    importance_en:'A UN day for the right to safe, nutritious food and against hunger and waste.',
+    importance_gu:'સલામત, પૌષ્ટિક ખોરાકના અધિકાર અને ભૂખ તથા બગાડ સામેનો UN દિવસ.',
+    points_en:['Do not waste food','Eat diverse, nutritious meals','Support local farmers','Share food with those in need'],
+    points_gu:['ખોરાકનો બગાડ ન કરો','વૈવિધ્યસભર, પૌષ્ટિક ભોજન લો','સ્થાનિક ખેડૂતોને ટેકો આપો','જરૂરિયાતમંદો સાથે ખોરાક વહેંચો'],
+    cta_en:'Leave no one behind — value food, end hunger.', cta_gu:'કોઈને પાછળ ન છોડો — ખોરાકની કદર કરો, ભૂખ મિટાવો.',
+    hashtags:['WorldFoodDay','ZeroHunger','FoodForAll'], icon:'apple', category:'Health & Nutrition'
+  },
+  'international-day-persons-disabilities': {
+    title_en:'International Day of Persons with Disabilities', title_gu:'આંતરરાષ્ટ્રીય વિકલાંગ વ્યક્તિ દિવસ',
+    importance_en:'A UN day promoting the rights, inclusion and wellbeing of persons with disabilities.',
+    importance_gu:'વિકલાંગ વ્યક્તિઓના અધિકારો, સમાવેશ અને સુખાકારીને પ્રોત્સાહન આપતો UN દિવસ.',
+    points_en:['Make spaces accessible for all','Include persons with disabilities fully','Respect dignity and independence','Support assistive care and services'],
+    points_gu:['બધા માટે જગ્યાઓ સુલભ બનાવો','વિકલાંગ વ્યક્તિઓને સંપૂર્ણપણે સામેલ કરો','ગૌરવ અને સ્વતંત્રતાનું સન્માન કરો','સહાયક સંભાળ અને સેવાઓને ટેકો આપો'],
+    cta_en:'Build an inclusive world for everyone.', cta_gu:'દરેક માટે સમાવેશક દુનિયા બનાવો.',
+    hashtags:['IDPWD','Inclusion','DisabilityRights'], icon:'heart', category:'Health & Inclusion'
+  }
+};
+Object.assign(TOPIC_CONTENT, OFFICIAL_MIXED_CONTENT);
+
 // Studio themes cycle to fill non-observance days.
-const STUDIO_THEME_IDS = Object.keys(TOPIC_CONTENT).filter(k => !OFFICIAL_HEALTH_CONTENT[k]);
+const NON_STUDIO = Object.assign({}, OFFICIAL_HEALTH_CONTENT, MOVABLE_CONTENT, OFFICIAL_MIXED_CONTENT);
+const STUDIO_THEME_IDS = Object.keys(TOPIC_CONTENT).filter(k => !NON_STUDIO[k]);
 
 // ---- Movable observance rules (year-aware) ----
 // occurrence: 1..5 nth weekday; 'last' = last weekday. weekday 0=Sun..6=Sat.

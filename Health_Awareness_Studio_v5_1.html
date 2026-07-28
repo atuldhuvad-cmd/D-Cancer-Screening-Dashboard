@@ -1225,6 +1225,14 @@ img.onerror = () => reject(new Error('image load failed'));
 img.src = src;
 });
 }
+function fileToDataURL(file) {
+return new Promise((resolve, reject) => {
+const r = new FileReader();
+r.onload = () => resolve(r.result);
+r.onerror = () => reject(new Error('file read failed'));
+r.readAsDataURL(file);
+});
+}
 // Search Wikimedia Commons (keyless, CORS-enabled, exportable to canvas).
 async function fetchCommonsImage(query) {
 const url = 'https://commons.wikimedia.org/w/api.php?action=query&generator=search'
@@ -2339,8 +2347,8 @@ $main.innerHTML = pageHead('Settings', 'Scheduler and local data') +
 <div class="card" style="margin-top:16px">
 <h3 class="sec">Local photo pack (deterministic production photos)</h3>
 <div class="kv"><span>Loaded entries</span><b id="packStat">${packStats().total} (${packStats().dates} dated · ${packStats().families} family)</b></div>
-<div class="muted" style="margin:8px 0 12px">Import a JSON pack of your own/licensed images to render real photos offline. Shape: <code>{ "byFamily": { "heart": { "hero": "data:image/…", "cards": ["data:…","data:…","data:…","data:…"] } }, "byDate": { "2026-07-28": { "hero": "data:…" } } }</code>. Images are data URLs; <code>byDate</code> overrides <code>byFamily</code>; any missing slot falls back to local vector artwork.</div>
-<div class="btnrow"><button class="btn" id="importPack">Import photo pack (.json)</button><button class="btn danger" id="clearPack">Clear pack</button></div>
+<div class="muted" style="margin:8px 0 12px">Drop in your own AI-generated / licensed images. Easiest way: <b>Import images</b> and name each file <code>&lt;key&gt;_hero.jpg</code>, <code>&lt;key&gt;_card1.jpg</code> … <code>&lt;key&gt;_card4.jpg</code>, where <code>&lt;key&gt;</code> is a topic family (<code>liver, heart, blood, yoga, mind, no_tobacco, mother_child, glucose, mosquito, water</code>) or a date (<code>2026-07-28</code>). Dates override families; any missing slot falls back to local vector artwork. Advanced: import a JSON pack of data-URL images (<code>byFamily</code> / <code>byDate</code>).</div>
+<div class="btnrow"><button class="btn primary" id="importImages">Import images (by filename)</button><button class="btn" id="importPack">Import JSON pack</button><button class="btn danger" id="clearPack">Clear pack</button></div>
 </div>
 <div class="card" style="margin-top:16px">
 <div class="kv"><span>Application version</span><b>v${esc(APP_VERSION)}</b></div>
@@ -2372,6 +2380,36 @@ const data = JSON.parse(await file.text());
 if (!data || typeof data !== 'object' || (!data.byDate && !data.byFamily)) throw new Error('Pack needs a byDate and/or byFamily object');
 await savePack({ byDate: data.byDate || {}, byFamily: data.byFamily || {} });
 toast('Photo pack imported: ' + packStats().total + ' entries');
+renderSettings();
+} catch (e) { toast('Import failed: ' + e.message); }
+};
+input.click();
+};
+document.getElementById('importImages').onclick = () => {
+const input = document.createElement('input');
+input.type = 'file'; input.accept = 'image/*'; input.multiple = true;
+input.onchange = async () => {
+const files = [...input.files]; if (!files.length) return;
+try {
+const pack = { byDate: { ...(_artworkPack.byDate || {}) }, byFamily: { ...(_artworkPack.byFamily || {}) } };
+let added = 0, skipped = 0;
+for (const f of files) {
+const base = f.name.replace(/\.[^.]+$/, '').toLowerCase().trim();
+const m = /^(.+?)[_-](hero|card\s*([1-4])|([1-4]))$/.exec(base);
+if (!m) { skipped++; continue; }
+const key = m[1];
+const isDate = /^\d{4}-\d{2}-\d{2}$/.test(key);
+const bucket = isDate ? pack.byDate : pack.byFamily;
+if (!bucket[key]) bucket[key] = { hero: null, cards: [null, null, null, null] };
+if (!bucket[key].cards) bucket[key].cards = [null, null, null, null];
+const url = await fileToDataURL(f);
+if (m[2] === 'hero') bucket[key].hero = url;
+else { const idx = (+(m[3] || m[4])) - 1; if (idx >= 0 && idx < 4) bucket[key].cards[idx] = url; }
+added++;
+}
+if (!added) throw new Error('No files matched the naming convention (e.g. heart_hero.jpg, heart_card1.jpg)');
+await savePack(pack);
+toast('Imported ' + added + ' image(s)' + (skipped ? ' · ' + skipped + ' skipped' : ''));
 renderSettings();
 } catch (e) { toast('Import failed: ' + e.message); }
 };

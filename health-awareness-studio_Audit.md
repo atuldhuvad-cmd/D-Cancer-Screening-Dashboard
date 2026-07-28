@@ -47,7 +47,14 @@
 - 22-check suite — **22/22 PASS**:
   1. 365/366 valid dates ✓ · 2. no duplicate dates ✓ · 3. no missing dates ✓ · 4. complete English content ✓ · 5. complete Gujarati content ✓ · 6. GU title ≠ EN ✓ · 7. four key points/language ✓ · 8. non-empty CTA/language ✓ · 9. valid classification ✓ · 10. valid icon/category ✓ · 11. movable dates resolve ✓ · 12. all six posters render ✓ · 13. no layout overlaps ✓ · 14. no text past canvas ✓ · 15. batch has six valid posters ✓ · 16. new version only on change ✓ · 17. publication status matches records ✓ · 18. backup round-trip ✓ · 19. malformed imports rejected ✓ · 20. scheduler no-gen before 08:00 ✓ · 21. scheduler gen at/after 08:00 ✓ · 22. no uncaught exception ✓
 
-**Other:** `node --check` on JS extracted from the final HTML — PASS. Foundation engine unit tests (`build/test-foundation.cjs`) — 29/29 PASS. External-dependency scan — none. QR structural test — PASS.
+**Real-browser validation — `node build/browser-test.cjs` (headless Chromium via playwright-core, loaded over `file://`):**
+
+- **In-app 22-check suite re-run in real Chromium — 22/22 PASS** (genuine font metrics, real IndexedDB on `file://`).
+- **Real-metrics layout — 30 posters** (long-EN, long-GU, movable, studio topics × 6 formats) validated, **0 layout failures**.
+- **No console or page errors.**
+- Rendered PNGs visually inspected — long combined titles wrap cleanly, all four bilingual key points, CTA band, and footer render with **no clipping or overlap**; movable World Kidney Day correctly dated 2026-03-12; classification labels correct.
+
+**Other:** `node --check` on JS extracted from the final HTML — PASS. Node DOM harness (`build/test-app.cjs`) app-smoke 14/14 + 22/22. Foundation engine unit tests (`build/test-foundation.cjs`) — 29/29 PASS. External-dependency scan — none. QR structural test — PASS.
 
 ---
 
@@ -64,7 +71,7 @@
 
 ## 5. Remaining limitations (honest)
 
-- **Layout validation uses computed text metrics.** The 22-check suite ran against a headless Canvas metric model; real-browser font metrics differ slightly. The engine's overflow detection and min-font floor make clipping detectable, but pixel-exact rendering was not visually captured in this environment (no Playwright package installed). **WARNING.**
+- **Layout validated in a real browser.** The 22-check suite and 30-poster layout validation were re-run in headless **Chromium** over `file://` with genuine font metrics (0 failures), and rendered posters were visually inspected for clipping/overlap. Remaining nuance: only a sample of topics was screenshot-inspected, not all 192 × 6; the automated layout validator covers the rest programmatically.
 - **QR** is a compact encoder validated structurally (finder/timing/dark-module, RS/ECC-M); it was not verified with a physical scanner here. It is off unless a QR value is set. **WARNING.**
 - **Gujarati glyphs** depend on the viewer's system font (no font embedded, to remain offline/zero-dependency); Diagnostics warns if none is detected. **WARNING.**
 - **Scheduler** cannot run while the browser is closed (inherent to standalone HTML); this is stated plainly in the UI.

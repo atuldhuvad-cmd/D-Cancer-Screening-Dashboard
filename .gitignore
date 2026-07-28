@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Generated poster screenshots (regenerable via build/browser-test.cjs)
+build/shots/

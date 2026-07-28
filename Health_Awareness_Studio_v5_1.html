@@ -1191,8 +1191,10 @@ function getCredit() { try { return localStorage.getItem('has_credit') || 'Dr At
 
 // ---- Online imagery (fetched per topic, with offline fallback) ----------
 const IMAGE_MODE_KEY = 'has_imageMode';
-function getImageMode() { try { return localStorage.getItem(IMAGE_MODE_KEY) === 'offline' ? 'offline' : 'online'; } catch (e) { return 'online'; } }
-function setImageMode(mode) { try { localStorage.setItem(IMAGE_MODE_KEY, mode === 'offline' ? 'offline' : 'online'); } catch (e) {} }
+// Default is 'offline' = curated local artwork families (deterministic production
+// source). 'online' is an optional development/fallback that fetches photos.
+function getImageMode() { try { return localStorage.getItem(IMAGE_MODE_KEY) === 'online' ? 'online' : 'offline'; } catch (e) { return 'offline'; } }
+function setImageMode(mode) { try { localStorage.setItem(IMAGE_MODE_KEY, mode === 'online' ? 'online' : 'offline'); } catch (e) {} }
 // Map category -> a stronger image search hint.
 const CATEGORY_IMAGE_KW = {
 'Health':'healthcare','Health & Nutrition':'healthy vegetables food','Physical Activity':'running exercise',
@@ -1255,8 +1257,130 @@ return assets;
 }
 
 
+// ---- Local artwork families (deterministic, offline production source) ---
+// Map a topic to a curated artwork family. Extend this table as topics are
+// reviewed; unmapped topics fall back to a neutral motif.
+function artworkFamilyFor(entry) {
+const t = String(entry.titleEn || '').toLowerCase();
+const c = entry.category || '';
+if (/hepatitis|liver/.test(t)) return 'liver';
+if (/heart|cardio|hypertension|blood pressure|stroke/.test(t)) return 'heart';
+if (/blood donor|blood donation/.test(t)) return 'blood';
+if (/yoga/.test(t)) return 'yoga';
+if (/mental|suicide|alzheimer|well-being|wellbeing|depression/.test(t)) return 'mind';
+if (/tobacco|smoking/.test(t)) return 'no_tobacco';
+if (/maternal|motherhood|mother|pregnan|breastfeed/.test(t)) return 'mother_child';
+if (/diabetes|glucose/.test(t)) return 'glucose';
+if (/dengue|malaria|mosquito/.test(t) || c === 'Vector-Borne Disease') return 'mosquito';
+if (/water|sanitation|hygiene|handwash|drowning/.test(t) || c === 'Water Safety') return 'water';
+return 'default';
+}
+// Draw a curated vector illustration centered in the box (x,y,w,h).
+function drawArtwork(ctx, family, x, y, w, h, theme) {
+const cx = x + w/2, cy = y + h/2, S = Math.min(w, h) * 0.34;
+ctx.save();
+ctx.translate(cx, cy);
+ctx.fillStyle = theme.m; ctx.strokeStyle = theme.m; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+switch (family) {
+case 'liver':
+ctx.beginPath();
+ctx.moveTo(-S*1.1, -S*0.3);
+ctx.bezierCurveTo(-S*1.2, -S*0.9, -S*0.2, -S*1.0, S*0.5, -S*0.75);
+ctx.bezierCurveTo(S*1.25, -S*0.55, S*1.2, S*0.2, S*0.6, S*0.55);
+ctx.bezierCurveTo(S*0.1, S*0.85, -S*0.9, S*0.75, -S*1.1, -S*0.3);
+ctx.closePath(); ctx.fill();
+ctx.fillStyle = '#fff'; ctx.beginPath();
+ctx.moveTo(-S*0.05, -S*0.7); ctx.lineTo(S*0.12, -S*0.3); ctx.lineTo(-S*0.22, -S*0.38); ctx.closePath(); ctx.fill();
+break;
+case 'heart':
+ctx.beginPath();
+ctx.moveTo(0, S*0.75);
+ctx.bezierCurveTo(-S*1.3, -S*0.15, -S*0.7, -S*1.15, 0, -S*0.45);
+ctx.bezierCurveTo(S*0.7, -S*1.15, S*1.3, -S*0.15, 0, S*0.75);
+ctx.fill();
+ctx.strokeStyle = '#fff'; ctx.lineWidth = S*0.12; ctx.beginPath();
+ctx.moveTo(-S*0.85, 0); ctx.lineTo(-S*0.35, 0); ctx.lineTo(-S*0.15, -S*0.4);
+ctx.lineTo(S*0.05, S*0.45); ctx.lineTo(S*0.3, 0); ctx.lineTo(S*0.85, 0); ctx.stroke();
+break;
+case 'blood':
+ctx.beginPath();
+ctx.moveTo(0, -S*1.05);
+ctx.bezierCurveTo(S*0.85, -S*0.1, S*0.6, S*0.9, 0, S*0.9);
+ctx.bezierCurveTo(-S*0.6, S*0.9, -S*0.85, -S*0.1, 0, -S*1.05);
+ctx.fill();
+ctx.fillStyle = '#fff';
+ctx.fillRect(-S*0.1, -S*0.12, S*0.2, S*0.55);
+ctx.fillRect(-S*0.25, S*0.05, S*0.5, S*0.2);
+break;
+case 'yoga':
+ctx.beginPath(); ctx.arc(0, -S*0.72, S*0.28, 0, 7); ctx.fill();
+ctx.lineWidth = S*0.2;
+ctx.beginPath(); ctx.moveTo(0, -S*0.38); ctx.lineTo(0, S*0.2); ctx.stroke();
+ctx.beginPath(); ctx.moveTo(0, -S*0.12); ctx.lineTo(-S*0.72, S*0.22); ctx.moveTo(0, -S*0.12); ctx.lineTo(S*0.72, S*0.22); ctx.stroke();
+ctx.beginPath(); ctx.moveTo(-S*0.88, S*0.58); ctx.lineTo(S*0.88, S*0.58); ctx.lineTo(0, S*0.18); ctx.closePath(); ctx.fill();
+break;
+case 'mind':
+ctx.beginPath(); ctx.arc(0, 0, S*0.95, 0, 7); ctx.fill();
+ctx.fillStyle = '#fff';
+{ const hs = S*0.5; ctx.beginPath();
+ctx.moveTo(0, hs*0.75);
+ctx.bezierCurveTo(-hs*1.3, -hs*0.15, -hs*0.7, -hs*1.15, 0, -hs*0.45);
+ctx.bezierCurveTo(hs*0.7, -hs*1.15, hs*1.3, -hs*0.15, 0, hs*0.75); ctx.fill(); }
+break;
+case 'no_tobacco':
+ctx.save(); ctx.rotate(-0.32);
+ctx.fillStyle = theme.m; ctx.fillRect(-S*0.9, -S*0.12, S*1.55, S*0.24);
+ctx.fillStyle = '#fff'; ctx.fillRect(S*0.38, -S*0.12, S*0.27, S*0.24);
+ctx.restore();
+ctx.strokeStyle = theme.m; ctx.lineWidth = S*0.16;
+ctx.beginPath(); ctx.arc(0, 0, S*1.05, 0, 7); ctx.stroke();
+ctx.beginPath(); ctx.moveTo(-S*0.74, -S*0.74); ctx.lineTo(S*0.74, S*0.74); ctx.stroke();
+break;
+case 'mother_child':
+ctx.beginPath(); ctx.arc(-S*0.32, -S*0.62, S*0.3, 0, 7); ctx.fill();
+ctx.lineWidth = S*0.3; ctx.beginPath(); ctx.moveTo(-S*0.32, -S*0.3); ctx.lineTo(-S*0.32, S*0.55); ctx.stroke();
+ctx.beginPath(); ctx.arc(S*0.5, -S*0.18, S*0.2, 0, 7); ctx.fill();
+ctx.lineWidth = S*0.2; ctx.beginPath(); ctx.moveTo(S*0.5, S*0.0); ctx.lineTo(S*0.5, S*0.55); ctx.stroke();
+break;
+case 'glucose':
+ctx.beginPath();
+ctx.moveTo(0, -S*1.0);
+ctx.bezierCurveTo(S*0.8, -S*0.1, S*0.55, S*0.85, 0, S*0.85);
+ctx.bezierCurveTo(-S*0.55, S*0.85, -S*0.8, -S*0.1, 0, -S*1.0); ctx.fill();
+ctx.fillStyle = '#fff';
+ctx.fillRect(-S*0.08, -S*0.02, S*0.16, S*0.5);
+ctx.fillRect(-S*0.22, S*0.14, S*0.44, S*0.16);
+break;
+case 'mosquito':
+ctx.save(); ctx.rotate(-0.2);
+ctx.beginPath(); ctx.ellipse(0, 0, S*0.7, S*0.26, 0, 0, 7); ctx.fill();
+ctx.beginPath(); ctx.arc(-S*0.78, -S*0.05, S*0.22, 0, 7); ctx.fill();
+ctx.lineWidth = S*0.07; ctx.beginPath(); ctx.moveTo(-S*0.92, S*0.05); ctx.lineTo(-S*1.35, S*0.4); ctx.stroke();
+ctx.globalAlpha = 0.45;
+ctx.beginPath(); ctx.ellipse(S*0.1, -S*0.4, S*0.55, S*0.22, -0.4, 0, 7); ctx.fill();
+ctx.beginPath(); ctx.ellipse(S*0.28, -S*0.32, S*0.5, S*0.2, -0.15, 0, 7); ctx.fill();
+ctx.globalAlpha = 1; ctx.lineWidth = S*0.05;
+for (const dx of [-0.2, 0.1, 0.4]) { ctx.beginPath(); ctx.moveTo(S*dx, S*0.2); ctx.lineTo(S*(dx+0.22), S*0.72); ctx.stroke(); }
+ctx.restore();
+break;
+case 'water':
+ctx.beginPath();
+ctx.moveTo(0, -S*1.0);
+ctx.bezierCurveTo(S*0.8, -S*0.1, S*0.55, S*0.85, 0, S*0.85);
+ctx.bezierCurveTo(-S*0.55, S*0.85, -S*0.8, -S*0.1, 0, -S*1.0); ctx.fill();
+ctx.fillStyle = '#fff'; ctx.globalAlpha = 0.5;
+ctx.beginPath(); ctx.ellipse(-S*0.2, S*0.28, S*0.12, S*0.24, 0, 0, 7); ctx.fill();
+ctx.globalAlpha = 1;
+break;
+default:
+drawIcon(ctx, 'heart', 0, 0, S, theme.m);
+}
+ctx.restore();
+}
+
+
 // Rich template poster. `assets.hero` is an already-loaded Image or null
-// (null -> a drawn illustration fallback, so the app still works offline).
+// (null -> a curated local artwork family, the deterministic offline default).
 function createPoster(entry, fmt, assets) {
 assets = assets || { hero: null };
 const c = document.createElement('canvas');
@@ -1303,7 +1427,7 @@ ctx.lineWidth = 3; ctx.strokeStyle = th.s;
 roundRectPath(ctx, heroX, y, heroW, introH, heroR); ctx.stroke();
 } else {
 ctx.fillStyle = th.s; roundRectPath(ctx, heroX, y, heroW, introH, heroR); ctx.fill();
-drawIcon(ctx, entry.icon, heroX + heroW/2, y + introH/2, Math.min(heroW, introH) * 0.26, th.m);
+drawArtwork(ctx, artworkFamilyFor(entry), heroX, y, heroW, introH, th);
 }
 const lx = M, lw = heroX - M - Math.round(W * 0.028);
 // eyebrow
@@ -2046,14 +2170,14 @@ $main.innerHTML = pageHead('Settings', 'Scheduler and local data') +
 </div>
 <div class="card" style="margin-top:16px">
 <h3 class="sec">Poster imagery</h3>
-<div class="field"><label class="fld">Photo source</label>
+<div class="field"><label class="fld">Artwork source</label>
 <select class="inp" id="imageMode">
-<option value="online" ${getImageMode()==='online'?'selected':''}>Online — fetch topic photos (Wikimedia Commons)</option>
-<option value="offline" ${getImageMode()==='offline'?'selected':''}>Offline — drawn illustrations only</option>
+<option value="offline" ${getImageMode()==='offline'?'selected':''}>Local artwork families (recommended · offline · deterministic)</option>
+<option value="online" ${getImageMode()==='online'?'selected':''}>Online photos (development / fallback · needs internet)</option>
 </select></div>
 <div class="field"><label class="fld">Credit line</label>
 <input class="inp" id="creditLine" value="${esc(getCredit())}" placeholder="Dr Atul Dhuvad"></div>
-<div class="muted" style="margin-bottom:12px">Online mode fetches a matching photo per topic and needs internet; it falls back to an illustration when a photo can't be loaded.</div>
+<div class="muted" style="margin-bottom:12px">Production uses curated local artwork per topic — no network, fully reproducible. Online photos are an optional development/fallback source (Wikimedia Commons) and fall back to local artwork when a photo can't be loaded.</div>
 <div class="btnrow"><button class="btn primary" id="saveImagery">Save imagery settings</button></div>
 </div>
 <div class="card" style="margin-top:16px">
@@ -2282,7 +2406,7 @@ $main.appendChild(card);
 });
 
 
-window.HealthApp = { navigate, runDaily, toast, refreshState, missingRenderers, runDiagnostics, getScheduleTime, saveScheduleTime, restartScheduler, schedulerTimerCount, pageMap, APP_VERSION, createPoster, createPosterAsync, fetchTopicAssets, getImageMode, setImageMode, CALENDAR, FORMATS };
+window.HealthApp = { navigate, runDaily, toast, refreshState, missingRenderers, runDiagnostics, getScheduleTime, saveScheduleTime, restartScheduler, schedulerTimerCount, pageMap, APP_VERSION, createPoster, createPosterAsync, fetchTopicAssets, getImageMode, setImageMode, artworkFamilyFor, drawArtwork, CALENDAR, FORMATS };
 </script>
 </body>
 </html>

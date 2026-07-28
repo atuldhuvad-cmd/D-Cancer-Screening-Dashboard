@@ -25,3 +25,4 @@ dist-ssr
 
 # Generated poster screenshots (regenerable via build/browser-test.cjs)
 build/shots/
+build/candidate-inline.js

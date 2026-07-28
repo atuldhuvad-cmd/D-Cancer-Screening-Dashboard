@@ -286,8 +286,9 @@ function createPoster(entry, fmt, lang, opts){
   if(blocks.totalH>availH){ var sc=Math.max(0.6, availH/blocks.totalH); blocks=computeBlocks(sc); }
   var overflow = blocks.totalH>availH+1 ? ('needs '+blocks.totalH+'px in '+availH+'px') : '';
   var allFit = blocks.t.fits && blocks.im.fits && blocks.ct.fits && blocks.pts.every(function(f){return f.fits;});
-  // draw
-  var y=top;
+  // draw — vertically centre the content block within the middle region for balance
+  var vOffset = Math.max(0, Math.floor((availH - blocks.totalH)/2));
+  var y=top + vOffset;
   regions.title={x:M,y:y,w:availW,h:blocks.t.height};
   drawFittedText(ctx, blocks.t, W/2, y, {family:fam,weight:'800',color:'#17232b',align:'center',lineHeight:1.16});
   y+=blocks.t.height+gap;

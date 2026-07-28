@@ -11,8 +11,8 @@
 | Item | Value |
 |------|-------|
 | Final file | `health-awareness-studio.html` |
-| Size | 345,428 bytes |
-| SHA-256 | `5f9aadcce4dd751ed2016cd56b4ab6564bfe294d3c8781ac19fe97e743f3c350` |
+| Size | 345,584 bytes |
+| SHA-256 | `ab5484f6e1de3aebe4800b567e63e084c54975579ede16e548c83998edacd01c` |
 | Encoding | UTF-8 (validated) |
 | External runtime deps | **None** (no `<script src>`, `<link href>`, CDN, font or network asset) |
 | `node --check` (JS extracted from the HTML) | **PASS** |
@@ -50,7 +50,8 @@
 **Real-browser validation — `node build/browser-test.cjs` (headless Chromium via playwright-core, loaded over `file://`):**
 
 - **In-app 22-check suite re-run in real Chromium — 22/22 PASS** (genuine font metrics, real IndexedDB on `file://`).
-- **Real-metrics layout — 30 posters** (long-EN, long-GU, movable, studio topics × 6 formats) validated, **0 layout failures**.
+- **Real-metrics layout — 30 sample posters** (long-EN, long-GU, movable, studio topics × 6 formats) validated, **0 layout failures**.
+- **Exhaustive layout audit — `node build/layout-audit.cjs`: 6,576 posters** (years 2026/2027/2028 × every day × 6 outputs, **all 192 distinct topics exercised**) validated in real Chromium — **0 layout failures, no page errors**. Content is vertically centred within the middle region, so tall Story/Feed formats are balanced with no clipping.
 - **No console or page errors.**
 - Rendered PNGs visually inspected — long combined titles wrap cleanly, all four bilingual key points, CTA band, and footer render with **no clipping or overlap**; movable World Kidney Day correctly dated 2026-03-12; classification labels correct.
 

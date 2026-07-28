@@ -967,10 +967,11 @@ const CALENDAR = (() => { const c = buildFixedCalendar(); validateCalendar(c); r
 // 2. STORAGE (IndexedDB)
 // =====================================================================
 const DB_NAME = 'HealthAwarenessStudio';
-const DB_VER = 2;
+const DB_VER = 3;
 const STORE = 'dailyRuns';
 const TEMPLATE_STORE = 'templates';
 const SCHEDULE_STORE = 'schedules';
+const PACK_STORE = 'artworkPack';
 let dbp = null;
 
 
@@ -989,6 +990,9 @@ db.createObjectStore(TEMPLATE_STORE, { keyPath: 'id', autoIncrement: true });
 }
 if (!db.objectStoreNames.contains(SCHEDULE_STORE)) {
 db.createObjectStore(SCHEDULE_STORE, { keyPath: 'id', autoIncrement: true });
+}
+if (!db.objectStoreNames.contains(PACK_STORE)) {
+db.createObjectStore(PACK_STORE); // key: 'pack'
 }
 };
 req.onsuccess = () => resolve(req.result);
@@ -1060,13 +1064,11 @@ return { english: en, gujarati: gu, combined: en + '\n\n────────
 // =====================================================================
 // 4. POSTER GENERATOR
 // =====================================================================
+// Single finalized design (Portrait 4:5 — best for social-media feed posts),
+// in English and Gujarati.
 const FORMATS = [
-{ id: 'square-en', label: 'English Square', lang: 'en', w: 1080, h: 1080 },
-{ id: 'square-gu', label: 'Gujarati Square', lang: 'gu', w: 1080, h: 1080 },
-{ id: 'portrait-en', label: 'English Portrait', lang: 'en', w: 1080, h: 1350 },
-{ id: 'portrait-gu', label: 'Gujarati Portrait', lang: 'gu', w: 1080, h: 1350 },
-{ id: 'story-en', label: 'English Story', lang: 'en', w: 1080, h: 1920 },
-{ id: 'story-gu', label: 'Gujarati Story', lang: 'gu', w: 1080, h: 1920 }
+{ id: 'portrait-en', label: 'English Poster', lang: 'en', w: 1080, h: 1350 },
+{ id: 'portrait-gu', label: 'Gujarati Poster', lang: 'gu', w: 1080, h: 1350 }
 ];
 
 
@@ -1121,6 +1123,16 @@ ctx.moveTo(0, -r*0.8);
 ctx.bezierCurveTo(r*0.7, 0, r*0.55, r*0.8, 0, r*0.8);
 ctx.bezierCurveTo(-r*0.55, r*0.8, -r*0.7, 0, 0, -r*0.8);
 ctx.fill(); break;
+case 'shield':
+ctx.beginPath();
+ctx.moveTo(0, -r*0.85);
+ctx.lineTo(r*0.72, -r*0.5);
+ctx.lineTo(r*0.72, r*0.15);
+ctx.quadraticCurveTo(r*0.72, r*0.72, 0, r*0.95);
+ctx.quadraticCurveTo(-r*0.72, r*0.72, -r*0.72, r*0.15);
+ctx.lineTo(-r*0.72, -r*0.5);
+ctx.closePath(); ctx.fill();
+break;
 default: // cross
 ctx.fillRect(-r*0.18, -r*0.65, r*0.36, r*1.3);
 ctx.fillRect(-r*0.65, -r*0.18, r*1.3, r*0.36);
@@ -1129,74 +1141,577 @@ ctx.restore();
 }
 
 
-function createPoster(entry, fmt) {
+// ---- Poster design helpers (rich template) ------------------------------
+function roundRectPath(ctx, x, y, w, h, r) {
+r = Math.min(r, w/2, h/2);
+ctx.beginPath();
+ctx.moveTo(x+r, y);
+ctx.arcTo(x+w, y, x+w, y+h, r);
+ctx.arcTo(x+w, y+h, x, y+h, r);
+ctx.arcTo(x, y+h, x, y, r);
+ctx.arcTo(x, y, x+w, y, r);
+ctx.closePath();
+}
+// Draw an image cover-fit inside a rounded rectangle (center-cropped).
+function drawImageCover(ctx, img, x, y, w, h, r) {
+ctx.save();
+roundRectPath(ctx, x, y, w, h, r); ctx.clip();
+const ir = img.width/img.height, tr = w/h;
+let sw, sh, sx, sy;
+if (ir > tr) { sh = img.height; sw = sh*tr; sx = (img.width-sw)/2; sy = 0; }
+else { sw = img.width; sh = sw/tr; sx = 0; sy = (img.height-sh)/2; }
+ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
+ctx.restore();
+}
+// Shrink font size until text fits maxW (single line).
+function fitText(ctx, text, maxW, weight, startPx, minPx) {
+let px = startPx;
+do { ctx.font = `${weight} ${px}px sans-serif`; if (ctx.measureText(text).width <= maxW) break; px -= 2; } while (px > minPx);
+return px;
+}
+// A palette of theme triplets; chosen deterministically per topic for variety.
+const POSTER_THEMES = [
+{ m:'#0e9488', d:'#0b6e66', s:'#e6f5f3' },
+{ m:'#d81b60', d:'#a0144a', s:'#fce4ec' },
+{ m:'#6a4bbd', d:'#4d3690', s:'#efeafb' },
+{ m:'#1668c1', d:'#104e93', s:'#e8f1fb' },
+{ m:'#1a9f6e', d:'#0f7a52', s:'#e7f6ef' },
+{ m:'#c2410c', d:'#8f2f09', s:'#fdeee6' },
+{ m:'#0891b2', d:'#066880', s:'#e6f6fb' }
+];
+function themeFor(entry) {
+const key = (entry.category||'') + '|' + (entry.titleEn||'');
+let h = 0; for (let i=0;i<key.length;i++) h = (h*31 + key.charCodeAt(i)) >>> 0;
+return POSTER_THEMES[h % POSTER_THEMES.length];
+}
+const POSTER_MONTHS = ['JANUARY','FEBRUARY','MARCH','APRIL','MAY','JUNE','JULY','AUGUST','SEPTEMBER','OCTOBER','NOVEMBER','DECEMBER'];
+function posterDate(d) {
+const p = String(d).split('-').map(Number);
+if (p.length !== 3 || !POSTER_MONTHS[p[1]-1]) return String(d);
+return p[2] + ' ' + POSTER_MONTHS[p[1]-1] + ' ' + p[0];
+}
+function getCredit() { try { return localStorage.getItem('has_credit') || 'Dr Atul Dhuvad'; } catch (e) { return 'Dr Atul Dhuvad'; } }
+
+
+// ---- Online imagery (fetched per topic, with offline fallback) ----------
+const IMAGE_MODE_KEY = 'has_imageMode';
+// Default is 'offline' = curated local artwork families (deterministic production
+// source). 'online' is an optional development/fallback that fetches photos.
+function getImageMode() { try { return localStorage.getItem(IMAGE_MODE_KEY) === 'online' ? 'online' : 'offline'; } catch (e) { return 'offline'; } }
+function setImageMode(mode) { try { localStorage.setItem(IMAGE_MODE_KEY, mode === 'online' ? 'online' : 'offline'); } catch (e) {} }
+// Map category -> a stronger image search hint.
+const CATEGORY_IMAGE_KW = {
+'Health':'healthcare','Health & Nutrition':'healthy vegetables food','Physical Activity':'running exercise',
+'Public Health':'handwashing hygiene','Mental Health':'meditation calm','Mental & Physical Health':'yoga wellness',
+'Reproductive & Maternal Health':'mother baby','Child Health':'child health','Adolescent Health':'teenagers',
+'Healthy Ageing':'elderly senior','Safety & Injury Prevention':'road safety','Vector-Borne Disease':'mosquito',
+'Communicable Disease':'virus germs','Immunization':'vaccine syringe','Nutrition':'fruits vegetables',
+"Women's Health":'woman health',"Men's Health":'man fitness','Environment':'nature green','Water Safety':'swimming water',
+'Water & Hygiene':'clean water','Occupational Health':'workplace safety','Rights':'human rights','Peace':'peace dove'
+};
+function keywordsFor(entry) {
+const stop = new Set(['world','day','national','international','awareness','week','of','the','and','for','de','day\'s']);
+const words = (String(entry.titleEn).toLowerCase().match(/[a-z]+/g) || []).filter(w => !stop.has(w));
+const base = words.slice(0, 3).join(' ');
+const cat = CATEGORY_IMAGE_KW[entry.category] || 'health';
+return (base + ' ' + cat).trim();
+}
+function loadImage(src) {
+return new Promise((resolve, reject) => {
+const img = new Image();
+img.crossOrigin = 'anonymous';
+img.onload = () => resolve(img);
+img.onerror = () => reject(new Error('image load failed'));
+img.src = src;
+});
+}
+function fileToDataURL(file) {
+return new Promise((resolve, reject) => {
+const r = new FileReader();
+r.onload = () => resolve(r.result);
+r.onerror = () => reject(new Error('file read failed'));
+r.readAsDataURL(file);
+});
+}
+// Search Wikimedia Commons (keyless, CORS-enabled, exportable to canvas).
+async function fetchCommonsImage(query) {
+const url = 'https://commons.wikimedia.org/w/api.php?action=query&generator=search'
++ '&gsrnamespace=6&gsrsearch=' + encodeURIComponent(query + ' filetype:bitmap')
++ '&gsrlimit=8&prop=imageinfo&iiprop=url|mime&iiurlwidth=1000&format=json&origin=*';
+const res = await fetch(url, { mode: 'cors' });
+if (!res.ok) throw new Error('search HTTP ' + res.status);
+const data = await res.json();
+const pages = (data && data.query && data.query.pages) ? Object.values(data.query.pages) : [];
+pages.sort((a, b) => (a.index||0) - (b.index||0));
+for (const p of pages) {
+const ii = p.imageinfo && p.imageinfo[0];
+if (!ii) continue;
+if (ii.mime && !/jpeg|png|jpg/i.test(ii.mime)) continue;
+const u = ii.thumburl || ii.url;
+if (u) return u;
+}
+throw new Error('no suitable image');
+}
+const _posterAssetCache = new Map(); // keyed by entry.date
+// In-memory artwork pack (loaded from IndexedDB at startup / via Settings import).
+// Shape: { byDate: { 'YYYY-MM-DD': {hero, cards:[...]} }, byFamily: { family: {hero, cards:[...]} } }
+// where hero/cards entries are image data URLs.
+let _artworkPack = { byDate: {}, byFamily: {} };
+
+// Card image search keywords, derived from the action text.
+function actionKeywords(entry, i) {
+const a = String((entry.actionsEn && entry.actionsEn[i]) || '').toLowerCase();
+const stop = new Set(['your','the','and','when','with','for','daily','regular','from','into','you','can']);
+const words = (a.match(/[a-z]+/g) || []).filter(w => !stop.has(w)).slice(0, 3).join(' ');
+return (words + ' health').trim();
+}
+// Resolve a topic's images from the local artwork pack (byDate wins over byFamily).
+async function loadPackImages(entry) {
+const pack = _artworkPack || {};
+const src = (pack.byDate && pack.byDate[entry.date]) || (pack.byFamily && pack.byFamily[artworkFamilyFor(entry)]);
+if (!src) return null;
+const out = { hero: null, cards: [null, null, null, null] };
+try { if (src.hero) out.hero = await loadImage(src.hero); } catch (e) {}
+if (Array.isArray(src.cards)) {
+for (let i = 0; i < 4; i++) { try { if (src.cards[i]) out.cards[i] = await loadImage(src.cards[i]); } catch (e) {} }
+}
+return out;
+}
+async function fetchTopicAssets(entry) {
+if (_posterAssetCache.has(entry.date)) return _posterAssetCache.get(entry.date);
+let assets = { hero: null, cards: [null, null, null, null] };
+// 1. Local artwork pack = deterministic production photos (works offline).
+try { const pk = await loadPackImages(entry); if (pk) assets = pk; } catch (e) {}
+// 2. Optional online (dev/fallback) fills only the slots the pack didn't provide.
+if (getImageMode() === 'online') {
+if (!assets.hero) { try { assets.hero = await loadImage(await fetchCommonsImage(keywordsFor(entry))); } catch (e) { console.warn('Hero image unavailable:', e.message); } }
+for (let i = 0; i < 4; i++) {
+if (assets.cards[i]) continue;
+try { assets.cards[i] = await loadImage(await fetchCommonsImage(actionKeywords(entry, i))); } catch (e) { /* motif fallback */ }
+}
+}
+_posterAssetCache.set(entry.date, assets);
+return assets;
+}
+// ---- Local artwork pack persistence (IndexedDB) ----
+function packStats() {
+const d = Object.keys((_artworkPack && _artworkPack.byDate) || {}).length;
+const f = Object.keys((_artworkPack && _artworkPack.byFamily) || {}).length;
+return { dates: d, families: f, total: d + f };
+}
+async function savePack(pack) {
+_artworkPack = { byDate: pack.byDate || {}, byFamily: pack.byFamily || {} };
+_posterAssetCache.clear();
+try {
+const db = await openDB();
+await new Promise((res, rej) => {
+const tx = db.transaction(PACK_STORE, 'readwrite');
+tx.objectStore(PACK_STORE).put(_artworkPack, 'pack');
+tx.oncomplete = () => res(); tx.onerror = () => rej(tx.error);
+});
+} catch (e) { console.warn('Pack save failed:', e.message); }
+}
+async function loadPack() {
+try {
+const db = await openDB();
+const pack = await new Promise((res, rej) => {
+const rq = db.transaction(PACK_STORE, 'readonly').objectStore(PACK_STORE).get('pack');
+rq.onsuccess = () => res(rq.result || null); rq.onerror = () => rej(rq.error);
+});
+if (pack && typeof pack === 'object') _artworkPack = { byDate: pack.byDate || {}, byFamily: pack.byFamily || {} };
+} catch (e) { console.warn('Pack load failed:', e.message); }
+}
+async function clearPack() {
+_artworkPack = { byDate: {}, byFamily: {} };
+_posterAssetCache.clear();
+try {
+const db = await openDB();
+await new Promise((res, rej) => {
+const tx = db.transaction(PACK_STORE, 'readwrite');
+tx.objectStore(PACK_STORE).delete('pack');
+tx.oncomplete = () => res(); tx.onerror = () => rej(tx.error);
+});
+} catch (e) {}
+}
+
+
+// ---- Local artwork families (deterministic, offline production source) ---
+// Map a topic to a curated artwork family. Extend this table as topics are
+// reviewed; unmapped topics fall back to a neutral motif.
+function artworkFamilyFor(entry) {
+const t = String(entry.titleEn || '').toLowerCase();
+const c = entry.category || '';
+if (/hepatitis|liver/.test(t)) return 'liver';
+if (/heart|cardio|hypertension|blood pressure|stroke/.test(t)) return 'heart';
+if (/blood donor|blood donation/.test(t)) return 'blood';
+if (/yoga/.test(t)) return 'yoga';
+if (/mental|suicide|alzheimer|well-being|wellbeing|depression/.test(t)) return 'mind';
+if (/tobacco|smoking/.test(t)) return 'no_tobacco';
+if (/maternal|motherhood|mother|pregnan|breastfeed/.test(t)) return 'mother_child';
+if (/diabetes|glucose/.test(t)) return 'glucose';
+if (/dengue|malaria|mosquito/.test(t) || c === 'Vector-Borne Disease') return 'mosquito';
+if (/water|sanitation|hygiene|handwash|drowning/.test(t) || c === 'Water Safety') return 'water';
+return 'default';
+}
+// Draw a curated vector illustration centered in the box (x,y,w,h).
+function drawArtwork(ctx, family, x, y, w, h, theme) {
+const cx = x + w/2, cy = y + h/2, S = Math.min(w, h) * 0.34;
+ctx.save();
+ctx.translate(cx, cy);
+ctx.fillStyle = theme.m; ctx.strokeStyle = theme.m; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+switch (family) {
+case 'liver':
+ctx.beginPath();
+ctx.moveTo(-S*1.1, -S*0.3);
+ctx.bezierCurveTo(-S*1.2, -S*0.9, -S*0.2, -S*1.0, S*0.5, -S*0.75);
+ctx.bezierCurveTo(S*1.25, -S*0.55, S*1.2, S*0.2, S*0.6, S*0.55);
+ctx.bezierCurveTo(S*0.1, S*0.85, -S*0.9, S*0.75, -S*1.1, -S*0.3);
+ctx.closePath(); ctx.fill();
+ctx.fillStyle = '#fff'; ctx.beginPath();
+ctx.moveTo(-S*0.05, -S*0.7); ctx.lineTo(S*0.12, -S*0.3); ctx.lineTo(-S*0.22, -S*0.38); ctx.closePath(); ctx.fill();
+break;
+case 'heart':
+ctx.beginPath();
+ctx.moveTo(0, S*0.75);
+ctx.bezierCurveTo(-S*1.3, -S*0.15, -S*0.7, -S*1.15, 0, -S*0.45);
+ctx.bezierCurveTo(S*0.7, -S*1.15, S*1.3, -S*0.15, 0, S*0.75);
+ctx.fill();
+ctx.strokeStyle = '#fff'; ctx.lineWidth = S*0.12; ctx.beginPath();
+ctx.moveTo(-S*0.85, 0); ctx.lineTo(-S*0.35, 0); ctx.lineTo(-S*0.15, -S*0.4);
+ctx.lineTo(S*0.05, S*0.45); ctx.lineTo(S*0.3, 0); ctx.lineTo(S*0.85, 0); ctx.stroke();
+break;
+case 'blood':
+ctx.beginPath();
+ctx.moveTo(0, -S*1.05);
+ctx.bezierCurveTo(S*0.85, -S*0.1, S*0.6, S*0.9, 0, S*0.9);
+ctx.bezierCurveTo(-S*0.6, S*0.9, -S*0.85, -S*0.1, 0, -S*1.05);
+ctx.fill();
+ctx.fillStyle = '#fff';
+ctx.fillRect(-S*0.1, -S*0.12, S*0.2, S*0.55);
+ctx.fillRect(-S*0.25, S*0.05, S*0.5, S*0.2);
+break;
+case 'yoga':
+ctx.beginPath(); ctx.arc(0, -S*0.72, S*0.28, 0, 7); ctx.fill();
+ctx.lineWidth = S*0.2;
+ctx.beginPath(); ctx.moveTo(0, -S*0.38); ctx.lineTo(0, S*0.2); ctx.stroke();
+ctx.beginPath(); ctx.moveTo(0, -S*0.12); ctx.lineTo(-S*0.72, S*0.22); ctx.moveTo(0, -S*0.12); ctx.lineTo(S*0.72, S*0.22); ctx.stroke();
+ctx.beginPath(); ctx.moveTo(-S*0.88, S*0.58); ctx.lineTo(S*0.88, S*0.58); ctx.lineTo(0, S*0.18); ctx.closePath(); ctx.fill();
+break;
+case 'mind':
+ctx.beginPath(); ctx.arc(0, 0, S*0.95, 0, 7); ctx.fill();
+ctx.fillStyle = '#fff';
+{ const hs = S*0.5; ctx.beginPath();
+ctx.moveTo(0, hs*0.75);
+ctx.bezierCurveTo(-hs*1.3, -hs*0.15, -hs*0.7, -hs*1.15, 0, -hs*0.45);
+ctx.bezierCurveTo(hs*0.7, -hs*1.15, hs*1.3, -hs*0.15, 0, hs*0.75); ctx.fill(); }
+break;
+case 'no_tobacco':
+ctx.save(); ctx.rotate(-0.32);
+ctx.fillStyle = theme.m; ctx.fillRect(-S*0.9, -S*0.12, S*1.55, S*0.24);
+ctx.fillStyle = '#fff'; ctx.fillRect(S*0.38, -S*0.12, S*0.27, S*0.24);
+ctx.restore();
+ctx.strokeStyle = theme.m; ctx.lineWidth = S*0.16;
+ctx.beginPath(); ctx.arc(0, 0, S*1.05, 0, 7); ctx.stroke();
+ctx.beginPath(); ctx.moveTo(-S*0.74, -S*0.74); ctx.lineTo(S*0.74, S*0.74); ctx.stroke();
+break;
+case 'mother_child':
+ctx.beginPath(); ctx.arc(-S*0.32, -S*0.62, S*0.3, 0, 7); ctx.fill();
+ctx.lineWidth = S*0.3; ctx.beginPath(); ctx.moveTo(-S*0.32, -S*0.3); ctx.lineTo(-S*0.32, S*0.55); ctx.stroke();
+ctx.beginPath(); ctx.arc(S*0.5, -S*0.18, S*0.2, 0, 7); ctx.fill();
+ctx.lineWidth = S*0.2; ctx.beginPath(); ctx.moveTo(S*0.5, S*0.0); ctx.lineTo(S*0.5, S*0.55); ctx.stroke();
+break;
+case 'glucose':
+ctx.beginPath();
+ctx.moveTo(0, -S*1.0);
+ctx.bezierCurveTo(S*0.8, -S*0.1, S*0.55, S*0.85, 0, S*0.85);
+ctx.bezierCurveTo(-S*0.55, S*0.85, -S*0.8, -S*0.1, 0, -S*1.0); ctx.fill();
+ctx.fillStyle = '#fff';
+ctx.fillRect(-S*0.08, -S*0.02, S*0.16, S*0.5);
+ctx.fillRect(-S*0.22, S*0.14, S*0.44, S*0.16);
+break;
+case 'mosquito':
+ctx.save(); ctx.rotate(-0.2);
+ctx.beginPath(); ctx.ellipse(0, 0, S*0.7, S*0.26, 0, 0, 7); ctx.fill();
+ctx.beginPath(); ctx.arc(-S*0.78, -S*0.05, S*0.22, 0, 7); ctx.fill();
+ctx.lineWidth = S*0.07; ctx.beginPath(); ctx.moveTo(-S*0.92, S*0.05); ctx.lineTo(-S*1.35, S*0.4); ctx.stroke();
+ctx.globalAlpha = 0.45;
+ctx.beginPath(); ctx.ellipse(S*0.1, -S*0.4, S*0.55, S*0.22, -0.4, 0, 7); ctx.fill();
+ctx.beginPath(); ctx.ellipse(S*0.28, -S*0.32, S*0.5, S*0.2, -0.15, 0, 7); ctx.fill();
+ctx.globalAlpha = 1; ctx.lineWidth = S*0.05;
+for (const dx of [-0.2, 0.1, 0.4]) { ctx.beginPath(); ctx.moveTo(S*dx, S*0.2); ctx.lineTo(S*(dx+0.22), S*0.72); ctx.stroke(); }
+ctx.restore();
+break;
+case 'water':
+ctx.beginPath();
+ctx.moveTo(0, -S*1.0);
+ctx.bezierCurveTo(S*0.8, -S*0.1, S*0.55, S*0.85, 0, S*0.85);
+ctx.bezierCurveTo(-S*0.55, S*0.85, -S*0.8, -S*0.1, 0, -S*1.0); ctx.fill();
+ctx.fillStyle = '#fff'; ctx.globalAlpha = 0.5;
+ctx.beginPath(); ctx.ellipse(-S*0.2, S*0.28, S*0.12, S*0.24, 0, 0, 7); ctx.fill();
+ctx.globalAlpha = 1;
+break;
+case 'food':
+ctx.beginPath(); ctx.arc(-S*0.32, S*0.1, S*0.6, 0, 7); ctx.fill();
+ctx.beginPath(); ctx.arc(S*0.32, S*0.1, S*0.6, 0, 7); ctx.fill();
+ctx.lineWidth = S*0.1; ctx.beginPath(); ctx.moveTo(0, -S*0.5); ctx.lineTo(0, -S*0.85); ctx.stroke();
+ctx.beginPath(); ctx.ellipse(S*0.28, -S*0.72, S*0.3, S*0.14, -0.6, 0, 7); ctx.fill();
+break;
+case 'activity':
+ctx.beginPath(); ctx.arc(S*0.25, -S*0.62, S*0.22, 0, 7); ctx.fill();
+ctx.lineWidth = S*0.16;
+ctx.beginPath(); ctx.moveTo(S*0.25, -S*0.38); ctx.lineTo(-S*0.05, S*0.12); ctx.stroke();
+ctx.beginPath(); ctx.moveTo(S*0.12, -S*0.2); ctx.lineTo(S*0.55, -S*0.32); ctx.moveTo(S*0.12, -S*0.2); ctx.lineTo(-S*0.28, -S*0.02); ctx.stroke();
+ctx.beginPath(); ctx.moveTo(-S*0.05, S*0.12); ctx.lineTo(-S*0.5, S*0.42); ctx.moveTo(-S*0.05, S*0.12); ctx.lineTo(S*0.32, S*0.58); ctx.stroke();
+break;
+case 'checkup':
+roundRectPath(ctx, -S*0.62, -S*0.82, S*1.24, S*1.64, S*0.14); ctx.fill();
+ctx.fillStyle = '#fff';
+roundRectPath(ctx, -S*0.32, -S*1.0, S*0.64, S*0.34, S*0.1); ctx.fill();
+ctx.fillStyle = '#fff';
+ctx.fillRect(-S*0.09, -S*0.42, S*0.18, S*0.62);
+ctx.fillRect(-S*0.34, -S*0.2, S*0.68, S*0.18);
+break;
+case 'awareness':
+ctx.beginPath();
+ctx.moveTo(-S*0.75, -S*0.32); ctx.lineTo(S*0.2, -S*0.62); ctx.lineTo(S*0.2, S*0.62); ctx.lineTo(-S*0.75, S*0.32); ctx.closePath(); ctx.fill();
+ctx.fillRect(-S*0.95, -S*0.3, S*0.22, S*0.6);
+ctx.lineWidth = S*0.09;
+ctx.beginPath(); ctx.arc(S*0.35, 0, S*0.35, -0.8, 0.8); ctx.stroke();
+ctx.beginPath(); ctx.arc(S*0.35, 0, S*0.6, -0.7, 0.7); ctx.stroke();
+break;
+case 'vaccine':
+ctx.save(); ctx.rotate(-0.6);
+ctx.fillRect(-S*0.12, -S*0.55, S*0.34, S*0.95);
+ctx.fillRect(-S*0.05, -S*0.82, S*0.2, S*0.28);
+ctx.fillRect(-S*0.02, S*0.4, S*0.14, S*0.5);
+ctx.fillStyle = '#fff'; ctx.fillRect(-S*0.12, -S*0.3, S*0.34, S*0.08);
+ctx.fillRect(-S*0.12, -S*0.1, S*0.34, S*0.08);
+ctx.restore();
+break;
+case 'rest':
+ctx.beginPath(); ctx.arc(0, 0, S*0.8, 0, 7); ctx.fill();
+ctx.fillStyle = theme.s;
+ctx.beginPath(); ctx.arc(S*0.32, -S*0.22, S*0.72, 0, 7); ctx.fill();
+break;
+case 'pill':
+ctx.save(); ctx.rotate(-0.6);
+roundRectPath(ctx, -S*0.7, -S*0.32, S*1.4, S*0.64, S*0.32); ctx.fill();
+ctx.fillStyle = '#fff';
+roundRectPath(ctx, -S*0.7, -S*0.32, S*0.7, S*0.64, S*0.32); ctx.fill();
+ctx.strokeStyle = theme.m; ctx.lineWidth = S*0.05;
+roundRectPath(ctx, -S*0.7, -S*0.32, S*1.4, S*0.64, S*0.32); ctx.stroke();
+ctx.restore();
+break;
+case 'shield':
+drawIcon(ctx, 'shield', 0, 0, S*0.95, theme.m);
+break;
+default:
+drawIcon(ctx, 'heart', 0, 0, S, theme.m);
+}
+ctx.restore();
+}
+
+
+// Map an action phrase to a card motif key (falls back to the topic family).
+function actionMotifKey(text, entry) {
+const t = String(text || '').toLowerCase();
+if (/eat|food|diet|meal|nutrit|fruit|vegetable|iron|calcium|protein|plate/.test(t)) return 'food';
+if (/active|exercise|walk|physical|sport|fitness|step|move|yoga/.test(t)) return 'activity';
+if (/check.?up|screen|test|doctor|medical|diagnos|monitor|blood pressure|numbers/.test(t)) return 'checkup';
+if (/aware|spread|share|inform|educate|talk|advocat|message|voice/.test(t)) return 'awareness';
+if (/vaccin|immuni|deworm/.test(t)) return 'vaccine';
+if (/rest|sleep|relax|calm|breath/.test(t)) return 'rest';
+if (/medicine|treatment|drug|pill|dose|complete/.test(t)) return 'pill';
+if (/protect|safe|barrier|prevent|cover|seat belt|helmet/.test(t)) return 'shield';
+if (/water|drink|hydrat|hand|wash|hygiene|clean|sanit/.test(t)) return 'water';
+if (/mosquito|net|repellent|sleeve/.test(t)) return 'mosquito';
+if (/tobacco|smok|quit/.test(t)) return 'no_tobacco';
+if (/blood|donat/.test(t)) return 'blood';
+if (/stress|mental|support|help|feeling|mind|connect/.test(t)) return 'mind';
+if (/heart|cardio/.test(t)) return 'heart';
+return artworkFamilyFor(entry);
+}
+// Fill a soft rounded panel and draw the motif/photo inside it.
+function drawCardArt(ctx, key, x, y, w, h, theme) {
+ctx.fillStyle = theme.s; roundRectPath(ctx, x, y, w, h, Math.round(Math.min(w, h) * 0.22)); ctx.fill();
+drawArtwork(ctx, key, x, y, w, h, theme);
+}
+
+
+// Rich template poster. `assets.hero` is an already-loaded Image or null
+// (null -> a curated local artwork family, the deterministic offline default).
+function createPoster(entry, fmt, assets) {
+assets = assets || { hero: null, cards: [] };
 const c = document.createElement('canvas');
 c.width = fmt.w; c.height = fmt.h;
 const ctx = c.getContext('2d');
+const W = c.width, H = c.height;
 const gu = fmt.lang === 'gu';
+const th = themeFor(entry);
+const official = entry.status === 'official';
 const title = gu ? entry.titleGu : entry.titleEn;
 const importance = gu ? entry.importanceGu : entry.importanceEn;
-const actions = gu ? entry.actionsGu : entry.actionsEn;
-const accent = entry.status === 'official' ? '#1668c1' : '#1a9f6e';
-ctx.fillStyle = '#f7fbfa';
-ctx.fillRect(0,0,c.width,c.height);
-ctx.fillStyle = accent;
-ctx.fillRect(0,0,c.width, Math.round(c.height*0.16));
-ctx.fillStyle = '#fff';
-ctx.font = `700 ${Math.round(c.width*0.034)}px sans-serif`;
-ctx.fillText('HEALTH AWARENESS STUDIO', 70, 90);
-ctx.font = `500 ${Math.round(c.width*0.024)}px sans-serif`;
-ctx.fillText(entry.date, 70, 135);
-drawIcon(ctx, entry.icon, c.width-145, 95, 55, '#fff');
+const actions = (gu ? entry.actionsGu : entry.actionsEn).slice(0, 4);
+const M = Math.round(W * 0.045);
+ctx.textBaseline = 'alphabetic';
 
+// Body background
+ctx.fillStyle = '#ffffff';
+ctx.fillRect(0, 0, W, H);
 
-let y = Math.round(c.height*0.24);
-ctx.fillStyle = '#1f2a33';
-ctx.textAlign = 'center';
-let size = Math.round(c.width*0.062);
-ctx.font = `800 ${size}px sans-serif`;
-let lines = wrapText(ctx, title, c.width-140);
-while (lines.length > 4 && size > 38) { size -= 3; ctx.font = `800 ${size}px sans-serif`; lines = wrapText(ctx, title, c.width-140); }
-for (const ln of lines) { ctx.fillText(ln, c.width/2, y); y += size*1.18; }
-y += 35;
-ctx.fillStyle = '#65727d';
-ctx.font = `500 ${Math.round(c.width*0.029)}px sans-serif`;
-for (const ln of wrapText(ctx, importance, c.width-180).slice(0,5)) { ctx.fillText(ln, c.width/2, y); y += 42; }
-y += 35;
+// ---- Top strip ----
+const topH = Math.round(H * 0.072);
+ctx.fillStyle = th.m; ctx.fillRect(0, 0, W, topH);
+const bs = Math.round(topH * 0.58), by = (topH - bs) / 2;
+ctx.fillStyle = '#ffffff'; roundRectPath(ctx, M, by, bs, bs, bs * 0.28); ctx.fill();
+drawIcon(ctx, 'heart', M + bs/2, by + bs/2, bs * 0.3, th.m);
+ctx.textBaseline = 'middle';
+ctx.fillStyle = '#ffffff';
 ctx.textAlign = 'left';
-ctx.fillStyle = '#1f2a33';
-ctx.font = `700 ${Math.round(c.width*0.031)}px sans-serif`;
-actions.forEach((a, i) => {
-const ay = y + i*92;
-ctx.fillStyle = accent;
-ctx.beginPath();
-ctx.arc(100, ay-10, 22, 0, Math.PI*2);
-ctx.fill();
-ctx.fillStyle = '#fff';
-ctx.textAlign = 'center';
-ctx.font = '700 24px sans-serif';
-ctx.fillText(String(i+1), 100, ay-2);
+ctx.font = `800 ${Math.round(Math.min(topH * 0.34, W * 0.032))}px sans-serif`;
+ctx.fillText('HEALTH AWARENESS', M + bs + Math.round(W * 0.02), topH / 2);
+ctx.textAlign = 'right';
+ctx.font = `600 ${Math.round(Math.min(topH * 0.30, W * 0.028))}px sans-serif`;
+ctx.fillText(posterDate(entry.date), W - M, topH / 2);
+ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+
+// ---- Intro (headline + paragraph + hero) ----
+let y = topH + M;
+const ratio = H / W;
+const introH = Math.round(H * (ratio > 1.6 ? 0.15 : ratio > 1.1 ? 0.19 : 0.23));
+const heroW = Math.round(W * 0.36), heroX = W - M - heroW, heroR = Math.round(W * 0.03);
+if (assets.hero) {
+drawImageCover(ctx, assets.hero, heroX, y, heroW, introH, heroR);
+ctx.lineWidth = 3; ctx.strokeStyle = th.s;
+roundRectPath(ctx, heroX, y, heroW, introH, heroR); ctx.stroke();
+} else {
+ctx.fillStyle = th.s; roundRectPath(ctx, heroX, y, heroW, introH, heroR); ctx.fill();
+drawArtwork(ctx, artworkFamilyFor(entry), heroX, y, heroW, introH, th);
+}
+const lx = M, lw = heroX - M - Math.round(W * 0.028);
+// eyebrow
+ctx.fillStyle = th.d;
+const eyebrow = (String(entry.category) + (gu ? '' : ' MESSAGE')).toUpperCase();
+fitText(ctx, eyebrow, lw, '700', Math.round(W * 0.021), 12); // sets ctx.font to a fitting size
+ctx.fillText(eyebrow, lx, y + Math.round(W * 0.028));
+// heading
+const headEn = official ? ((entry.authorities && entry.authorities[0]) ? entry.authorities[0].toUpperCase() + ' OBSERVANCE' : 'HEALTH OBSERVANCE') : 'CURATED HEALTH TOPIC';
+const heading = gu ? (official ? 'આરોગ્ય ઉજવણી' : 'આરોગ્ય જાગૃતિ વિષય') : headEn;
+let hsize = Math.round(W * 0.05);
+ctx.fillStyle = th.m; ctx.font = `800 ${hsize}px sans-serif`;
+let hLines = wrapText(ctx, heading, lw);
+while (hLines.length > 2 && hsize > 24) { hsize -= 2; ctx.font = `800 ${hsize}px sans-serif`; hLines = wrapText(ctx, heading, lw); }
+let hy = y + Math.round(W * 0.075);
+for (const ln of hLines.slice(0, 2)) { ctx.fillText(ln, lx, hy); hy += hsize * 1.12; }
+// paragraph
+ctx.fillStyle = '#55606a';
+const psize = Math.round(W * 0.0255);
+ctx.font = `500 ${psize}px sans-serif`;
+const maxPLines = Math.max(2, Math.floor((y + introH - hy) / (psize * 1.32)));
+let py = hy + Math.round(psize * 0.4);
+for (const ln of wrapText(ctx, importance, lw).slice(0, maxPLines)) { ctx.fillText(ln, lx, py); py += psize * 1.32; }
+
+// ---- Title pill ----
+y += introH + M;
+const pillH = Math.round(H * 0.085);
+ctx.fillStyle = th.m; roundRectPath(ctx, M, y, W - 2*M, pillH, pillH/2); ctx.fill();
+ctx.fillStyle = '#ffffff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+const pillTitle = gu ? title : String(title).toUpperCase();
+const innerW = W - 2*M - pillH;
+let tLines = [pillTitle];
+let tsize = fitText(ctx, pillTitle, innerW, '800', Math.round(pillH * 0.42), Math.round(pillH * 0.24));
+ctx.font = `800 ${tsize}px sans-serif`;
+if (ctx.measureText(pillTitle).width > innerW) {
+tsize = Math.round(pillH * 0.30); ctx.font = `800 ${tsize}px sans-serif`;
+tLines = wrapText(ctx, pillTitle, innerW).slice(0, 2);
+}
+tLines.forEach((ln, i) => ctx.fillText(ln, W/2, y + pillH/2 + (i - (tLines.length-1)/2) * tsize * 1.05));
+ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+
+// ---- Action cards (2x2) ----
+y += pillH + M;
+const botH = Math.round(H * 0.058);
+const tagH = Math.round(H * 0.078);
+const cardsTop = y;
+const cardsBottom = H - botH - tagH - Math.round(M * 0.5);
+const gap = Math.round(M * 0.7);
+const cw = (W - 2*M - gap) / 2;
+const chh = (cardsBottom - cardsTop - gap) / 2;
+const cpad = Math.round(cw * 0.06);
+const cardR = Math.round(W * 0.02);
+for (let i = 0; i < actions.length; i++) {
+const col = i % 2, row = Math.floor(i / 2);
+const cx = M + col * (cw + gap), cy = cardsTop + row * (chh + gap);
+ctx.fillStyle = '#ffffff'; roundRectPath(ctx, cx, cy, cw, chh, cardR); ctx.fill();
+ctx.lineWidth = 2.5; ctx.strokeStyle = th.s; roundRectPath(ctx, cx, cy, cw, chh, cardR); ctx.stroke();
+// number badge
+const br = Math.round(chh * 0.15);
+ctx.fillStyle = th.m; ctx.beginPath(); ctx.arc(cx + cpad + br, cy + cpad + br, br, 0, Math.PI*2); ctx.fill();
+ctx.fillStyle = '#ffffff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+ctx.font = `800 ${Math.round(br * 1.05)}px sans-serif`;
+ctx.fillText(String(i+1), cx + cpad + br, cy + cpad + br + 1);
+// image / motif region top-right (photo when supplied, else per-action motif)
+const imgS = Math.round(chh * 0.42);
+const imgX = cx + cw - cpad - imgS, imgY = cy + cpad;
+const cardImg = assets.cards && assets.cards[i];
+if (cardImg) {
+drawImageCover(ctx, cardImg, imgX, imgY, imgS, imgS, Math.round(imgS * 0.18));
+} else {
+drawCardArt(ctx, actionMotifKey(entry.actionsEn[i], entry), imgX, imgY, imgS, imgS, th);
+}
+// action heading text (below badge + image)
+ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+ctx.fillStyle = th.d;
+let asize = Math.round(cw * 0.072);
+ctx.font = `700 ${asize}px sans-serif`;
+const atxtW = cw - 2*cpad;
+let aLines = wrapText(ctx, actions[i], atxtW);
+while (aLines.length > 3 && asize > Math.round(cw*0.048)) { asize -= 2; ctx.font = `700 ${asize}px sans-serif`; aLines = wrapText(ctx, actions[i], atxtW); }
+let ay = cy + cpad + Math.max(2*br, imgS) + Math.round(asize * 1.25);
+for (const ln of aLines.slice(0, 3)) { ctx.fillText(ln, cx + cpad, ay); ay += asize * 1.24; }
+}
+
+// ---- Tagline ----
+const tagline = gu ? 'નાના પગલાં આજે, સ્વસ્થ આવતીકાલ.' : 'Small steps today, a healthier tomorrow.';
+const tsz = Math.round(W * 0.026);
+ctx.font = `700 ${tsz}px sans-serif`;
+const shieldR = Math.round(tsz * 0.7);
+const tw = ctx.measureText(tagline).width;
+const groupW = shieldR * 2 + Math.round(W * 0.015) + tw;
+const gx = (W - groupW) / 2;
+const gcy = cardsBottom + Math.round(tagH * 0.5);
+drawIcon(ctx, 'shield', gx + shieldR, gcy, shieldR, th.m);
+ctx.fillStyle = th.d; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+ctx.fillText(tagline, gx + shieldR*2 + Math.round(W * 0.015), gcy);
+ctx.textBaseline = 'alphabetic';
+
+// ---- Bottom bar ----
+ctx.fillStyle = th.m; ctx.fillRect(0, H - botH, W, botH);
+ctx.fillStyle = '#ffffff'; ctx.textBaseline = 'middle';
 ctx.textAlign = 'left';
-ctx.fillStyle = '#1f2a33';
-ctx.font = `600 ${Math.round(c.width*0.027)}px sans-serif`;
-const al = wrapText(ctx, a, c.width-210).slice(0,2);
-al.forEach((ln,j) => ctx.fillText(ln, 145, ay+j*34));
-});
-ctx.fillStyle = accent;
-ctx.fillRect(0, c.height-110, c.width, 110);
-ctx.fillStyle = '#fff';
-ctx.textAlign = 'center';
-ctx.font = `700 ${Math.round(c.width*0.026)}px sans-serif`;
-ctx.fillText(gu ? 'જાગૃતિ ફેલાવો • સ્વસ્થ રહો' : 'Spread awareness • Stay healthy', c.width/2, c.height-48);
+ctx.font = `800 ${Math.round(W * 0.025)}px sans-serif`;
+ctx.fillText(gu ? 'જાગૃતિ ફેલાવો · સ્વસ્થ રહો' : 'SPREAD AWARENESS · STAY HEALTHY', M, H - botH/2);
+ctx.textAlign = 'right';
+ctx.font = `500 ${Math.round(W * 0.021)}px sans-serif`;
+ctx.fillText('Created with AI by ' + getCredit(), W - M, H - botH/2);
+ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
 return c;
+}
+
+
+// Fetch imagery once, then render a poster for a single format.
+async function createPosterAsync(entry, fmt) {
+const assets = await fetchTopicAssets(entry);
+return createPoster(entry, fmt, assets);
 }
 
 
 async function generatePosters(entry, onProgress) {
 const out = [];
+const assets = await fetchTopicAssets(entry); // one fetch shared across all 6 formats
 for (let i=0; i<FORMATS.length; i++) {
 const f = FORMATS[i];
-const canvas = createPoster(entry, f);
+const canvas = createPoster(entry, f, assets);
 const dataUrl = canvas.toDataURL('image/png');
 out.push({ ...f, dataUrl, filename: `${entry.date}_${f.id}.png` });
 if (onProgress) onProgress(i+1, FORMATS.length);
@@ -1375,7 +1890,7 @@ const r = state.record;
 $main.innerHTML = pageHead('Daily Automation Dashboard', e.titleEn, `<span class="pill blue" id="clock"></span>`) +
 `<div class="grid cards">
 <div class="card stat"><div class="lbl">Today</div><div class="val" style="font-size:18px">${esc(e.titleEn)}</div><div class="hint">${esc(e.date)}</div></div>
-<div class="card stat"><div class="lbl">Posters</div><div class="val">${r?.posters?.length||0}/6</div><div class="hint">English + Gujarati</div></div>
+<div class="card stat"><div class="lbl">Posters</div><div class="val">${r?.posters?.length||0}/${FORMATS.length}</div><div class="hint">English + Gujarati</div></div>
 <div class="card stat"><div class="lbl">Status</div><div class="val" style="font-size:20px">${r?'Ready':'Pending'}</div><div class="hint">IndexedDB</div></div>
 <div class="card stat"><div class="lbl">Next scheduler</div><div class="countdown" id="countdown">--:--:--</div><div class="hint">Browser must be open</div></div>
 </div>
@@ -1401,7 +1916,7 @@ $main.innerHTML = pageHead('Poster Generator', e.titleEn) +
 <h2>${esc(e.titleEn)}</h2>
 <h3>${esc(e.titleGu)}</h3>
 <p class="muted">${esc(e.importanceEn)}</p>
-<div class="btnrow"><button class="btn primary" id="generate">Generate all 6 posters</button><button class="btn" id="copyCaption">Copy bilingual caption</button></div>
+<div class="btnrow"><button class="btn primary" id="generate">Generate ${FORMATS.length} posters (EN + GU)</button><button class="btn" id="copyCaption">Copy bilingual caption</button></div>
 <div class="progress" style="margin-top:14px"><i id="genProgress"></i></div>
 </div></div>
 <div class="poster-grid" id="posterGrid" style="margin-top:16px">${(r?.posters||[]).map((p,i) => `<div class="poster-card"><img src="${esc(p.dataUrl)}" alt="${esc(p.label)}"><div class="meta"><b>${esc(p.label)}</b><br><button class="btn sm" data-dl="${i}">Download</button></div></div>`).join('')||'<div class="empty-state">No posters generated yet.</div>'}</div>`;
@@ -1818,6 +2333,24 @@ $main.innerHTML = pageHead('Settings', 'Scheduler and local data') +
 <div class="btnrow"><button class="btn primary" id="saveSchedule">Save schedule time</button></div>
 </div>
 <div class="card" style="margin-top:16px">
+<h3 class="sec">Poster imagery</h3>
+<div class="field"><label class="fld">Artwork source</label>
+<select class="inp" id="imageMode">
+<option value="offline" ${getImageMode()==='offline'?'selected':''}>Local artwork families (recommended · offline · deterministic)</option>
+<option value="online" ${getImageMode()==='online'?'selected':''}>Online photos (development / fallback · needs internet)</option>
+</select></div>
+<div class="field"><label class="fld">Credit line</label>
+<input class="inp" id="creditLine" value="${esc(getCredit())}" placeholder="Dr Atul Dhuvad"></div>
+<div class="muted" style="margin-bottom:12px">Production uses curated local artwork per topic — no network, fully reproducible. Online photos are an optional development/fallback source (Wikimedia Commons) and fall back to local artwork when a photo can't be loaded.</div>
+<div class="btnrow"><button class="btn primary" id="saveImagery">Save imagery settings</button></div>
+</div>
+<div class="card" style="margin-top:16px">
+<h3 class="sec">Local photo pack (deterministic production photos)</h3>
+<div class="kv"><span>Loaded entries</span><b id="packStat">${packStats().total} (${packStats().dates} dated · ${packStats().families} family)</b></div>
+<div class="muted" style="margin:8px 0 12px">Drop in your own AI-generated / licensed images. Easiest way: <b>Import images</b> and name each file <code>&lt;key&gt;_hero.jpg</code>, <code>&lt;key&gt;_card1.jpg</code> … <code>&lt;key&gt;_card4.jpg</code>, where <code>&lt;key&gt;</code> is a topic family (<code>liver, heart, blood, yoga, mind, no_tobacco, mother_child, glucose, mosquito, water</code>) or a date (<code>2026-07-28</code>). Dates override families; any missing slot falls back to local vector artwork. Advanced: import a JSON pack of data-URL images (<code>byFamily</code> / <code>byDate</code>).</div>
+<div class="btnrow"><button class="btn primary" id="importImages">Import images (by filename)</button><button class="btn" id="importPack">Import JSON pack</button><button class="btn danger" id="clearPack">Clear pack</button></div>
+</div>
+<div class="card" style="margin-top:16px">
 <div class="kv"><span>Application version</span><b>v${esc(APP_VERSION)}</b></div>
 <div class="kv"><span>Active schedule</span><b>${esc(scheduleTimeLabel())} IST</b></div>
 <div class="kv"><span>Scheduler timers</span><b>${schedulerTimerCount()}</b></div>
@@ -1828,6 +2361,64 @@ const val = document.getElementById('scheduleTime').value;
 const stored = saveScheduleTime(val);
 restartScheduler();
 toast('Scheduler time saved: ' + stored + ' IST');
+renderSettings();
+};
+document.getElementById('saveImagery').onclick = () => {
+setImageMode(document.getElementById('imageMode').value);
+const credit = document.getElementById('creditLine').value.trim() || 'Dr Atul Dhuvad';
+try { localStorage.setItem('has_credit', credit); } catch (e) {}
+_posterAssetCache.clear(); // re-fetch imagery under the new setting
+toast('Imagery settings saved');
+};
+document.getElementById('importPack').onclick = () => {
+const input = document.createElement('input');
+input.type = 'file'; input.accept = 'application/json,.json';
+input.onchange = async () => {
+const file = input.files[0]; if (!file) return;
+try {
+const data = JSON.parse(await file.text());
+if (!data || typeof data !== 'object' || (!data.byDate && !data.byFamily)) throw new Error('Pack needs a byDate and/or byFamily object');
+await savePack({ byDate: data.byDate || {}, byFamily: data.byFamily || {} });
+toast('Photo pack imported: ' + packStats().total + ' entries');
+renderSettings();
+} catch (e) { toast('Import failed: ' + e.message); }
+};
+input.click();
+};
+document.getElementById('importImages').onclick = () => {
+const input = document.createElement('input');
+input.type = 'file'; input.accept = 'image/*'; input.multiple = true;
+input.onchange = async () => {
+const files = [...input.files]; if (!files.length) return;
+try {
+const pack = { byDate: { ...(_artworkPack.byDate || {}) }, byFamily: { ...(_artworkPack.byFamily || {}) } };
+let added = 0, skipped = 0;
+for (const f of files) {
+const base = f.name.replace(/\.[^.]+$/, '').toLowerCase().trim();
+const m = /^(.+?)[_-](hero|card\s*([1-4])|([1-4]))$/.exec(base);
+if (!m) { skipped++; continue; }
+const key = m[1];
+const isDate = /^\d{4}-\d{2}-\d{2}$/.test(key);
+const bucket = isDate ? pack.byDate : pack.byFamily;
+if (!bucket[key]) bucket[key] = { hero: null, cards: [null, null, null, null] };
+if (!bucket[key].cards) bucket[key].cards = [null, null, null, null];
+const url = await fileToDataURL(f);
+if (m[2] === 'hero') bucket[key].hero = url;
+else { const idx = (+(m[3] || m[4])) - 1; if (idx >= 0 && idx < 4) bucket[key].cards[idx] = url; }
+added++;
+}
+if (!added) throw new Error('No files matched the naming convention (e.g. heart_hero.jpg, heart_card1.jpg)');
+await savePack(pack);
+toast('Imported ' + added + ' image(s)' + (skipped ? ' · ' + skipped + ' skipped' : ''));
+renderSettings();
+} catch (e) { toast('Import failed: ' + e.message); }
+};
+input.click();
+};
+document.getElementById('clearPack').onclick = async () => {
+if (!confirm('Remove the imported photo pack? Posters revert to local vector artwork.')) return;
+await clearPack();
+toast('Photo pack cleared');
 renderSettings();
 };
 document.getElementById('clearData').onclick = async () => {
@@ -1859,24 +2450,27 @@ $main.innerHTML = pageHead('Poster Templates', 'Reusable layouts · English + Gu
 let previewFormat = null;
 const wrap = document.getElementById('templatePreview');
 const dlBtn = document.getElementById('tplDownload');
-document.querySelectorAll('[data-tpl]').forEach(b => b.onclick = () => {
+document.querySelectorAll('[data-tpl]').forEach(b => b.onclick = async () => {
 const f = FORMATS[+b.dataset.tpl];
 if (!f) return;
+wrap.innerHTML = '<div class="empty-state" style="padding:20px">Rendering…</div>';
+dlBtn.disabled = true;
 try {
-const canvas = createPoster(e, f);
+const canvas = await createPosterAsync(e, f);
 previewFormat = f;
 wrap.innerHTML = '';
 wrap.appendChild(canvas);
 dlBtn.disabled = false;
 } catch (err) {
 console.error('Template preview error:', err);
+wrap.innerHTML = '<div class="empty-state" style="padding:20px">Preview failed.</div>';
 toast('Preview failed: ' + err.message);
 }
 });
-dlBtn.onclick = () => {
+dlBtn.onclick = async () => {
 if (!previewFormat) return;
 try {
-const canvas = createPoster(e, previewFormat);
+const canvas = await createPosterAsync(e, previewFormat);
 downloadPoster({ dataUrl: canvas.toDataURL('image/png'), filename: `${e.date}_${previewFormat.id}.png` });
 } catch (err) { toast('Download failed: ' + err.message); }
 };
@@ -1953,7 +2547,7 @@ version: APP_VERSION
 };
 await dbPut(STORE, next);
 state.record = next;
-toast('Daily workflow completed: 6 posters stored');
+toast('Daily workflow completed: ' + posters.length + ' posters stored');
 if (returnPage) currentPage = returnPage;
 await refreshState();
 if (pageMap[currentPage]) pageMap[currentPage]();
@@ -1989,6 +2583,8 @@ validateCalendar(CALENDAR);
 // 2. Open storage; tolerate failure so the dashboard still renders.
 try { await openDB(); }
 catch (e) { console.error('IndexedDB open failed:', e); toast('Storage unavailable; running without saved data'); }
+// Load any saved artwork photo pack (deterministic production imagery).
+await loadPack().catch(() => {});
 // 3. Register navigation once.
 document.querySelectorAll('#nav button').forEach(b => {
 b.onclick = () => navigate(b.dataset.page);
@@ -2033,7 +2629,7 @@ $main.appendChild(card);
 });
 
 
-window.HealthApp = { navigate, runDaily, toast, refreshState, missingRenderers, runDiagnostics, getScheduleTime, saveScheduleTime, restartScheduler, schedulerTimerCount, pageMap, APP_VERSION };
+window.HealthApp = { navigate, runDaily, toast, refreshState, missingRenderers, runDiagnostics, getScheduleTime, saveScheduleTime, restartScheduler, schedulerTimerCount, pageMap, APP_VERSION, createPoster, createPosterAsync, fetchTopicAssets, getImageMode, setImageMode, artworkFamilyFor, drawArtwork, actionMotifKey, savePack, loadPack, clearPack, packStats, CALENDAR, FORMATS };
 </script>
 </body>
 </html>

@@ -967,10 +967,11 @@ const CALENDAR = (() => { const c = buildFixedCalendar(); validateCalendar(c); r
 // 2. STORAGE (IndexedDB)
 // =====================================================================
 const DB_NAME = 'HealthAwarenessStudio';
-const DB_VER = 2;
+const DB_VER = 3;
 const STORE = 'dailyRuns';
 const TEMPLATE_STORE = 'templates';
 const SCHEDULE_STORE = 'schedules';
+const PACK_STORE = 'artworkPack';
 let dbp = null;
 
 
@@ -989,6 +990,9 @@ db.createObjectStore(TEMPLATE_STORE, { keyPath: 'id', autoIncrement: true });
 }
 if (!db.objectStoreNames.contains(SCHEDULE_STORE)) {
 db.createObjectStore(SCHEDULE_STORE, { keyPath: 'id', autoIncrement: true });
+}
+if (!db.objectStoreNames.contains(PACK_STORE)) {
+db.createObjectStore(PACK_STORE); // key: 'pack'
 }
 };
 req.onsuccess = () => resolve(req.result);
@@ -1241,19 +1245,85 @@ if (u) return u;
 throw new Error('no suitable image');
 }
 const _posterAssetCache = new Map(); // keyed by entry.date
+// In-memory artwork pack (loaded from IndexedDB at startup / via Settings import).
+// Shape: { byDate: { 'YYYY-MM-DD': {hero, cards:[...]} }, byFamily: { family: {hero, cards:[...]} } }
+// where hero/cards entries are image data URLs.
+let _artworkPack = { byDate: {}, byFamily: {} };
+
+// Card image search keywords, derived from the action text.
+function actionKeywords(entry, i) {
+const a = String((entry.actionsEn && entry.actionsEn[i]) || '').toLowerCase();
+const stop = new Set(['your','the','and','when','with','for','daily','regular','from','into','you','can']);
+const words = (a.match(/[a-z]+/g) || []).filter(w => !stop.has(w)).slice(0, 3).join(' ');
+return (words + ' health').trim();
+}
+// Resolve a topic's images from the local artwork pack (byDate wins over byFamily).
+async function loadPackImages(entry) {
+const pack = _artworkPack || {};
+const src = (pack.byDate && pack.byDate[entry.date]) || (pack.byFamily && pack.byFamily[artworkFamilyFor(entry)]);
+if (!src) return null;
+const out = { hero: null, cards: [null, null, null, null] };
+try { if (src.hero) out.hero = await loadImage(src.hero); } catch (e) {}
+if (Array.isArray(src.cards)) {
+for (let i = 0; i < 4; i++) { try { if (src.cards[i]) out.cards[i] = await loadImage(src.cards[i]); } catch (e) {} }
+}
+return out;
+}
 async function fetchTopicAssets(entry) {
-if (getImageMode() === 'offline') return { hero: null };
 if (_posterAssetCache.has(entry.date)) return _posterAssetCache.get(entry.date);
-let assets = { hero: null };
-try {
-const u = await fetchCommonsImage(keywordsFor(entry));
-assets.hero = await loadImage(u);
-} catch (e) {
-console.warn('Hero image unavailable for ' + entry.date + ':', e.message);
-assets = { hero: null };
+let assets = { hero: null, cards: [null, null, null, null] };
+// 1. Local artwork pack = deterministic production photos (works offline).
+try { const pk = await loadPackImages(entry); if (pk) assets = pk; } catch (e) {}
+// 2. Optional online (dev/fallback) fills only the slots the pack didn't provide.
+if (getImageMode() === 'online') {
+if (!assets.hero) { try { assets.hero = await loadImage(await fetchCommonsImage(keywordsFor(entry))); } catch (e) { console.warn('Hero image unavailable:', e.message); } }
+for (let i = 0; i < 4; i++) {
+if (assets.cards[i]) continue;
+try { assets.cards[i] = await loadImage(await fetchCommonsImage(actionKeywords(entry, i))); } catch (e) { /* motif fallback */ }
+}
 }
 _posterAssetCache.set(entry.date, assets);
 return assets;
+}
+// ---- Local artwork pack persistence (IndexedDB) ----
+function packStats() {
+const d = Object.keys((_artworkPack && _artworkPack.byDate) || {}).length;
+const f = Object.keys((_artworkPack && _artworkPack.byFamily) || {}).length;
+return { dates: d, families: f, total: d + f };
+}
+async function savePack(pack) {
+_artworkPack = { byDate: pack.byDate || {}, byFamily: pack.byFamily || {} };
+_posterAssetCache.clear();
+try {
+const db = await openDB();
+await new Promise((res, rej) => {
+const tx = db.transaction(PACK_STORE, 'readwrite');
+tx.objectStore(PACK_STORE).put(_artworkPack, 'pack');
+tx.oncomplete = () => res(); tx.onerror = () => rej(tx.error);
+});
+} catch (e) { console.warn('Pack save failed:', e.message); }
+}
+async function loadPack() {
+try {
+const db = await openDB();
+const pack = await new Promise((res, rej) => {
+const rq = db.transaction(PACK_STORE, 'readonly').objectStore(PACK_STORE).get('pack');
+rq.onsuccess = () => res(rq.result || null); rq.onerror = () => rej(rq.error);
+});
+if (pack && typeof pack === 'object') _artworkPack = { byDate: pack.byDate || {}, byFamily: pack.byFamily || {} };
+} catch (e) { console.warn('Pack load failed:', e.message); }
+}
+async function clearPack() {
+_artworkPack = { byDate: {}, byFamily: {} };
+_posterAssetCache.clear();
+try {
+const db = await openDB();
+await new Promise((res, rej) => {
+const tx = db.transaction(PACK_STORE, 'readwrite');
+tx.objectStore(PACK_STORE).delete('pack');
+tx.oncomplete = () => res(); tx.onerror = () => rej(tx.error);
+});
+} catch (e) {}
 }
 
 
@@ -1372,6 +1442,61 @@ ctx.fillStyle = '#fff'; ctx.globalAlpha = 0.5;
 ctx.beginPath(); ctx.ellipse(-S*0.2, S*0.28, S*0.12, S*0.24, 0, 0, 7); ctx.fill();
 ctx.globalAlpha = 1;
 break;
+case 'food':
+ctx.beginPath(); ctx.arc(-S*0.32, S*0.1, S*0.6, 0, 7); ctx.fill();
+ctx.beginPath(); ctx.arc(S*0.32, S*0.1, S*0.6, 0, 7); ctx.fill();
+ctx.lineWidth = S*0.1; ctx.beginPath(); ctx.moveTo(0, -S*0.5); ctx.lineTo(0, -S*0.85); ctx.stroke();
+ctx.beginPath(); ctx.ellipse(S*0.28, -S*0.72, S*0.3, S*0.14, -0.6, 0, 7); ctx.fill();
+break;
+case 'activity':
+ctx.beginPath(); ctx.arc(S*0.25, -S*0.62, S*0.22, 0, 7); ctx.fill();
+ctx.lineWidth = S*0.16;
+ctx.beginPath(); ctx.moveTo(S*0.25, -S*0.38); ctx.lineTo(-S*0.05, S*0.12); ctx.stroke();
+ctx.beginPath(); ctx.moveTo(S*0.12, -S*0.2); ctx.lineTo(S*0.55, -S*0.32); ctx.moveTo(S*0.12, -S*0.2); ctx.lineTo(-S*0.28, -S*0.02); ctx.stroke();
+ctx.beginPath(); ctx.moveTo(-S*0.05, S*0.12); ctx.lineTo(-S*0.5, S*0.42); ctx.moveTo(-S*0.05, S*0.12); ctx.lineTo(S*0.32, S*0.58); ctx.stroke();
+break;
+case 'checkup':
+roundRectPath(ctx, -S*0.62, -S*0.82, S*1.24, S*1.64, S*0.14); ctx.fill();
+ctx.fillStyle = '#fff';
+roundRectPath(ctx, -S*0.32, -S*1.0, S*0.64, S*0.34, S*0.1); ctx.fill();
+ctx.fillStyle = '#fff';
+ctx.fillRect(-S*0.09, -S*0.42, S*0.18, S*0.62);
+ctx.fillRect(-S*0.34, -S*0.2, S*0.68, S*0.18);
+break;
+case 'awareness':
+ctx.beginPath();
+ctx.moveTo(-S*0.75, -S*0.32); ctx.lineTo(S*0.2, -S*0.62); ctx.lineTo(S*0.2, S*0.62); ctx.lineTo(-S*0.75, S*0.32); ctx.closePath(); ctx.fill();
+ctx.fillRect(-S*0.95, -S*0.3, S*0.22, S*0.6);
+ctx.lineWidth = S*0.09;
+ctx.beginPath(); ctx.arc(S*0.35, 0, S*0.35, -0.8, 0.8); ctx.stroke();
+ctx.beginPath(); ctx.arc(S*0.35, 0, S*0.6, -0.7, 0.7); ctx.stroke();
+break;
+case 'vaccine':
+ctx.save(); ctx.rotate(-0.6);
+ctx.fillRect(-S*0.12, -S*0.55, S*0.34, S*0.95);
+ctx.fillRect(-S*0.05, -S*0.82, S*0.2, S*0.28);
+ctx.fillRect(-S*0.02, S*0.4, S*0.14, S*0.5);
+ctx.fillStyle = '#fff'; ctx.fillRect(-S*0.12, -S*0.3, S*0.34, S*0.08);
+ctx.fillRect(-S*0.12, -S*0.1, S*0.34, S*0.08);
+ctx.restore();
+break;
+case 'rest':
+ctx.beginPath(); ctx.arc(0, 0, S*0.8, 0, 7); ctx.fill();
+ctx.fillStyle = theme.s;
+ctx.beginPath(); ctx.arc(S*0.32, -S*0.22, S*0.72, 0, 7); ctx.fill();
+break;
+case 'pill':
+ctx.save(); ctx.rotate(-0.6);
+roundRectPath(ctx, -S*0.7, -S*0.32, S*1.4, S*0.64, S*0.32); ctx.fill();
+ctx.fillStyle = '#fff';
+roundRectPath(ctx, -S*0.7, -S*0.32, S*0.7, S*0.64, S*0.32); ctx.fill();
+ctx.strokeStyle = theme.m; ctx.lineWidth = S*0.05;
+roundRectPath(ctx, -S*0.7, -S*0.32, S*1.4, S*0.64, S*0.32); ctx.stroke();
+ctx.restore();
+break;
+case 'shield':
+drawIcon(ctx, 'shield', 0, 0, S*0.95, theme.m);
+break;
 default:
 drawIcon(ctx, 'heart', 0, 0, S, theme.m);
 }
@@ -1379,10 +1504,36 @@ ctx.restore();
 }
 
 
+// Map an action phrase to a card motif key (falls back to the topic family).
+function actionMotifKey(text, entry) {
+const t = String(text || '').toLowerCase();
+if (/eat|food|diet|meal|nutrit|fruit|vegetable|iron|calcium|protein|plate/.test(t)) return 'food';
+if (/active|exercise|walk|physical|sport|fitness|step|move|yoga/.test(t)) return 'activity';
+if (/check.?up|screen|test|doctor|medical|diagnos|monitor|blood pressure|numbers/.test(t)) return 'checkup';
+if (/aware|spread|share|inform|educate|talk|advocat|message|voice/.test(t)) return 'awareness';
+if (/vaccin|immuni|deworm/.test(t)) return 'vaccine';
+if (/rest|sleep|relax|calm|breath/.test(t)) return 'rest';
+if (/medicine|treatment|drug|pill|dose|complete/.test(t)) return 'pill';
+if (/protect|safe|barrier|prevent|cover|seat belt|helmet/.test(t)) return 'shield';
+if (/water|drink|hydrat|hand|wash|hygiene|clean|sanit/.test(t)) return 'water';
+if (/mosquito|net|repellent|sleeve/.test(t)) return 'mosquito';
+if (/tobacco|smok|quit/.test(t)) return 'no_tobacco';
+if (/blood|donat/.test(t)) return 'blood';
+if (/stress|mental|support|help|feeling|mind|connect/.test(t)) return 'mind';
+if (/heart|cardio/.test(t)) return 'heart';
+return artworkFamilyFor(entry);
+}
+// Fill a soft rounded panel and draw the motif/photo inside it.
+function drawCardArt(ctx, key, x, y, w, h, theme) {
+ctx.fillStyle = theme.s; roundRectPath(ctx, x, y, w, h, Math.round(Math.min(w, h) * 0.22)); ctx.fill();
+drawArtwork(ctx, key, x, y, w, h, theme);
+}
+
+
 // Rich template poster. `assets.hero` is an already-loaded Image or null
 // (null -> a curated local artwork family, the deterministic offline default).
 function createPoster(entry, fmt, assets) {
-assets = assets || { hero: null };
+assets = assets || { hero: null, cards: [] };
 const c = document.createElement('canvas');
 c.width = fmt.w; c.height = fmt.h;
 const ctx = c.getContext('2d');
@@ -1491,19 +1642,24 @@ ctx.fillStyle = th.m; ctx.beginPath(); ctx.arc(cx + cpad + br, cy + cpad + br, b
 ctx.fillStyle = '#ffffff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
 ctx.font = `800 ${Math.round(br * 1.05)}px sans-serif`;
 ctx.fillText(String(i+1), cx + cpad + br, cy + cpad + br + 1);
-// icon tile top-right
-const tile = Math.round(chh * 0.3);
-ctx.fillStyle = th.s; roundRectPath(ctx, cx + cw - cpad - tile, cy + cpad, tile, tile, tile*0.24); ctx.fill();
-drawIcon(ctx, entry.icon, cx + cw - cpad - tile/2, cy + cpad + tile/2, tile * 0.3, th.m);
-// action heading text
+// image / motif region top-right (photo when supplied, else per-action motif)
+const imgS = Math.round(chh * 0.42);
+const imgX = cx + cw - cpad - imgS, imgY = cy + cpad;
+const cardImg = assets.cards && assets.cards[i];
+if (cardImg) {
+drawImageCover(ctx, cardImg, imgX, imgY, imgS, imgS, Math.round(imgS * 0.18));
+} else {
+drawCardArt(ctx, actionMotifKey(entry.actionsEn[i], entry), imgX, imgY, imgS, imgS, th);
+}
+// action heading text (below badge + image)
 ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
 ctx.fillStyle = th.d;
-let asize = Math.round(cw * 0.075);
+let asize = Math.round(cw * 0.072);
 ctx.font = `700 ${asize}px sans-serif`;
 const atxtW = cw - 2*cpad;
 let aLines = wrapText(ctx, actions[i], atxtW);
-while (aLines.length > 3 && asize > Math.round(cw*0.05)) { asize -= 2; ctx.font = `700 ${asize}px sans-serif`; aLines = wrapText(ctx, actions[i], atxtW); }
-let ay = cy + cpad + 2*br + Math.round(asize * 1.1);
+while (aLines.length > 3 && asize > Math.round(cw*0.048)) { asize -= 2; ctx.font = `700 ${asize}px sans-serif`; aLines = wrapText(ctx, actions[i], atxtW); }
+let ay = cy + cpad + Math.max(2*br, imgS) + Math.round(asize * 1.25);
 for (const ln of aLines.slice(0, 3)) { ctx.fillText(ln, cx + cpad, ay); ay += asize * 1.24; }
 }
 
@@ -2181,6 +2337,12 @@ $main.innerHTML = pageHead('Settings', 'Scheduler and local data') +
 <div class="btnrow"><button class="btn primary" id="saveImagery">Save imagery settings</button></div>
 </div>
 <div class="card" style="margin-top:16px">
+<h3 class="sec">Local photo pack (deterministic production photos)</h3>
+<div class="kv"><span>Loaded entries</span><b id="packStat">${packStats().total} (${packStats().dates} dated · ${packStats().families} family)</b></div>
+<div class="muted" style="margin:8px 0 12px">Import a JSON pack of your own/licensed images to render real photos offline. Shape: <code>{ "byFamily": { "heart": { "hero": "data:image/…", "cards": ["data:…","data:…","data:…","data:…"] } }, "byDate": { "2026-07-28": { "hero": "data:…" } } }</code>. Images are data URLs; <code>byDate</code> overrides <code>byFamily</code>; any missing slot falls back to local vector artwork.</div>
+<div class="btnrow"><button class="btn" id="importPack">Import photo pack (.json)</button><button class="btn danger" id="clearPack">Clear pack</button></div>
+</div>
+<div class="card" style="margin-top:16px">
 <div class="kv"><span>Application version</span><b>v${esc(APP_VERSION)}</b></div>
 <div class="kv"><span>Active schedule</span><b>${esc(scheduleTimeLabel())} IST</b></div>
 <div class="kv"><span>Scheduler timers</span><b>${schedulerTimerCount()}</b></div>
@@ -2199,6 +2361,27 @@ const credit = document.getElementById('creditLine').value.trim() || 'Dr Atul Dh
 try { localStorage.setItem('has_credit', credit); } catch (e) {}
 _posterAssetCache.clear(); // re-fetch imagery under the new setting
 toast('Imagery settings saved');
+};
+document.getElementById('importPack').onclick = () => {
+const input = document.createElement('input');
+input.type = 'file'; input.accept = 'application/json,.json';
+input.onchange = async () => {
+const file = input.files[0]; if (!file) return;
+try {
+const data = JSON.parse(await file.text());
+if (!data || typeof data !== 'object' || (!data.byDate && !data.byFamily)) throw new Error('Pack needs a byDate and/or byFamily object');
+await savePack({ byDate: data.byDate || {}, byFamily: data.byFamily || {} });
+toast('Photo pack imported: ' + packStats().total + ' entries');
+renderSettings();
+} catch (e) { toast('Import failed: ' + e.message); }
+};
+input.click();
+};
+document.getElementById('clearPack').onclick = async () => {
+if (!confirm('Remove the imported photo pack? Posters revert to local vector artwork.')) return;
+await clearPack();
+toast('Photo pack cleared');
+renderSettings();
 };
 document.getElementById('clearData').onclick = async () => {
 if (confirm('Delete all data?')) {
@@ -2362,6 +2545,8 @@ validateCalendar(CALENDAR);
 // 2. Open storage; tolerate failure so the dashboard still renders.
 try { await openDB(); }
 catch (e) { console.error('IndexedDB open failed:', e); toast('Storage unavailable; running without saved data'); }
+// Load any saved artwork photo pack (deterministic production imagery).
+await loadPack().catch(() => {});
 // 3. Register navigation once.
 document.querySelectorAll('#nav button').forEach(b => {
 b.onclick = () => navigate(b.dataset.page);
@@ -2406,7 +2591,7 @@ $main.appendChild(card);
 });
 
 
-window.HealthApp = { navigate, runDaily, toast, refreshState, missingRenderers, runDiagnostics, getScheduleTime, saveScheduleTime, restartScheduler, schedulerTimerCount, pageMap, APP_VERSION, createPoster, createPosterAsync, fetchTopicAssets, getImageMode, setImageMode, artworkFamilyFor, drawArtwork, CALENDAR, FORMATS };
+window.HealthApp = { navigate, runDaily, toast, refreshState, missingRenderers, runDiagnostics, getScheduleTime, saveScheduleTime, restartScheduler, schedulerTimerCount, pageMap, APP_VERSION, createPoster, createPosterAsync, fetchTopicAssets, getImageMode, setImageMode, artworkFamilyFor, drawArtwork, actionMotifKey, savePack, loadPack, clearPack, packStats, CALENDAR, FORMATS };
 </script>
 </body>
 </html>

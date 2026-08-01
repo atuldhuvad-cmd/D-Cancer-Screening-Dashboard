@@ -28,13 +28,15 @@ const plannedPaths = new Set([
 const labelForPath = (path: string): string =>
   navigationItems.find((item) => item.path === path)?.label ?? path
 
+const getRoutePath = (): string => window.location.hash.replace(/^#/, '') || '/'
+
 function App() {
-  const [path, setPath] = useState<string>(() => window.location.pathname)
+  const [path, setPath] = useState<string>(getRoutePath)
 
   useEffect(() => {
-    const onPop = () => setPath(window.location.pathname)
-    window.addEventListener('popstate', onPop)
-    return () => window.removeEventListener('popstate', onPop)
+    const onHashChange = () => setPath(getRoutePath())
+    window.addEventListener('hashchange', onHashChange)
+    return () => window.removeEventListener('hashchange', onHashChange)
   }, [])
 
   const renderRoute = () => {

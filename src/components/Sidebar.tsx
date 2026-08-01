@@ -2,12 +2,9 @@ import '../styles/app.css'
 import { navigationItems } from '../types/navigation'
 
 function Sidebar() {
-  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, path: string) => {
-    e.preventDefault()
-    window.history.pushState(null, '', path)
-    window.dispatchEvent(new PopStateEvent('popstate'))
-  }
-
+  // Hash-based routing keeps the app portable to any static host (e.g. GitHub
+  // Pages under a sub-path) with no server-side rewrite/404 handling. The native
+  // anchor sets window.location.hash, which App listens to via 'hashchange'.
   return (
     <aside className="sidebar">
       <div className="sidebar-header">
@@ -15,7 +12,7 @@ function Sidebar() {
       </div>
       <nav className="sidebar-nav" aria-label="Primary navigation">
         {navigationItems.map((item) => (
-          <a key={item.path} href={item.path} className="nav-link" onClick={(e) => handleNavClick(e, item.path)}>
+          <a key={item.path} href={`#${item.path}`} className="nav-link">
             {item.label}
           </a>
         ))}

@@ -1,6 +1,10 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { validateWorkbook } from '../../services/workbookValidator'
-import type { UploadContextValue, UploadKind, ValidationCheck, WorkbookFileItem } from '../../types/upload'
+import { extractWorkbookLike } from '../../services/excelReader'
+import { buildParserReport } from '../../services/parserService'
+import { calculateIntelligence } from '../intelligence/CalculationEngine'
+import type { CalculationReportData } from '../../types/calculation'
+import type { UploadContextValue, UploadKind, ValidationCheck, WorkbookFileItem, WorkspaceStatus } from '../../types/upload'
 import { createWorkbookItem } from './uploadContextUtils'
 import { UploadContext } from './UploadContextValue'
 
@@ -15,6 +19,47 @@ export function UploadProvider({ children }: UploadProviderProps) {
     staffing: [],
     training: [],
   })
+  const [report, setReport] = useState<CalculationReportData | null>(null)
+  const [workspaceStatus, setWorkspaceStatus] = useState<WorkspaceStatus>('idle')
+
+  // Workspace Manager derivation: parse + calculate the staffing workbook once,
+  // so consumer pages read the shared report instead of each re-running the pipeline.
+  useEffect(() => {
+    let mounted = true
+
+    const derive = async () => {
+      if (!staffingWorkbook?.file) {
+        if (mounted) {
+          setReport(null)
+          setWorkspaceStatus('idle')
+        }
+        return
+      }
+
+      if (mounted) setWorkspaceStatus('loading')
+
+      try {
+        const workbookLike = await extractWorkbookLike(staffingWorkbook.file)
+        const parserReport = buildParserReport(workbookLike)
+        const calc = calculateIntelligence(parserReport.records)
+        if (mounted) {
+          setReport(calc)
+          setWorkspaceStatus('ready')
+        }
+      } catch {
+        if (mounted) {
+          setReport(null)
+          setWorkspaceStatus('error')
+        }
+      }
+    }
+
+    void derive()
+
+    return () => {
+      mounted = false
+    }
+  }, [staffingWorkbook])
 
   const setWorkbook = useCallback(async (kind: UploadKind, file: File | null) => {
     if (!file) {
@@ -53,10 +98,12 @@ export function UploadProvider({ children }: UploadProviderProps) {
       staffingWorkbook,
       trainingWorkbook,
       validationResults,
+      report,
+      workspaceStatus,
       setWorkbook,
       clearWorkbook,
     }),
-    [clearWorkbook, setWorkbook, staffingWorkbook, trainingWorkbook, validationResults],
+    [clearWorkbook, report, setWorkbook, staffingWorkbook, trainingWorkbook, validationResults, workspaceStatus],
   )
 
   return <UploadContext.Provider value={value}>{children}</UploadContext.Provider>

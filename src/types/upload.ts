@@ -1,5 +1,8 @@
+import type { CalculationReportData } from './calculation'
+
 export type UploadKind = 'staffing' | 'training'
 export type ValidationStatus = 'pass' | 'warning' | 'error'
+export type WorkspaceStatus = 'idle' | 'loading' | 'ready' | 'error'
 
 export interface ValidationCheck {
   id: string
@@ -30,6 +33,8 @@ export interface UploadContextValue {
   staffingWorkbook: WorkbookFileItem | null
   trainingWorkbook: WorkbookFileItem | null
   validationResults: Record<UploadKind, ValidationCheck[]>
+  report: CalculationReportData | null
+  workspaceStatus: WorkspaceStatus
   setWorkbook: (kind: UploadKind, file: File | null) => Promise<void>
   clearWorkbook: (kind: UploadKind) => void
 }

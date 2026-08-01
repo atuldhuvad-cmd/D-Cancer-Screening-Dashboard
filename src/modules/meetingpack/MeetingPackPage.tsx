@@ -1,46 +1,27 @@
-import { useEffect, useState } from 'react'
 import { useUploadContext } from '../../modules/upload/useUploadContext'
-import { extractWorkbookLike } from '../../services/excelReader'
-import { buildParserReport } from '../../services/parserService'
-import { calculateIntelligence } from '../intelligence/CalculationEngine'
+import WorkspaceStatusBanner from '../../components/WorkspaceStatusBanner'
 import MeetingHeader from './components/MeetingHeader'
 import SummaryTable from './components/SummaryTable'
 import PriorityList from './components/PriorityList'
 import BatchSummary from './components/BatchSummary'
 import Recommendations from './components/Recommendations'
-import type { CalculationReportData } from '../../types/calculation'
 import { exportReportToExcel } from '../../services/excel/excelExport'
 import { exportReportToPdf } from '../../services/pdf/pdfExport'
 
 function MeetingPackPage() {
-  const { staffingWorkbook } = useUploadContext()
-  const [report, setReport] = useState<CalculationReportData | null>(null)
+  const { report, workspaceStatus } = useUploadContext()
 
-  useEffect(() => {
-    let mounted = true
-
-    const run = async () => {
-      if (!staffingWorkbook || !staffingWorkbook.file) {
-        if (mounted) setReport(null)
-        return
-      }
-
-      try {
-        const workbookLike = await extractWorkbookLike(staffingWorkbook.file)
-        const parserReport = buildParserReport(workbookLike)
-        const calc = calculateIntelligence(parserReport.records)
-        if (mounted) setReport(calc)
-      } catch {
-        if (mounted) setReport(null)
-      }
-    }
-
-    void run()
-
-    return () => {
-      mounted = false
-    }
-  }, [staffingWorkbook])
+  if (workspaceStatus === 'loading' || workspaceStatus === 'error') {
+    return (
+      <section className="meeting-pack page">
+        <div className="page-intro">
+          <p className="eyebrow">Meeting Pack</p>
+          <h2>District Meeting Pack</h2>
+        </div>
+        <WorkspaceStatusBanner status={workspaceStatus} />
+      </section>
+    )
+  }
 
   return (
     <section className="meeting-pack page">

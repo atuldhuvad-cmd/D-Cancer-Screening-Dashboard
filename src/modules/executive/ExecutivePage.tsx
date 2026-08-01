@@ -1,9 +1,7 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { calculateIntelligence } from '../intelligence/CalculationEngine'
 import CalculationReport from '../intelligence/CalculationReport'
 import { useUploadContext } from '../../modules/upload/useUploadContext'
-import { extractWorkbookLike } from '../../services/excelReader'
-import { buildParserReport } from '../../services/parserService'
 import { exportReportToExcel } from '../../services/excel/excelExport'
 import { exportReportToPdf } from '../../services/pdf/pdfExport'
 import KpiCard from './components/KpiCard'
@@ -20,36 +18,8 @@ function formatPct(actual: number, workforce: number): string {
 }
 
 function ExecutivePage() {
-  const { staffingWorkbook } = useUploadContext()
-  const [report, setReport] = useState(() => calculateIntelligence([]))
-
-  useEffect(() => {
-    let mounted = true
-
-    const run = async () => {
-      if (!staffingWorkbook || !staffingWorkbook.file) {
-        // no upload present: set empty report
-        if (mounted) setReport(calculateIntelligence([]))
-        return
-      }
-
-      try {
-        const workbookLike = await extractWorkbookLike(staffingWorkbook.file)
-        const parserReport = buildParserReport(workbookLike)
-        const records = parserReport.records
-        const calc = calculateIntelligence(records)
-        if (mounted) setReport(calc)
-      } catch {
-        if (mounted) setReport(calculateIntelligence([]))
-      }
-    }
-
-    void run()
-
-    return () => {
-      mounted = false
-    }
-  }, [staffingWorkbook])
+  const { report: workspaceReport } = useUploadContext()
+  const report = useMemo(() => workspaceReport ?? calculateIntelligence([]), [workspaceReport])
 
   const kpis = useMemo(() => {
     return {

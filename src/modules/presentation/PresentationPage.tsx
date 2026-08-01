@@ -1,8 +1,6 @@
 import '../../styles/presentation.css'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useUploadContext } from '../upload/useUploadContext'
-import { extractWorkbookLike } from '../../services/excelReader'
-import { buildParserReport } from '../../services/parserService'
 import { calculateIntelligence } from '../intelligence/CalculationEngine'
 import KpiCard from '../executive/components/KpiCard'
 import Gauge from '../executive/components/Gauge'
@@ -10,7 +8,6 @@ import PriorityTable from '../executive/components/PriorityTable'
 import Summary from '../executive/components/Summary'
 import Recommendations from '../meetingpack/components/Recommendations'
 import SmallBarChart from '../executive/components/SmallBarChart'
-import type { CalculationReportData } from '../../types/calculation'
 
 const formatPct = (value: number) => `${value.toFixed(1)}%`
 
@@ -23,34 +20,11 @@ const slideTitles = [
 ]
 
 function PresentationPage() {
-  const { staffingWorkbook } = useUploadContext()
-  const [report, setReport] = useState<CalculationReportData>(() => calculateIntelligence([]))
+  const { staffingWorkbook, report: workspaceReport } = useUploadContext()
+  const report = useMemo(() => workspaceReport ?? calculateIntelligence([]), [workspaceReport])
   const [slideIndex, setSlideIndex] = useState(0)
   const [isAutoPlay, setIsAutoPlay] = useState(false)
   const [isFullScreen, setIsFullScreen] = useState(false)
-
-  useEffect(() => {
-    let mounted = true
-
-    const loadReport = async () => {
-      if (!staffingWorkbook?.file) {
-        if (mounted) setReport(calculateIntelligence([]))
-        return
-      }
-
-      try {
-        const workbookLike = await extractWorkbookLike(staffingWorkbook.file)
-        const parserReport = buildParserReport(workbookLike)
-        const calc = calculateIntelligence(parserReport.records)
-        if (mounted) setReport(calc)
-      } catch {
-        if (mounted) setReport(calculateIntelligence([]))
-      }
-    }
-
-    void loadReport()
-    return () => { mounted = false }
-  }, [staffingWorkbook])
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {

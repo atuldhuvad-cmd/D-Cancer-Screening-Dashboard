@@ -1,11 +1,8 @@
 import '../../styles/intelligence.css'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { useUploadContext } from '../upload/useUploadContext'
-import { extractWorkbookLike } from '../../services/excelReader'
-import { buildParserReport } from '../../services/parserService'
 import { calculateIntelligence } from './CalculationEngine'
 import CalculationReport from './CalculationReport'
-import type { CalculationReportData } from '../../types/calculation'
 
 const formatPct = (value: number) => `${value.toFixed(1)}%`
 
@@ -19,35 +16,9 @@ const topItems = <T extends { name: string; gap: number; readiness: number }>(it
   items.slice(0, 3).map((item) => `${item.name}: gap ${item.gap}, readiness ${formatPct(item.readiness)}`)
 
 function IntelligencePage() {
-  const { staffingWorkbook } = useUploadContext()
-  const [report, setReport] = useState<CalculationReportData>(() => calculateIntelligence([]))
+  const { staffingWorkbook, report: workspaceReport } = useUploadContext()
+  const report = useMemo(() => workspaceReport ?? calculateIntelligence([]), [workspaceReport])
   const hasUpload = Boolean(staffingWorkbook?.file)
-
-  useEffect(() => {
-    let mounted = true
-
-    const run = async () => {
-      if (!staffingWorkbook?.file) {
-        if (mounted) setReport(calculateIntelligence([]))
-        return
-      }
-
-      try {
-        const workbookLike = await extractWorkbookLike(staffingWorkbook.file)
-        const parserReport = buildParserReport(workbookLike)
-        const calc = calculateIntelligence(parserReport.records)
-        if (mounted) setReport(calc)
-      } catch {
-        if (mounted) setReport(calculateIntelligence([]))
-      }
-    }
-
-    void run()
-
-    return () => {
-      mounted = false
-    }
-  }, [staffingWorkbook])
 
   const blockRanking = useMemo(() => [...report.blocks].sort((left, right) => right.readiness - left.readiness), [report.blocks])
   const facilityRanking = useMemo(() => [...report.facilities].sort((left, right) => right.readiness - left.readiness), [report.facilities])

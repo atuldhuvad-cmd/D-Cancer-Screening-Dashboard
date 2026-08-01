@@ -1,46 +1,14 @@
-import { useEffect, useState } from 'react'
 import { useUploadContext } from '../../modules/upload/useUploadContext'
-import { extractWorkbookLike } from '../../services/excelReader'
-import { buildParserReport } from '../../services/parserService'
-import { calculateIntelligence } from '../intelligence/CalculationEngine'
 import MeetingHeader from './components/MeetingHeader'
 import SummaryTable from './components/SummaryTable'
 import PriorityList from './components/PriorityList'
 import BatchSummary from './components/BatchSummary'
 import Recommendations from './components/Recommendations'
-import type { CalculationReportData } from '../../types/calculation'
 import { exportReportToExcel } from '../../services/excel/excelExport'
 import { exportReportToPdf } from '../../services/pdf/pdfExport'
 
 function MeetingPackPage() {
-  const { staffingWorkbook } = useUploadContext()
-  const [report, setReport] = useState<CalculationReportData | null>(null)
-
-  useEffect(() => {
-    let mounted = true
-
-    const run = async () => {
-      if (!staffingWorkbook || !staffingWorkbook.file) {
-        if (mounted) setReport(null)
-        return
-      }
-
-      try {
-        const workbookLike = await extractWorkbookLike(staffingWorkbook.file)
-        const parserReport = buildParserReport(workbookLike)
-        const calc = calculateIntelligence(parserReport.records)
-        if (mounted) setReport(calc)
-      } catch {
-        if (mounted) setReport(null)
-      }
-    }
-
-    void run()
-
-    return () => {
-      mounted = false
-    }
-  }, [staffingWorkbook])
+  const { report } = useUploadContext()
 
   return (
     <section className="meeting-pack page">

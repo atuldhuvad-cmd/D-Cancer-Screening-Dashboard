@@ -1,6 +1,7 @@
 import '../../styles/planning.css'
 import { useEffect, useMemo, useState } from 'react'
 import { useUploadContext } from '../upload/useUploadContext'
+import WorkspaceStatusBanner from '../../components/WorkspaceStatusBanner'
 import { calculateIntelligence } from '../intelligence/CalculationEngine'
 import { applyScenarioToReport, compareScenario, buildScenarioRecommendations } from '../../services/scenarioService'
 import type { CalculationReportData } from '../../types/calculation'
@@ -18,7 +19,7 @@ const defaultScenario: ScenarioModel = {
 const formatPct = (value: number) => `${value.toFixed(1)}%`
 
 function PlanningWorkspacePage() {
-  const { report: workspaceReport } = useUploadContext()
+  const { report: workspaceReport, workspaceStatus } = useUploadContext()
   const baseReport = useMemo(() => workspaceReport ?? calculateIntelligence([]), [workspaceReport])
   const [scenario, setScenario] = useState<ScenarioModel>(defaultScenario)
   const [scenarioReport, setScenarioReport] = useState<CalculationReportData>(() => calculateIntelligence([]))
@@ -32,6 +33,18 @@ function PlanningWorkspacePage() {
 
   const updateScenario = (field: keyof Omit<ScenarioModel, 'id' | 'label'>, value: number) => {
     setScenario((current) => ({ ...current, [field]: value }))
+  }
+
+  if (workspaceStatus === 'loading' || workspaceStatus === 'error') {
+    return (
+      <section className="planning-workspace page">
+        <div className="page-intro">
+          <p className="eyebrow">Scenario Planning</p>
+          <h2>Scenario Dashboard</h2>
+        </div>
+        <WorkspaceStatusBanner status={workspaceStatus} />
+      </section>
+    )
   }
 
   return (

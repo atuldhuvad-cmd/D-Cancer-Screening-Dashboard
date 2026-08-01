@@ -1,6 +1,7 @@
 import '../../styles/intelligence.css'
 import { useMemo } from 'react'
 import { useUploadContext } from '../upload/useUploadContext'
+import WorkspaceStatusBanner from '../../components/WorkspaceStatusBanner'
 import { calculateIntelligence } from './CalculationEngine'
 import CalculationReport from './CalculationReport'
 
@@ -16,7 +17,7 @@ const topItems = <T extends { name: string; gap: number; readiness: number }>(it
   items.slice(0, 3).map((item) => `${item.name}: gap ${item.gap}, readiness ${formatPct(item.readiness)}`)
 
 function IntelligencePage() {
-  const { staffingWorkbook, report: workspaceReport } = useUploadContext()
+  const { staffingWorkbook, report: workspaceReport, workspaceStatus } = useUploadContext()
   const report = useMemo(() => workspaceReport ?? calculateIntelligence([]), [workspaceReport])
   const hasUpload = Boolean(staffingWorkbook?.file)
 
@@ -64,6 +65,18 @@ function IntelligencePage() {
 
     return insights
   }, [report, blockRanking, readinessDistribution])
+
+  if (workspaceStatus === 'loading' || workspaceStatus === 'error') {
+    return (
+      <section className="intelligence-page page">
+        <div className="page-intro">
+          <p className="eyebrow">Advanced Intelligence</p>
+          <h2>Advanced Workforce Intelligence</h2>
+        </div>
+        <WorkspaceStatusBanner status={workspaceStatus} />
+      </section>
+    )
+  }
 
   if (!hasUpload) {
     return (

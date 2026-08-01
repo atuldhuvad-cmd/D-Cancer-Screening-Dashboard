@@ -1,4 +1,5 @@
 import { useUploadContext } from '../../modules/upload/useUploadContext'
+import WorkspaceStatusBanner from '../../components/WorkspaceStatusBanner'
 import MeetingHeader from './components/MeetingHeader'
 import SummaryTable from './components/SummaryTable'
 import PriorityList from './components/PriorityList'
@@ -8,7 +9,19 @@ import { exportReportToExcel } from '../../services/excel/excelExport'
 import { exportReportToPdf } from '../../services/pdf/pdfExport'
 
 function MeetingPackPage() {
-  const { report } = useUploadContext()
+  const { report, workspaceStatus } = useUploadContext()
+
+  if (workspaceStatus === 'loading' || workspaceStatus === 'error') {
+    return (
+      <section className="meeting-pack page">
+        <div className="page-intro">
+          <p className="eyebrow">Meeting Pack</p>
+          <h2>District Meeting Pack</h2>
+        </div>
+        <WorkspaceStatusBanner status={workspaceStatus} />
+      </section>
+    )
+  }
 
   return (
     <section className="meeting-pack page">

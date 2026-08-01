@@ -1,6 +1,7 @@
 import '../../styles/presentation.css'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useUploadContext } from '../upload/useUploadContext'
+import WorkspaceStatusBanner from '../../components/WorkspaceStatusBanner'
 import { calculateIntelligence } from '../intelligence/CalculationEngine'
 import KpiCard from '../executive/components/KpiCard'
 import Gauge from '../executive/components/Gauge'
@@ -20,7 +21,7 @@ const slideTitles = [
 ]
 
 function PresentationPage() {
-  const { staffingWorkbook, report: workspaceReport } = useUploadContext()
+  const { staffingWorkbook, report: workspaceReport, workspaceStatus } = useUploadContext()
   const report = useMemo(() => workspaceReport ?? calculateIntelligence([]), [workspaceReport])
   const [slideIndex, setSlideIndex] = useState(0)
   const [isAutoPlay, setIsAutoPlay] = useState(false)
@@ -178,7 +179,9 @@ function PresentationPage() {
         </div>
       </div>
 
-      {staffingWorkbook?.file ? (
+      {workspaceStatus === 'loading' || workspaceStatus === 'error' ? (
+        <WorkspaceStatusBanner status={workspaceStatus} />
+      ) : staffingWorkbook?.file ? (
         <div className="presentation-slide">{slideContent}</div>
       ) : (
         <div className="presentation-empty">

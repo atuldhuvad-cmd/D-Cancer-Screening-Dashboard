@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { calculateIntelligence } from '../intelligence/CalculationEngine'
 import CalculationReport from '../intelligence/CalculationReport'
 import { useUploadContext } from '../../modules/upload/useUploadContext'
+import WorkspaceStatusBanner from '../../components/WorkspaceStatusBanner'
 import { exportReportToExcel } from '../../services/excel/excelExport'
 import { exportReportToPdf } from '../../services/pdf/pdfExport'
 import KpiCard from './components/KpiCard'
@@ -18,7 +19,7 @@ function formatPct(actual: number, workforce: number): string {
 }
 
 function ExecutivePage() {
-  const { report: workspaceReport } = useUploadContext()
+  const { report: workspaceReport, workspaceStatus } = useUploadContext()
   const report = useMemo(() => workspaceReport ?? calculateIntelligence([]), [workspaceReport])
 
   const kpis = useMemo(() => {
@@ -30,6 +31,18 @@ function ExecutivePage() {
       batches: report.batchRequirement,
     }
   }, [report])
+
+  if (workspaceStatus === 'loading' || workspaceStatus === 'error') {
+    return (
+      <section className="executive-page">
+        <div className="page-intro">
+          <p className="eyebrow">Executive Dashboard</p>
+          <h2>District Intelligence summary</h2>
+        </div>
+        <WorkspaceStatusBanner status={workspaceStatus} />
+      </section>
+    )
+  }
 
   return (
     <section className="executive-page">

@@ -8,8 +8,25 @@ import MeetingPackPage from './modules/meetingpack/MeetingPackPage'
 import PresentationPage from './modules/presentation/PresentationPage'
 import ValidationPage from './modules/validation/ValidationPage'
 import AdminPage from './modules/admin/AdminPage'
+import HomePage from './pages/HomePage'
+import PlaceholderPage from './pages/PlaceholderPage'
+import NotFoundPage from './pages/NotFoundPage'
+import { navigationItems } from './types/navigation'
 
 import { useEffect, useState } from 'react'
+
+// Nav sections declared in the sidebar but not yet built as their own view.
+const plannedPaths = new Set([
+  '/designation-mapping',
+  '/block-intelligence',
+  '/facility-intelligence',
+  '/reports',
+  '/settings',
+  '/about',
+])
+
+const labelForPath = (path: string): string =>
+  navigationItems.find((item) => item.path === path)?.label ?? path
 
 function App() {
   const [path, setPath] = useState<string>(() => window.location.pathname)
@@ -36,9 +53,13 @@ function App() {
         return <PresentationPage />
       case '/admin':
         return <AdminPage />
+      case '/dashboard':
+        return <HomePage />
+      case '/':
       case '/executive-dashboard':
-      default:
         return <ExecutivePage />
+      default:
+        return plannedPaths.has(path) ? <PlaceholderPage label={labelForPath(path)} /> : <NotFoundPage />
     }
   }
 
